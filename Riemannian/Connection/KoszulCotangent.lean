@@ -75,6 +75,8 @@ private theorem SmoothVectorField.contMDiff_E (Y : SmoothVectorField I M) :
   rw [h_id]
   rfl
 
+omit [CompleteSpace E] [FiniteDimensional ℝ E] [IsManifold I ∞ M]
+  [IsLocallyConstantChartedSpace H M] in
 /-- **Smoothness of `g.metricTensor` applied to two `ContMDiff` flat-typed
 sections**: `y ↦ g.metricTensor y (V y) (W y)` is `ContMDiff` whenever
 `V, W : M → E` are. Uses `g.smoothMetric` + double `clm_apply`. -/
@@ -86,6 +88,113 @@ private theorem metricTensor_apply_contMDiff
       (fun y : M => g.metricTensor y) x :=
     (g.smoothMetric x)
   exact (h_metric.clm_apply (hV x)).clm_apply (hW x)
+
+omit [CompleteSpace E] [FiniteDimensional ℝ E] [IsManifold I ∞ M]
+  [IsLocallyConstantChartedSpace H M] in
+set_option backward.isDefEq.respectTransparency false in
+/-- **Smoothness of `metricInner` for two `ContMDiff` flat-typed sections**.
+Bridges `metricTensor_apply_contMDiff` to the framework `metricInner` via
+`metricInner_apply` (def-eq + `set_option`). -/
+private theorem metricInner_contMDiff
+    {V W : M → E} (hV : ContMDiff I 𝓘(ℝ, E) ∞ V) (hW : ContMDiff I 𝓘(ℝ, E) ∞ W) :
+    ContMDiff I 𝓘(ℝ, ℝ) ∞ (fun y : M => metricInner (g := g) y (V y) (W y)) := by
+  have h_eq : (fun y : M => metricInner (g := g) y (V y) (W y))
+      = (fun y : M => g.metricTensor y (V y) (W y)) := by
+    funext y
+    exact metricInner_apply (g := g) y (V y) (W y)
+  rw [h_eq]
+  exact metricTensor_apply_contMDiff hV hW
+
+omit [CompleteSpace E] [FiniteDimensional ℝ E] [IsManifold I ∞ M]
+  [IsLocallyConstantChartedSpace H M] [g : RiemannianMetric I M] in
+/-- **MDifferentiableAt componentwise lift to CLM-valued**: if each component
+`(fun y => T y (basis i)) : M → F₂` is `MDifferentiableAt` at `x`, then the
+CLM-valued section `T : M → (F₁ →L[ℝ] F₂)` is `MDifferentiableAt` at `x`.
+
+Proof: decompose `T y = ∑ i, (basis.coord i).toCLM.smulRight (T y (basis i))`,
+each summand `MDifferentiableAt` via `clm_apply` of constant CLM `smulRightL`
+with smooth scalar component, sum via `MDifferentiableAt.add`. -/
+private theorem mdifferentiableAt_clm_of_components
+    {F₁ : Type*} [NormedAddCommGroup F₁] [NormedSpace ℝ F₁] [FiniteDimensional ℝ F₁]
+    {F₂ : Type*} [NormedAddCommGroup F₂] [NormedSpace ℝ F₂]
+    (T : M → F₁ →L[ℝ] F₂) {ι : Type} [Fintype ι]
+    (basis : Module.Basis ι ℝ F₁) {x : M}
+    (h_components : ∀ i : ι, MDifferentiableAt I 𝓘(ℝ, F₂)
+      (fun y : M => T y (basis i)) x) :
+    MDifferentiableAt I 𝓘(ℝ, F₁ →L[ℝ] F₂) T x := by
+  classical
+  have h_decomp : T = fun y =>
+      ∑ i, (basis.coord i).toContinuousLinearMap.smulRight (T y (basis i)) := by
+    funext y
+    ext v
+    rw [ContinuousLinearMap.sum_apply]
+    have hv : v = ∑ i, basis.repr v i • basis i := by simp
+    conv_lhs => rw [hv]
+    rw [map_sum]
+    refine Finset.sum_congr rfl ?_
+    intro i _
+    simp [ContinuousLinearMap.smulRight_apply,
+      LinearMap.coe_toContinuousLinearMap', Module.Basis.coord_apply,
+      (T y).map_smul]
+  rw [h_decomp]
+  -- Convert (fun y => ∑ i, f i y) to (∑ i, fun y => f i y) for MDifferentiableAt.sum.
+  have h_swap : (fun y : M => ∑ i,
+      (basis.coord i).toContinuousLinearMap.smulRight (T y (basis i)))
+      = (∑ i, fun y : M =>
+          (basis.coord i).toContinuousLinearMap.smulRight (T y (basis i))) := by
+    funext y
+    rw [Finset.sum_apply]
+  rw [h_swap]
+  apply MDifferentiableAt.sum
+  intro i _
+  -- Each summand: smulRight applied to scalar component.
+  -- (basis.coord i).toCLM.smulRight : F₂ →L (F₁ →L F₂) is a CLM, hence smooth.
+  have h_smulRightL : ContMDiff 𝓘(ℝ, F₂) 𝓘(ℝ, F₁ →L[ℝ] F₂) ∞
+      (fun w : F₂ => (basis.coord i).toContinuousLinearMap.smulRight w) := by
+    have h_eq : (fun w : F₂ => (basis.coord i).toContinuousLinearMap.smulRight w)
+        = ContinuousLinearMap.smulRightL ℝ F₁ F₂ (basis.coord i).toContinuousLinearMap := by
+      funext w; rfl
+    rw [h_eq]
+    exact (ContinuousLinearMap.smulRightL ℝ F₁ F₂
+      (basis.coord i).toContinuousLinearMap).contMDiff
+  -- Apply MDifferentiableAt.comp
+  have h_smulRightL_at :
+      MDifferentiableAt 𝓘(ℝ, F₂) 𝓘(ℝ, F₁ →L[ℝ] F₂)
+        (fun w => (basis.coord i).toContinuousLinearMap.smulRight w) (T x (basis i)) :=
+    (h_smulRightL (T x (basis i))).mdifferentiableAt (by decide)
+  exact h_smulRightL_at.comp x (h_components i)
+
+omit [FiniteDimensional ℝ E] [IsLocallyConstantChartedSpace H M] g in
+/-- **`mlieBracket` of two `ContMDiff` bundle sections is a smooth bundle section**.
+Wrapper around Mathlib `ContMDiffAt.mlieBracket_vectorField` giving
+`TangentSmoothAt` (framework's MDifferentiableAt-form predicate). -/
+private theorem mlieBracket_tangentSmoothAt
+    {U V : (y : M) → TangentSpace I y} {x : M}
+    (hU : ContMDiff I (I.prod 𝓘(ℝ, E)) ∞ (fun y => (⟨y, U y⟩ : TangentBundle I M)))
+    (hV : ContMDiff I (I.prod 𝓘(ℝ, E)) ∞ (fun y => (⟨y, V y⟩ : TangentBundle I M))) :
+    OpenGALib.TangentSmoothAt (mlieBracket I U V) x := by
+  -- IsManifold I a M auto-inferred from IsManifold I ∞ M + LEInfty a (Mathlib instance).
+  haveI : IsManifold I (3 : ℕ∞ω) M := inferInstance
+  haveI : IsManifold I (2 : ℕ∞ω) M := inferInstance
+  haveI hM_2plus1 : IsManifold I (((2 : ℕ∞) : ℕ∞ω) + 1) M := by
+    show IsManifold I (3 : ℕ∞ω) M
+    infer_instance
+  haveI : IsManifold I ((minSmoothness ℝ 2 : ℕ∞ω)) M := by
+    rw [minSmoothness_of_isRCLikeNormedField]
+    infer_instance
+  have h_min : minSmoothness ℝ ((1 : ℕ∞) + 1) ≤ (2 : ℕ∞) := by
+    rw [minSmoothness_of_isRCLikeNormedField]
+    norm_num
+  have hU2 : ContMDiffAt I (I.prod 𝓘(ℝ, E)) ((2 : ℕ∞) : ℕ∞ω)
+      (fun y => (⟨y, U y⟩ : TangentBundle I M)) x :=
+    (hU x).of_le (by exact_mod_cast le_top)
+  have hV2 : ContMDiffAt I (I.prod 𝓘(ℝ, E)) ((2 : ℕ∞) : ℕ∞ω)
+      (fun y => (⟨y, V y⟩ : TangentBundle I M)) x :=
+    (hV x).of_le (by exact_mod_cast le_top)
+  have h_mlb1 : ContMDiffAt I (I.prod 𝓘(ℝ, E)) ((1 : ℕ∞) : ℕ∞ω)
+      (fun y => (⟨y, mlieBracket I U V y⟩ : TangentBundle I M)) x :=
+    hU2.mlieBracket_vectorField hV2 h_min
+  exact h_mlb1.mdifferentiableAt (by decide)
 
 /-- **Half-Koszul scalar value** $\tfrac12\,K(v_{\text{const}}, Y, w_{\text{const}})(y)$. -/
 noncomputable def koszulCotangentScalar
@@ -174,49 +283,105 @@ noncomputable def koszulCotangentCLM
 lemma koszulCotangentCLM_apply (v : E) (Y : SmoothVectorField I M) (y : M) (w : E) :
     koszulCotangentCLM v Y y w = koszulCotangentScalar v Y w y := rfl
 
+set_option backward.isDefEq.respectTransparency false in
+/-- **Scalar smoothness of `koszulCotangentScalar v Y w` in `y`** at every `x`.
+
+Decomposes into 6 koszul-term smoothness checks:
+* 3 directional-derivative terms via `mfderiv_const_dir_smoothAt` /
+  `mfderiv_smoothDir_smoothAt`.
+* 3 mlieBracket-with-metric-inner terms via `mlieBracket_tangentSmoothAt` +
+  `MDifferentiableAt.metricInner_smoothAt`.
+Sum via `MDifferentiableAt.add` / `.sub` / `.const_mul`. -/
+private theorem koszulCotangentScalar_mdifferentiableAt
+    (v : E) (Y : SmoothVectorField I M) (w : E) (x : M) :
+    MDifferentiableAt I 𝓘(ℝ, ℝ) (fun y : M => koszulCotangentScalar v Y w y) x := by
+  classical
+  -- Smooth scalar functions used in the 6 koszul terms.
+  have hY_E : ContMDiff I 𝓘(ℝ, E) ∞ Y.toFun := SmoothVectorField.contMDiff_E Y
+  have h_const_v_E : ContMDiff I 𝓘(ℝ, E) ∞ (fun _ : M => v) := contMDiff_const
+  have h_const_w_E : ContMDiff I 𝓘(ℝ, E) ∞ (fun _ : M => w) := contMDiff_const
+  -- Scalar functions for terms 1, 2, 3 via metricInner_contMDiff.
+  have h_f_YW : ContMDiff I 𝓘(ℝ, ℝ) ∞
+      (fun y' : M => metricInner (g := g) y' (Y.toFun y') w) := by
+    have := metricInner_contMDiff hY_E h_const_w_E
+    convert this using 1
+  have h_f_WV : ContMDiff I 𝓘(ℝ, ℝ) ∞
+      (fun y' : M => metricInner (g := g) y' w v) := by
+    have := metricInner_contMDiff h_const_w_E h_const_v_E
+    convert this using 1
+  have h_f_VY : ContMDiff I 𝓘(ℝ, ℝ) ∞
+      (fun y' : M => metricInner (g := g) y' v (Y.toFun y')) := by
+    have := metricInner_contMDiff h_const_v_E hY_E
+    convert this using 1
+  -- TangentSmoothAt for the 3 const + Y bundle sections.
+  have hY_y : OpenGALib.TangentSmoothAt Y.toFun x := Y.smoothAt x
+  have h_const_v_y : OpenGALib.TangentSmoothAt (fun _ : M => v) x :=
+    (SmoothVectorField.const (I := I) (M := M) v).smoothAt x
+  have h_const_w_y : OpenGALib.TangentSmoothAt (fun _ : M => w) x :=
+    (SmoothVectorField.const (I := I) (M := M) w).smoothAt x
+  -- TangentSmoothAt of mlieBracket sections (T4, T5, T6).
+  have h_mlb_vY : OpenGALib.TangentSmoothAt
+      (mlieBracket I (fun _ : M => v) Y.toFun) x :=
+    mlieBracket_tangentSmoothAt
+      (SmoothVectorField.const (I := I) (M := M) v).smooth Y.smooth
+  have h_mlb_Yw : OpenGALib.TangentSmoothAt
+      (mlieBracket I Y.toFun (fun _ : M => w)) x :=
+    mlieBracket_tangentSmoothAt Y.smooth
+      (SmoothVectorField.const (I := I) (M := M) w).smooth
+  have h_mlb_vw : OpenGALib.TangentSmoothAt
+      (mlieBracket I (fun _ : M => v) (fun _ : M => w)) x :=
+    mlieBracket_tangentSmoothAt
+      (SmoothVectorField.const (I := I) (M := M) v).smooth
+      (SmoothVectorField.const (I := I) (M := M) w).smooth
+  -- 6 koszul terms in mfderiv form (skip directionalDeriv unfold step).
+  have hT1 : MDifferentiableAt I 𝓘(ℝ, ℝ)
+      (fun y : M => mfderiv I 𝓘(ℝ, ℝ)
+        (fun y' => metricInner (g := g) y' (Y.toFun y') w) y v) x :=
+    mfderiv_const_dir_smoothAt h_f_YW x v
+  have hT2 : MDifferentiableAt I 𝓘(ℝ, ℝ)
+      (fun y : M => mfderiv I 𝓘(ℝ, ℝ)
+        (fun y' => metricInner (g := g) y' w v) y (Y.toFun y)) x :=
+    mfderiv_smoothDir_smoothAt h_f_WV (hY_E.contMDiffAt)
+  have hT3 : MDifferentiableAt I 𝓘(ℝ, ℝ)
+      (fun y : M => mfderiv I 𝓘(ℝ, ℝ)
+        (fun y' => metricInner (g := g) y' v (Y.toFun y')) y w) x :=
+    mfderiv_const_dir_smoothAt h_f_VY x w
+  have hT4 : MDifferentiableAt I 𝓘(ℝ, ℝ)
+      (fun y : M => metricInner (g := g) y (mlieBracket I (fun _ : M => v) Y.toFun y) w) x :=
+    MDifferentiableAt.metricInner_smoothAt h_mlb_vY h_const_w_y
+  have hT5 : MDifferentiableAt I 𝓘(ℝ, ℝ)
+      (fun y : M => metricInner (g := g) y (mlieBracket I Y.toFun (fun _ : M => w) y) v) x :=
+    MDifferentiableAt.metricInner_smoothAt h_mlb_Yw h_const_v_y
+  have hT6 : MDifferentiableAt I 𝓘(ℝ, ℝ)
+      (fun y : M => metricInner (g := g) y
+        (mlieBracket I (fun _ : M => v) (fun _ : M => w) y) (Y.toFun y)) x :=
+    MDifferentiableAt.metricInner_smoothAt h_mlb_vw hY_y
+  -- koszulCotangentScalar unfolds to (1/2) * koszulFunctional.
+  -- koszulFunctional unfolds to T1 + T2 - T3 + T4 - T5 - T6 (directionalDeriv = mfderiv by def).
+  unfold koszulCotangentScalar koszulFunctional directionalDeriv
+  -- Goal: MDifferentiableAt of `fun y => (1/2) * (T1 + T2 - T3 + T4 - T5 - T6)` at x.
+  exact ((((((hT1.add hT2).sub hT3).add hT4).sub hT5).sub hT6).const_smul (1/2 : ℝ))
+
 /-- **Smoothness of the koszul cotangent CLM section** as `M → (E →L[ℝ] ℝ)`.
-
-This is the **single remaining PRE-PAPER sub-sorry** for the connection-level
-smoothness clause. Closure plan (entirely mechanical, no paper-level math):
-
-**Step A — scalar smoothness** of `koszulCotangentScalar v Y w` in `y` at every
-`x`, for fixed `v, w : E` and `Y : SmoothVectorField`. Decomposes into 6
-koszul-term smoothness checks via `unfold koszulFunctional`:
-
-1. `directionalDeriv (fun y' => metricInner y' (Y y') w) y v` — chart-frame constant
-   direction `v`, smooth scalar via `metricInner_smoothAt` with smooth `Y` and
-   `const w`. Smoothness via `mfderiv_const_dir_smoothAt` (real proof in
-   `Riemannian/TangentBundle/MFDerivSmooth.lean`).
-2. `directionalDeriv (fun y' => metricInner y' w v) y (Y y)` — smoothly-varying
-   direction `Y y` (via `set_option respectTransparency` + def-eq `T_yM = E`).
-   Scalar smooth via `metricInner_smoothAt` with two const args.
-   Smoothness via `mfderiv_smoothDir_smoothAt`.
-3. `directionalDeriv (fun y' => metricInner y' v (Y y')) y w` — chart-frame constant
-   direction `w`. Symmetric to (1). Via `mfderiv_const_dir_smoothAt`.
-4. `metricInner y (mlieBracket I (const v) Y y) w` — smooth via Mathlib's
-   `ContMDiffAt.mlieBracket_vectorField` + `metricInner_smoothAt`.
-5. `metricInner y (mlieBracket I Y (const w) y) v` — symmetric to (4).
-6. `metricInner y (mlieBracket I (const v) (const w) y) (Y y)` — both args
-   chart-frame constants ⇒ `mlieBracket I (const v) (const w) y = 0` (since
-   mfderivs of constants vanish under `IsLocallyConstantChartedSpace`).
-   Hence the inner product is 0, smooth as the constant zero.
-
-**Step B — CLM-valued lift**: componentwise smoothness from Step A lifted via
-the framework's `contMDiffOn_clm_of_components` (Layer 2 smoothness lift,
-`Riemannian/TangentBundle/Smoothness.lean`). For each basis element `b_i`,
-`koszulCotangentCLM v Y y (b_i) = koszulCotangentScalar v Y (b_i) y` (by
-`koszulCotangentCLM_apply`). Smoothness of each component scalar gives
-CLM-valued smoothness in finite dim.
-
-No `[I.Boundaryless]` required: `mfderiv_const_dir_smoothAt` and
-`mfderiv_smoothDir_smoothAt` are stated in the `MDifferentiableWithinAt`
-form internally and bridge to the M-side at-form via
-`comp_of_preimage_mem_nhdsWithin`. -/
+Componentwise lift of `koszulCotangentScalar_mdifferentiableAt` via
+`mdifferentiableAt_clm_of_components` with `Module.finBasis ℝ E`. -/
 theorem koszulCotangentCLM_smoothAt
     (v : E) (Y : SmoothVectorField I M) (x : M) :
     MDifferentiableAt I 𝓘(ℝ, E →L[ℝ] ℝ)
       (fun y : M => koszulCotangentCLM v Y y) x := by
-  -- Single PRE-PAPER bridge sub-sorry; closure plan in docstring above.
-  sorry
+  -- Componentwise lift: for each basis element b_i, the scalar
+  -- (fun y => koszulCotangentCLM v Y y (b_i)) = (fun y => koszulCotangentScalar v Y b_i y)
+  -- is MDifferentiableAt at x by koszulCotangentScalar_mdifferentiableAt.
+  -- Lift to CLM via mdifferentiableAt_clm_of_components.
+  set basis : Module.Basis (Fin (Module.finrank ℝ E)) ℝ E := Module.finBasis ℝ E
+  apply mdifferentiableAt_clm_of_components _ basis
+  intro i
+  show MDifferentiableAt I 𝓘(ℝ, ℝ) (fun y : M => koszulCotangentCLM v Y y (basis i)) x
+  have h_eq : (fun y : M => koszulCotangentCLM v Y y (basis i))
+      = (fun y : M => koszulCotangentScalar v Y (basis i) y) := by
+    funext y
+    exact koszulCotangentCLM_apply v Y y (basis i)
+  rw [h_eq]
+  exact koszulCotangentScalar_mdifferentiableAt v Y (basis i) x
 
 end Riemannian

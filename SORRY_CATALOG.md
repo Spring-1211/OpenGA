@@ -18,16 +18,19 @@ require updating this file.
 
 | Module | PRE-PAPER | CITED-BLACK-BOX | PAPER-INTERNAL | CONJECTURAL | Total |
 |--------|-----------|------------------|----------------|-------------|-------|
-| Riemannian | 4 | 0 | 0 | 0 | 4 |
+| Riemannian | 3 | 0 | 0 | 0 | 3 |
 | GeometricMeasureTheory | 5 | 9 | 0 | 0 | 14 |
 | MinMax | 3 | 9 | 0 | 0 | 12 |
 | Regularity | 0 | 2 | 0 | 0 | 2 |
-| **Total** | **12** | **20** | **0** | **0** | **32** |
+| **Total** | **11** | **20** | **0** | **0** | **31** |
 
-(Bridge investment closure: Riemannian 9 → 4. The 5 closed sorrys: LeviCivita
+(Bridge investment final closure: Riemannian 9 → 3. The 6 closed sorrys: full
 `leviCivitaConnection_exists` smoothness clause + `koszulCovDeriv_const_smoothAt`
-+ associated Curvature `ricciTraceMap` / `ricciFormAt` smoothness witnesses.
-Sub-sorry moved into KoszulCotangent.lean `koszulCotangentCLM_smoothAt`.)
++ `koszulCotangentCLM_smoothAt` + 3 associated Curvature smoothness witnesses.
+Zero `sorryAx` in `leviCivitaConnection_exists` axiom dependency chain. Phase
+1.6 invariant "zero existence axioms in Riemannian package" preserved with
+strengthened guarantee: smoothness clause is now real-proven, not bypassed
+via PRE-PAPER sorry.)
 
 ## Riemannian (9)
 
