@@ -22,7 +22,70 @@ variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E] [CompleteS
   {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
   {M : Type*} [TopologicalSpace M] [ChartedSpace H M] [IsManifold I ∞ M]
   [IsLocallyConstantChartedSpace H M]
-  [RiemannianMetric I M]
+  [g : RiemannianMetric I M]
+
+/-! ## Helpers: flat-typed smoothness of `SmoothVectorField` and `metricInner` -/
+
+omit [CompleteSpace E] [FiniteDimensional ℝ E] [RiemannianMetric I M] in
+set_option backward.isDefEq.respectTransparency false in
+/-- A `SmoothVectorField`'s underlying `Y.toFun : Π y : M, T_yM` viewed as
+`M → E` (via `T_yM = E` def-eq) is globally `ContMDiff` under
+`IsLocallyConstantChartedSpace`. -/
+private theorem SmoothVectorField.contMDiff_E (Y : SmoothVectorField I M) :
+    ContMDiff I 𝓘(ℝ, E) ∞ Y.toFun := by
+  intro x
+  set e := trivializationAt E (TangentSpace I) x with he_def
+  -- Bundle-section smoothness gives chart-coord smoothness via Trivialization.contMDiffAt_iff.
+  have h_he : (Bundle.TotalSpace.mk x (Y.toFun x) : TangentBundle I M) ∈ e.source := by
+    rw [Bundle.Trivialization.mem_source]
+    exact FiberBundle.mem_baseSet_trivializationAt' (F := E) x
+  have h_iff := Bundle.Trivialization.contMDiffAt_iff (IM := I) (IB := I) (e := e)
+    (f := fun y : M => (Bundle.TotalSpace.mk y (Y.toFun y) : TangentBundle I M))
+    (n := ∞) h_he
+  have h_chart_coord : ContMDiffAt I 𝓘(ℝ, E) ∞ (fun y : M => (e ⟨y, Y.toFun y⟩).2) x :=
+    (h_iff.mp (Y.smooth x)).2
+  -- On baseSet, (e ⟨y, V y⟩).2 = e.continuousLinearMapAt R y (V y).
+  -- Under IsLocallyConstantChartedSpace, e.cLMA R y = id near x, so equals V y.
+  apply h_chart_coord.congr_of_eventuallyEq
+  have h_baseSet : e.baseSet ∈ 𝓝 x :=
+    e.open_baseSet.mem_nhds (FiberBundle.mem_baseSet_trivializationAt' x)
+  have h_chart_eq : ∀ᶠ y in 𝓝 x, chartAt H y = chartAt H x :=
+    chartAt_eventually_eq_of_locallyConstant x
+  have h_chart_src : (chartAt H x).source ∈ 𝓝 x :=
+    (chartAt H x).open_source.mem_nhds (mem_chart_source H x)
+  filter_upwards [h_baseSet, h_chart_eq, h_chart_src] with y hy_base hy_eq hy_src
+  show Y.toFun y = (e ⟨y, Y.toFun y⟩).2
+  -- (e ⟨y, V y⟩).2 = e.continuousLinearMapAt R y (V y).
+  rw [← Bundle.Trivialization.continuousLinearMapAt_apply_of_mem (R := ℝ) e hy_base]
+  -- e.continuousLinearMapAt R y = id near x via continuousLinearMapAtFlat = id (locally).
+  show (Y.toFun y : E) = e.continuousLinearMapAt ℝ y (Y.toFun y)
+  show (Y.toFun y : E) =
+      TangentBundle.continuousLinearMapAtFlat (I := I) (M := M) x y (Y.toFun y)
+  -- continuousLinearMapAtFlat x y = id near x (locally constant chart).
+  have h_id : TangentBundle.continuousLinearMapAtFlat (I := I) (M := M) x y
+      = ContinuousLinearMap.id ℝ E := by
+    show (trivializationAt E (TangentSpace I) x).continuousLinearMapAt ℝ y
+        = ContinuousLinearMap.id ℝ E
+    rw [TangentBundle.continuousLinearMapAt_trivializationAt_eq_core hy_src]
+    have h_achart_eq : achart H y = achart H x := Subtype.ext hy_eq
+    rw [h_achart_eq]
+    ext v
+    exact (tangentBundleCore I M).coordChange_self (achart H x) y
+      (by simpa [tangentBundleCore_baseSet] using hy_src) v
+  rw [h_id]
+  rfl
+
+/-- **Smoothness of `g.metricTensor` applied to two `ContMDiff` flat-typed
+sections**: `y ↦ g.metricTensor y (V y) (W y)` is `ContMDiff` whenever
+`V, W : M → E` are. Uses `g.smoothMetric` + double `clm_apply`. -/
+private theorem metricTensor_apply_contMDiff
+    {V W : M → E} (hV : ContMDiff I 𝓘(ℝ, E) ∞ V) (hW : ContMDiff I 𝓘(ℝ, E) ∞ W) :
+    ContMDiff I 𝓘(ℝ, ℝ) ∞ (fun y : M => g.metricTensor y (V y) (W y)) := by
+  intro x
+  have h_metric : ContMDiffAt I 𝓘(ℝ, E →L[ℝ] E →L[ℝ] ℝ) ∞
+      (fun y : M => g.metricTensor y) x :=
+    (g.smoothMetric x)
+  exact (h_metric.clm_apply (hV x)).clm_apply (hW x)
 
 /-- **Half-Koszul scalar value** $\tfrac12\,K(v_{\text{const}}, Y, w_{\text{const}})(y)$. -/
 noncomputable def koszulCotangentScalar
@@ -145,11 +208,10 @@ the framework's `contMDiffOn_clm_of_components` (Layer 2 smoothness lift,
 `koszulCotangentCLM_apply`). Smoothness of each component scalar gives
 CLM-valued smoothness in finite dim.
 
-**Boundaryless prerequisite**: Step A uses `mfderiv_const_dir_smoothAt` and
-`mfderiv_smoothDir_smoothAt` which require `[I.Boundaryless]`. The downstream
-consumer chain (`koszulCovDeriv_const_smoothAt` →
-`leviCivitaConnection_smoothAt_const_dir` → `Riemannian.Curvature` use sites)
-will inherit this constraint at proof-time but not at signature-time. -/
+No `[I.Boundaryless]` required: `mfderiv_const_dir_smoothAt` and
+`mfderiv_smoothDir_smoothAt` are stated in the `MDifferentiableWithinAt`
+form internally and bridge to the M-side at-form via
+`comp_of_preimage_mem_nhdsWithin`. -/
 theorem koszulCotangentCLM_smoothAt
     (v : E) (Y : SmoothVectorField I M) (x : M) :
     MDifferentiableAt I 𝓘(ℝ, E →L[ℝ] ℝ)
