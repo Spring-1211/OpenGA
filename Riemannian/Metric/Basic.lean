@@ -36,7 +36,7 @@ downstream) goes through the direct $E$-path via `TangentSpace I x = E`
 def-eq. -/
 @[ext]
 class RiemannianMetric
-    {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
+    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
     {H : Type*} [TopologicalSpace H]
     (I : ModelWithCorners ℝ E H)
     (M : Type*) [TopologicalSpace M] [ChartedSpace H M] where
@@ -57,7 +57,7 @@ namespace RiemannianMetric
 /-- Convenience accessor: the metric inner product as a `(x : M) → E → E → ℝ`
 function. Use `metricInner` (typed-on-tangent-space form) in new code;
 this raw form is a `@[deprecated]` candidate for v0.2. -/
-noncomputable def metricInnerRaw {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
+noncomputable def metricInnerRaw {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
     {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
     {M : Type*} [TopologicalSpace M] [ChartedSpace H M]
     [g : RiemannianMetric I M] (x : M) (v w : E) : ℝ :=
@@ -75,7 +75,7 @@ around the algebraic core's `BilinearForm.inner_*` lemmas. The
 Riemannian-specific content — symmetry, positive-definiteness — comes
 from the typeclass fields `g.symm`, `g.posdef`. -/
 
-variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
+variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
   {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
   {M : Type*} [TopologicalSpace M] [ChartedSpace H M]
   [g : RiemannianMetric I M]
@@ -225,6 +225,29 @@ instance instNormedAddCommGroupTangent (x : M) :
     NormedAddCommGroup (TangentSpace I x) :=
   inferInstanceAs (NormedAddCommGroup E)
 
+set_option backward.isDefEq.respectTransparency false in
+/-- `NormedSpace ℝ` on `TangentSpace I x`, directly from
+`[NormedSpace ℝ E]` via `TangentSpace I x = E` def-eq. -/
+instance instNormedSpaceTangent (x : M) :
+    NormedSpace ℝ (TangentSpace I x) :=
+  inferInstanceAs (NormedSpace ℝ E)
+
+set_option backward.isDefEq.respectTransparency false in
+/-- `IsTopologicalAddGroup` on `TangentSpace I x`. Prerequisite for
+Mathlib's `Bundle.RiemannianBundle`-derived IPS scoped instance
+(see `Riemannian/Metric/MathlibBridge.lean`). -/
+instance instIsTopologicalAddGroupTangent (x : M) :
+    IsTopologicalAddGroup (TangentSpace I x) :=
+  inferInstanceAs (IsTopologicalAddGroup E)
+
+set_option backward.isDefEq.respectTransparency false in
+/-- `ContinuousConstSMul ℝ` on `TangentSpace I x`. Prerequisite for
+Mathlib's `Bundle.RiemannianBundle`-derived IPS scoped instance
+(see `Riemannian/Metric/MathlibBridge.lean`). -/
+instance instContinuousConstSMulTangent (x : M) :
+    ContinuousConstSMul ℝ (TangentSpace I x) :=
+  inferInstanceAs (ContinuousConstSMul ℝ E)
+
 end NACGBridge
 
 section InnerProductBridge
@@ -233,25 +256,28 @@ variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
   {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
   {M : Type*} [TopologicalSpace M] [ChartedSpace H M]
 
--- PHASE 1B SPIKE FINDING: instInnerProductSpaceTangent (background-derived)
--- conflicts with Mathlib's `Bundle.RiemannianBundle`-derived IPS instance.
--- Deletion blocked: while `[InnerProductSpace ℝ E]` is still a hypothesis,
--- Lean's typeclass synthesis finds it via `TangentSpace I x = E` def-eq
--- (priority 1000, beats Mathlib's scoped instance priority 80). Result:
--- the diamond is structural, not tactical.
--- Phase 1C resolution: replace `[InnerProductSpace ℝ E]` → `[NormedSpace ℝ E]`
--- across framework (~27 files). Then this instance can be deleted, and
--- Mathlib's RiemannianBundle-derived IPS becomes the unique correct source.
--- See `Riemannian/Metric/MathlibBridge.lean` for the bridge + Phase 1B finding.
-set_option backward.isDefEq.respectTransparency false in
 /-- `InnerProductSpace ℝ` on `TangentSpace I x`, directly from
 `[InnerProductSpace ℝ E]` via `TangentSpace I x = E` def-eq.
 
-**Phase 1B note**: this instance is **mathematically incorrect** when
-`g.metricTensor x ≠ background inner E` — the IPS structure here is
-the background Euclidean inner product, not the Riemannian metric.
-Phase 1C migration to `[NormedSpace ℝ E]` will let Mathlib's
-`RiemannianBundle`-derived metric-correct IPS take over. -/
+**Phase 1C architectural note**: Mathlib's `Bundle.RiemannianBundle`-derived
+IPS (in `Topology/VectorBundle/Riemannian.lean`) produces an IPS w.r.t.
+Mathlib's bundle-derived `NormedAddCommGroup` (= metric norm). This is
+**incompatible** with our background-derived `instNormedAddCommGroupTangent`
+(= chart-background norm) — two NACGs on the same type form an unresolvable
+diamond. Phase 1C audit confirmed: with our NACG bridge in scope, Mathlib's
+bundle IPS cannot fire because the resulting IPS structure doesn't match our
+NACG. We therefore keep a background-derived IPS bridge here for
+`stdOrthonormalBasis` typecheck purposes (basis is orthonormal w.r.t. the
+background inner, *not* the geometric `metricInner`).
+
+**Mathematical limitation**: the framework's geometric inner is
+`OpenGALib.metricInner` (in this file), not `inner ℝ v w` on tangent space.
+Downstream theorems involving `Frobenius norm of A`, `manifold gradient
+norm`, etc., that require an orthonormal basis w.r.t. the metric should be
+stated via `metricInner` directly, not via `inner ℝ`. Files using
+`stdOrthonormalBasis ℝ (TangentSpace I x)` produce a basis orthonormal
+w.r.t. the chart-background inner, which equals the geometric inner only
+when `g = innerSL ℝ` (e.g., `Riemannian/Instances/EuclideanSpace.lean`). -/
 instance instInnerProductSpaceTangent (x : M) :
     InnerProductSpace ℝ (TangentSpace I x) :=
   inferInstanceAs (InnerProductSpace ℝ E)

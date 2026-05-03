@@ -35,7 +35,7 @@ open scoped ContDiff Manifold
 
 namespace Riemannian
 
-variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
+variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
   {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
   {M : Type*} [TopologicalSpace M] [ChartedSpace H M] [IsManifold I ∞ M]
 

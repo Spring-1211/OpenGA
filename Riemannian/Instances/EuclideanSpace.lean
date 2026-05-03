@@ -83,9 +83,10 @@ open scoped ContDiff Manifold InnerProductSpace
 /-- The framework's `metricInner` on a real inner product space `E`
 matches the standard inner product. Direct from `instRiemannianMetricSelf`
 unfolding to `innerSL ℝ` and `innerSL_apply_apply`. -/
-example {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
+theorem metricInner_eq_real_inner_self
+    {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
     [FiniteDimensional ℝ E]
-    (x : E) (v w : TangentSpace (𝓘(ℝ, E)) x) :
+    (x : E) (v w : E) :
     metricInner (I := 𝓘(ℝ, E)) (M := E) x v w = ⟪v, w⟫_ℝ :=
   rfl
 

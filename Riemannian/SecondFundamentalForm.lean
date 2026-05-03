@@ -1,4 +1,5 @@
 import Riemannian.Connection
+import Riemannian.Metric.MathlibBridge
 import Mathlib.Analysis.InnerProductSpace.PiL2
 
 /-!
@@ -35,7 +36,7 @@ Simon 1983 §49 (use in second variation).
 -/
 
 open Bundle OpenGALib
-open scoped ContDiff Manifold
+open scoped ContDiff Manifold Bundle
 
 namespace Riemannian
 
@@ -57,6 +58,7 @@ noncomputable def secondFundamentalFormScalar
     (ν X Y : Π x : M, TangentSpace I x) (x : M) : ℝ :=
   metricInner x (covDeriv X Y x) (ν x)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- $|A|^2 : M \to \mathbb{R}$, the squared norm of the second fundamental form,
 defined as $\sum_{i, j} A(e_i, e_j)^2$ over the standard orthonormal
 basis $\{e_i\}$ of `TangentSpace I x` (Mathlib `stdOrthonormalBasis`,
@@ -85,6 +87,7 @@ theorem secondFundamentalFormSqNorm_nonneg
   unfold secondFundamentalFormSqNorm
   positivity
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The **mean curvature (codim-1 scalar form)** $H : M \to \mathbb{R}$
 of the hypersurface oriented by unit normal $\nu$:
 $$H(x) := \mathrm{tr}_g A(x) = \sum_i A(e_i, e_i)(x)$$

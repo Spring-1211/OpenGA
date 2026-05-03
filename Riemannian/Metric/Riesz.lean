@@ -37,7 +37,7 @@ namespace OpenGALib
 
 section RieszExtraction
 
-variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
+variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
   [FiniteDimensional ℝ E]
   {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
   {M : Type*} [TopologicalSpace M] [ChartedSpace H M]
@@ -88,7 +88,7 @@ theorem metricInner_eq_iff_eq (x : M) (v w : TangentSpace I x) :
 /-- The CLM↔LinearMap dual equivalence on a finite-dim normed space:
 every linear functional is automatically continuous in finite dim. -/
 private noncomputable def clmDualEquiv (V : Type*)
-    [NormedAddCommGroup V] [InnerProductSpace ℝ V] [FiniteDimensional ℝ V] :
+    [NormedAddCommGroup V] [NormedSpace ℝ V] [FiniteDimensional ℝ V] :
     (V →ₗ[ℝ] ℝ) ≃ₗ[ℝ] (V →L[ℝ] ℝ) :=
   LinearMap.toContinuousLinearMap
 

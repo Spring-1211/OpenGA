@@ -123,7 +123,7 @@ structure IsJunctionConeData
   --     carrier hyperplanes);
   --   * stationary balance condition $\sum_j$ mult $j$ • $\nu_j = 0$
   --     on outward conormals $\nu_j$ at the edge — requires
-  --     `[InnerProductSpace ℝ E]` cascade upgrade.
+  --     `[NormedSpace ℝ E]` cascade upgrade.
 
 /-- $V$ is a **junction cone centered at $Z$** (paper §6.2 Step 1;
 Wic14 §3): the chart-pushforward of $V$.massMeasure to $E$ via the chart
@@ -147,7 +147,7 @@ $\alpha$-structural), not a general GMT primitive.
 
 **Used by**: `Varifold.HasJunction` def (in this file). -/
 def IsJunctionCone
-    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
+    {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
     [MeasurableSpace E] [BorelSpace E]
     {H : Type*} [TopologicalSpace H]
     (I : ModelWithCorners ℝ E H)
@@ -167,7 +167,7 @@ This is the configuration excluded by $(\mathcal{S}3)$.
 Defined explicitly via the GMT primitive `tangentCone` and the
 regularity-side primitive `IsJunctionCone`. -/
 def HasJunction
-    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
+    {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
     [MeasurableSpace E] [BorelSpace E]
     {H : Type*} [TopologicalSpace H]
     (I : ModelWithCorners ℝ E H)
@@ -184,7 +184,7 @@ Defined explicitly as a universally-quantified negation, so the structure
 Carries the smooth-manifold typeclass cascade because `sing I V`
 requires it. -/
 def AlphaStructural
-    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
+    {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
     {H : Type*} [TopologicalSpace H]
     (I : ModelWithCorners ℝ E H)
     [ChartedSpace H M] [IsManifold I ∞ M]
