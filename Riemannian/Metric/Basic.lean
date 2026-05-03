@@ -233,9 +233,25 @@ variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
   {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
   {M : Type*} [TopologicalSpace M] [ChartedSpace H M]
 
+-- PHASE 1B SPIKE FINDING: instInnerProductSpaceTangent (background-derived)
+-- conflicts with Mathlib's `Bundle.RiemannianBundle`-derived IPS instance.
+-- Deletion blocked: while `[InnerProductSpace ℝ E]` is still a hypothesis,
+-- Lean's typeclass synthesis finds it via `TangentSpace I x = E` def-eq
+-- (priority 1000, beats Mathlib's scoped instance priority 80). Result:
+-- the diamond is structural, not tactical.
+-- Phase 1C resolution: replace `[InnerProductSpace ℝ E]` → `[NormedSpace ℝ E]`
+-- across framework (~27 files). Then this instance can be deleted, and
+-- Mathlib's RiemannianBundle-derived IPS becomes the unique correct source.
+-- See `Riemannian/Metric/MathlibBridge.lean` for the bridge + Phase 1B finding.
 set_option backward.isDefEq.respectTransparency false in
 /-- `InnerProductSpace ℝ` on `TangentSpace I x`, directly from
-`[InnerProductSpace ℝ E]` via `TangentSpace I x = E` def-eq. -/
+`[InnerProductSpace ℝ E]` via `TangentSpace I x = E` def-eq.
+
+**Phase 1B note**: this instance is **mathematically incorrect** when
+`g.metricTensor x ≠ background inner E` — the IPS structure here is
+the background Euclidean inner product, not the Riemannian metric.
+Phase 1C migration to `[NormedSpace ℝ E]` will let Mathlib's
+`RiemannianBundle`-derived metric-correct IPS take over. -/
 instance instInnerProductSpaceTangent (x : M) :
     InnerProductSpace ℝ (TangentSpace I x) :=
   inferInstanceAs (InnerProductSpace ℝ E)
