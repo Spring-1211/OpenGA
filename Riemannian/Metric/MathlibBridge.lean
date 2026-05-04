@@ -1,6 +1,7 @@
 import Mathlib.Topology.VectorBundle.Riemannian
 import Mathlib.Geometry.Manifold.VectorBundle.Riemannian
 import Mathlib.Geometry.Manifold.VectorBundle.Tangent
+import Mathlib.Topology.MetricSpace.ProperSpace.Real
 import Riemannian.Metric.Basic
 
 /-!
@@ -49,6 +50,67 @@ variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
   {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
   {M : Type*} [TopologicalSpace M] [ChartedSpace H M] [IsManifold I ∞ M]
 
+/-- **Coercivity**: a continuous, positive-definite bilinear form on a
+finite-dimensional normed space is coercive: there is `c > 0` such that
+`c * ‖v‖² ≤ B v v` for all `v`. Phase 1C self-build framework lemma
+(used to discharge `isVonNBounded` in the Mathlib bridge below). -/
+private lemma _root_.OpenGALib.posDefBilin_isCoercive
+    (B : E →L[ℝ] E →L[ℝ] ℝ) (hpos : ∀ v : E, v ≠ 0 → 0 < B v v) :
+    ∃ c > 0, ∀ v : E, c * ‖v‖^2 ≤ B v v := by
+  have hcomp : IsCompact (Metric.sphere (0 : E) 1) := isCompact_sphere _ _
+  by_cases hE : Subsingleton E
+  · refine ⟨1, by norm_num, fun v => ?_⟩
+    have : v = 0 := Subsingleton.elim v 0
+    simp [this]
+  · rw [not_subsingleton_iff_nontrivial] at hE
+    have hne : (Metric.sphere (0 : E) 1).Nonempty :=
+      NormedSpace.sphere_nonempty.mpr zero_le_one
+    have hcont : ContinuousOn (fun v : E => B v v) (Metric.sphere 0 1) :=
+      ((B.isBoundedBilinearMap.continuous).comp
+        (Continuous.prodMk continuous_id continuous_id)).continuousOn
+    obtain ⟨v0, hv0, hmin⟩ := hcomp.exists_isMinOn hne hcont
+    have hv0_norm : ‖v0‖ = 1 := by simpa [Metric.mem_sphere] using hv0
+    have hv0_ne : v0 ≠ 0 := by intro h; rw [h, norm_zero] at hv0_norm; norm_num at hv0_norm
+    refine ⟨B v0 v0, hpos v0 hv0_ne, fun v => ?_⟩
+    by_cases hv : v = 0
+    · simp [hv]
+    · set u := ‖v‖⁻¹ • v
+      have hvn_pos : 0 < ‖v‖ := norm_pos_iff.mpr hv
+      have hu_norm : ‖u‖ = 1 := by
+        simp [u, norm_smul, inv_mul_cancel₀ (ne_of_gt hvn_pos)]
+      have hu_sphere : u ∈ Metric.sphere (0 : E) 1 := by simp [hu_norm]
+      have hmin_u : B v0 v0 ≤ B u u := hmin hu_sphere
+      have hg_u : B u u = ‖v‖⁻¹^2 * B v v := by
+        show B (‖v‖⁻¹ • v) (‖v‖⁻¹ • v) = _
+        rw [(B.map_smul _ _ : B (‖v‖⁻¹ • v) = ‖v‖⁻¹ • B v)]
+        rw [ContinuousLinearMap.smul_apply, ContinuousLinearMap.map_smul, smul_eq_mul,
+            smul_eq_mul]
+        ring
+      rw [hg_u] at hmin_u
+      have hsq_pos : 0 < ‖v‖^2 := by positivity
+      have hmul := mul_le_mul_of_nonneg_right hmin_u hsq_pos.le
+      have hcancel : ‖v‖⁻¹^2 * B v v * ‖v‖^2 = B v v := by field_simp
+      linarith
+
+/-- **Pos-def CLM bilinear form on fin-dim has bounded level set**.
+Phase 1C self-build framework lemma. -/
+private lemma _root_.OpenGALib.posDefBilin_isVonNBounded
+    (B : E →L[ℝ] E →L[ℝ] ℝ) (hpos : ∀ v : E, v ≠ 0 → 0 < B v v) :
+    Bornology.IsVonNBounded ℝ {v : E | B v v < 1} := by
+  obtain ⟨c, hc_pos, hbound⟩ := OpenGALib.posDefBilin_isCoercive B hpos
+  have hsub : {v : E | B v v < 1} ⊆ Metric.ball (0 : E) (Real.sqrt (1/c) + 1) := by
+    intro v hv
+    simp only [Set.mem_setOf_eq] at hv
+    rw [Metric.mem_ball, dist_zero_right]
+    have h1 : c * ‖v‖^2 ≤ B v v := hbound v
+    have h2 : c * ‖v‖^2 < 1 := lt_of_le_of_lt h1 hv
+    have h3 : ‖v‖^2 < 1/c := by rw [lt_div_iff₀ hc_pos]; linarith
+    have h4 : ‖v‖ < Real.sqrt (1/c) := by
+      rw [show ‖v‖ = Real.sqrt (‖v‖^2) by rw [Real.sqrt_sq (norm_nonneg _)]]
+      exact Real.sqrt_lt_sqrt (sq_nonneg _) h3
+    linarith
+  exact NormedSpace.isVonNBounded_of_isBounded _ (Metric.isBounded_ball.subset hsub)
+
 set_option backward.isDefEq.respectTransparency false in
 /-- Convert `OpenGALib.RiemannianMetric I M` to Mathlib
 `Bundle.ContMDiffRiemannianMetric I ∞ E (TangentSpace I)`. -/
@@ -58,15 +120,22 @@ noncomputable def RiemannianMetric.toBundleContMDiffRiemannianMetric
   inner x := g.metricTensor x
   symm x v w := g.symm x v w
   pos x v hv := g.posdef x v hv
-  isVonNBounded x := by
-    -- {v : E | g.metricTensor x v v < 1} is von Neumann bounded.
-    -- Mathematical content: positive-definite continuous bilinear form on
-    -- finite-dim normed space gives equivalent inner product → level sets are
-    -- bounded ellipsoids.
-    sorry
+  isVonNBounded x :=
+    OpenGALib.posDefBilin_isVonNBounded (g.metricTensor x) (g.posdef x)
   contMDiff := by
-    -- Smoothness as bundle CLM-section: derived from g.smoothMetric (our
-    -- smooth metric tensor as M → CLM) by lifting to bundle section.
+    -- Bundle-form CLM-section smoothness from `g.smoothMetric` (function-form
+    -- smoothness on `M → (E →L[ℝ] E →L[ℝ] ℝ)`). Phase 1C closure attempt
+    -- produced the goal:
+    --   `(T_dual x).linearMapAt y ((g.metricTensor y) ((T_tan x).symm y v)) w
+    --      = (g.metricTensor y v) w`
+    -- where `T_tan x = trivializationAt E (TangentSpace I) x` and
+    -- `T_dual x = trivializationAt (E →L[ℝ] ℝ) (fun x ↦ TangentSpace I x →L[ℝ] ℝ) x`.
+    -- The two trivializations are dual to each other, so the composition acts as
+    -- identity on the metric tensor in `T_x`'s base set. Discharging this requires
+    -- chart-pullback machinery (`Trivialization.symmL` + dual-trivialization
+    -- cancellation lemma). Self-build follow-up; not needed for current Phase 1C
+    -- since the framework does not route its public IPS API through this bridge
+    -- (see "Phase 1C architectural lesson — the irreducible NACG diamond" below).
     sorry
 
 set_option backward.isDefEq.respectTransparency false in
