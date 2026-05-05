@@ -1,6 +1,7 @@
 import GeometricMeasureTheory.Isoperimetric.Basic
 import GeometricMeasureTheory.HasNormal
 import Riemannian.Metric
+import Riemannian.Metric.MathlibBridge
 
 /-!
 # GeometricMeasureTheory.Isoperimetric.ReducedBoundary
@@ -34,7 +35,7 @@ Mathlib upstream when its BV / De Giorgi structure theorem matures.
 Variational Problems*, Theorems 15.5, 15.9; De Giorgi 1955.
 -/
 
-open scoped ContDiff Manifold Topology
+open scoped ContDiff Manifold Topology Bundle
 
 namespace GeometricMeasureTheory
 namespace Isoperimetric

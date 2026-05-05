@@ -132,7 +132,7 @@ The underlying value at fiber `y` is
 `backward.isDefEq.respectTransparency false`). Hides the dependent
 codomain so user-facing API speaks of `M → (E →L[ℝ] E)` directly. -/
 noncomputable def symmLFlat
-    {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
+    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
     {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
     {M : Type*} [TopologicalSpace M] [ChartedSpace H M] [IsManifold I ∞ M]
     (x y : M) : E →L[ℝ] E :=
@@ -144,7 +144,7 @@ value at `e₀ ∈ E` is
 `mfderivWithin 𝓘(ℝ, E) I (extChartAt I x).symm (range I) e₀`, retyped
 as `E →L[ℝ] E` via `TangentSpace I _ = E` def-eq. -/
 private noncomputable def mfderivWithinFlat
-    {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
+    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
     {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
     {M : Type*} [TopologicalSpace M] [ChartedSpace H M] [IsManifold I ∞ M]
     (x : M) (e₀ : E) : E →L[ℝ] E :=
@@ -185,7 +185,7 @@ retyped from `TangentSpace I y →L[ℝ] E` to `E →L[ℝ] E` via the
 By `TangentBundle.continuousLinearMapAt_trivializationAt`, equals
 `mfderiv (extChartAt I x₀) y` on chart source. -/
 noncomputable def continuousLinearMapAtFlat
-    {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
+    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
     {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
     {M : Type*} [TopologicalSpace M] [ChartedSpace H M] [IsManifold I ∞ M]
     (x₀ y : M) : E →L[ℝ] E :=
@@ -207,7 +207,7 @@ so `achart H b = achart H b₀`, hence `coordChange (achart H b) (achart H b₀)
 = coordChange (achart H b₀) (achart H b₀) b = id` (`coordChange_self`).
 The function is locally identity — trivially smooth. -/
 theorem continuousLinearMapAtFlat_contMDiffAt
-    {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
+    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
     {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
     {M : Type*} [TopologicalSpace M] [ChartedSpace H M] [IsManifold I ∞ M]
     [IsLocallyConstantChartedSpace H M]
@@ -237,7 +237,7 @@ theorem continuousLinearMapAtFlat_contMDiffAt
 /-- **Layer 1 helper**: applied-to-vector form, derived from
 `continuousLinearMapAtFlat_contMDiffAt` via `clm_apply`. -/
 private theorem mfderiv_extChartAt_apply_smoothAt
-    {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
+    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
     {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
     {M : Type*} [TopologicalSpace M] [ChartedSpace H M] [IsManifold I ∞ M]
     [IsLocallyConstantChartedSpace H M]
@@ -276,7 +276,7 @@ Closure structure:
 * Helper `mfderiv_extChartAt_apply_smoothAt` (PRE-PAPER sorry'd) supplies
   the parametric chart-forward mfderiv smoothness. -/
 theorem contMDiff_constSection_TangentSpace
-    {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
+    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
     {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
     {M : Type*} [TopologicalSpace M] [ChartedSpace H M] [IsManifold I ∞ M]
     [IsLocallyConstantChartedSpace H M]
@@ -427,7 +427,7 @@ For fixed `v : E`, `b ↦ (trivAt _ _ x₀).cLMA R b v : M → E` is `C^∞` on
 `baseSet`. Direct corollary of Layer 1 (constant section smooth) +
 `mdifferentiableAt_section` (Mathlib characterization). -/
 theorem contMDiffOn_continuousLinearMapAt_apply
-    {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
+    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
     {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
     {M : Type*} [TopologicalSpace M] [ChartedSpace H M] [IsManifold I ∞ M]
     [IsLocallyConstantChartedSpace H M]
@@ -477,7 +477,7 @@ chain identity `mfderiv_extChartAt_comp_mfderivWithin_extChartAt_symm`.
 * Use `[FiniteDimensional ℝ E]` to lift pointwise-in-v smoothness to
   CLM-valued smoothness via basis decomposition. -/
 theorem contMDiffOn_continuousLinearMapAtFlat
-    {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
+    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
     [FiniteDimensional ℝ E]
     {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
     {M : Type*} [TopologicalSpace M] [ChartedSpace H M] [IsManifold I ∞ M]
@@ -507,7 +507,7 @@ Derived from forward chart smoothness via:
 * Chain identity: `mfderivWithin (.symm) (range I) e₀ = inverse(mfderiv (extChartAt I x) ((.symm) e₀))`
 * `(extChartAt I x).symm : E → M` smooth on chart target -/
 theorem contMDiffOn_mfderivWithinFlat
-    {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
+    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
     [FiniteDimensional ℝ E] [CompleteSpace E]
     {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
     {M : Type*} [TopologicalSpace M] [ChartedSpace H M] [IsManifold I ∞ M]
@@ -602,7 +602,7 @@ target) to single-point `MDifferentiableWithinAt` at the basepoint within
 /-- `MDifferentiableWithinAt` form of `mfderivWithinFlat x` at the
 basepoint `extChartAt I x x` within `Set.range I`. -/
 private theorem mfderivWithinFlat_mdifferentiableWithinAt
-    {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
+    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
     [FiniteDimensional ℝ E] [CompleteSpace E]
     {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
     {M : Type*} [TopologicalSpace M] [ChartedSpace H M] [IsManifold I ∞ M]
@@ -634,7 +634,7 @@ set_option backward.isDefEq.respectTransparency false in
 /-- For `y` in chart-source nbhd of `x`, `symmLFlat x y` equals
 `mfderivWithinFlat x (extChartAt I x y)`. Lifted to `=ᶠ[𝓝 x]`. -/
 private theorem symmLFlat_eventuallyEq_mfderivWithinFlat
-    {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
+    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
     {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
     {M : Type*} [TopologicalSpace M] [ChartedSpace H M] [IsManifold I ∞ M]
     (x : M) :
@@ -660,7 +660,7 @@ Proof: composition of `extChartAt I x` (smooth, `mdifferentiableAt_extChartAt`)
 with `mfderivWithinFlat x` (smooth, Helper 1), bridged to `symmLFlat` via
 Helper 2's eventually-equal identity. -/
 theorem symmLFlat_mdifferentiableAt
-    {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
+    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
     [FiniteDimensional ℝ E] [CompleteSpace E]
     {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
     {M : Type*} [TopologicalSpace M] [ChartedSpace H M] [IsManifold I ∞ M]

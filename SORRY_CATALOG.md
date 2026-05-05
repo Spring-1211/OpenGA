@@ -18,11 +18,11 @@ require updating this file.
 
 | Module | PRE-PAPER | CITED-BLACK-BOX | PAPER-INTERNAL | CONJECTURAL | Total |
 |--------|-----------|------------------|----------------|-------------|-------|
-| Riemannian | 3 | 0 | 0 | 0 | 3 |
+| Riemannian | 4 | 0 | 0 | 0 | 4 |
 | GeometricMeasureTheory | 5 | 9 | 0 | 0 | 14 |
 | MinMax | 3 | 9 | 0 | 0 | 12 |
 | Regularity | 0 | 2 | 0 | 0 | 2 |
-| **Total** | **11** | **20** | **0** | **0** | **31** |
+| **Total** | **12** | **20** | **0** | **0** | **32** |
 
 (Bridge investment final closure: Riemannian 9 → 3. The 6 closed sorrys: full
 `leviCivitaConnection_exists` smoothness clause + `koszulCovDeriv_const_smoothAt`
@@ -32,7 +32,7 @@ Zero `sorryAx` in `leviCivitaConnection_exists` axiom dependency chain. Phase
 strengthened guarantee: smoothness clause is now real-proven, not bypassed
 via PRE-PAPER sorry.)
 
-## Riemannian (9)
+## Riemannian (10)
 
 | File:line | Identifier | Classification | Repair plan |
 |-----------|-----------|---------------|-------------|
@@ -45,6 +45,7 @@ via PRE-PAPER sorry.)
 | `Curvature.lean:~322` | `ricciFormAt.toFun.map_smul'` | PRE-PAPER | Same path via `covDeriv_smul_const_field` (already proven). |
 | `Curvature.lean:~325` | `ricciFormAt.map_add'` | PRE-PAPER | Linearity of $\mathrm{Ric}(\cdot, W)$ in 1st tangent vector. Repair: additivity of `riemannCurvature` in 2nd-arg-section via `covDeriv_add_field` + `VectorField.mlieBracket_add_right` (Mathlib). |
 | `Curvature.lean:~327` | `ricciFormAt.map_smul'` | PRE-PAPER | Same path via `covDeriv_smul_const_field` + `VectorField.mlieBracket_const_smul_right` (Mathlib). |
+| `Metric/MathlibBridge.lean:~contMDiff` | `RiemannianMetric.toBundleContMDiffRiemannianMetric.contMDiff` | PRE-PAPER | Bundle CLM-section smoothness for the hom-bundle of TangentSpace twice. Phase 1C spike narrowed the goal to: `(T_dual x).linearMapAt y ((g.metricTensor y) ((T_tan x).symm y v)) w = (g.metricTensor y v) w`, which holds because the dual and tangent trivializations cancel on a chart's base set. Closure path: framework helper composing `Trivialization.symmL` + dual-trivialization-cancellation lemma. Not blocking framework usage — the bridge is symbolic; the framework's IPS is `OpenGALib.metricInner`, not Mathlib's bundle IPS (see `Metric/MathlibBridge.lean` "Phase 1C architectural lesson — the irreducible NACG diamond"). |
 
 ## GeometricMeasureTheory (14)
 
