@@ -4,18 +4,17 @@
 
 This framework is a Lean 4 mathematical software project, not a one-shot paper formalization.
 
-Two parallel deliverables:
+**Reusable Lean 4 mathematical software libraries**: Riemannian, GeometricMeasureTheory, MinMax theory, Regularity theory — Mathlib upstream candidates.
 
-1. **Paper "Alternative Regularity via Non-Excessive Sweepouts"** (Xinze Li, Yangyang Li): formal verification companion in Lean 4.
-2. **Reusable Lean 4 mathematical software libraries**: GeometricMeasureTheory, MinMax theory, Regularity theory — Mathlib upstream candidates.
-
-Both deliverables are first-class. Architectural decisions favor long-term software value over short-term paper expedience.
+Architectural decisions favor long-term software value. Paper-specific
+formalization sub-projects live in separate repos and consume this lib stack
+via `require OpenGALib from ".."`.
 
 Phase 1 (Layer A + Layer B real grounding) is complete: 20 GMT analysis primitives carry real Lean definitions. Phase 1.5 + 1.6 added a 5th independent Riemannian package: 9 of 9 Riemannian primitives (Riemann curvature, Ricci, scalar curvature, second fundamental form + squared norm, mean curvature, manifold gradient + squared norm, Levi-Civita connection) are real definitions; the Levi-Civita existence (`koszulLeviCivita_exists`) is closed via `TensorialAt.mkHom` + Riesz uniqueness. **Zero existence axioms** in the Riemannian package.
 
 ## Architecture
 
-Single OpenGALib Lean library + AltRegularity sub-project, layered:
+Single OpenGALib Lean library, layered:
 
 ```
 OpenGALib (single lean_lib, 4 sub-namespaces)
@@ -25,8 +24,6 @@ OpenGALib (single lean_lib, 4 sub-namespaces)
 │         ↑
 ├── MinMax                     ← lib (min-max theory, Sweepout subnamespace)
 └── Regularity                 ← lib (regularity theory; Wickramasekera, Allard, Schoen-Simon, etc.)
-            ↑
-AltRegularity (sub-project, requires OpenGALib + paper companion)
 ```
 
 OpenGALib is a single Lake package containing 4 sub-namespaces (Riemannian, GeometricMeasureTheory,
@@ -36,9 +33,8 @@ Riemannian is independent of paper-domain concerns and is a future spin-out
 candidate as a standalone Lean library (Mathlib upstream / community use).
 GeometricMeasureTheory must not reference paper-specific or domain-specific concepts.
 MinMax and Regularity must not reference paper-specific concepts.
-AltRegularity is the paper-specific sub-project (located at `AltRegularity/`, with
-`AltRegularity/paper/` as the paper companion); future papers are separate sub-projects
-consuming the same OpenGALib lib stack via `require OpenGALib from ".."`.
+Paper-specific sub-projects live outside this repo and consume the OpenGALib lib
+stack via `require OpenGALib from ".."`.
 
 ## Self-build is the default action
 

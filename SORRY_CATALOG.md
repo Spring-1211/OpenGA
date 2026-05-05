@@ -96,7 +96,7 @@ via PRE-PAPER sorry.)
 
 * This catalog tracks **public-facing** sorries (Riemannian /
   GeometricMeasureTheory / MinMax / Regularity packages). Application
-  papers (e.g., AltRegularity) maintain their own catalogs.
+  papers maintain their own catalogs.
 * PRE-PAPER classification is **not permanent technical debt**: every
   PRE-PAPER entry has a concrete repair trigger (Mathlib API maturation
   or framework self-build follow-up).
