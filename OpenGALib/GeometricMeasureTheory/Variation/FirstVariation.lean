@@ -22,15 +22,6 @@ provided by `OpenGALib.RiemannianMetric I M`).
 
 The mass-only `Varifold` does not carry tangent-plane data; the unit
 normal is supplied by `Varifold.HasNormal` typeclass.
-
-## Phase 4.7.6 migration
-
-The Phase 1.5 placeholder `normalCorrection_exists` (vacuous existence
-returning the zero function) is replaced by the real `noncomputable def`
-`normalCorrection`, which evaluates to the textbook
-$\langle \nu(x), \nabla_\nu X(x) \rangle_g$ via `metricInner x` and
-`covDeriv`.
-
 ## Relationship to existing `firstVariation`
 
 The pre-Phase-1.5 `firstVariation` in `Stationary.lean` uses the

@@ -9,15 +9,6 @@ import Mathlib.Geometry.Manifold.IsManifold.Basic
 
 Stability and Morse-index concepts for varifolds — GMT-level
 classification primitives.
-
-## Phase 1.5 (D): file-relocation
-
-`IsStable` previously lived in `OpenGALib/Regularity/AlphaStructural.lean`. It is
-moved here because it is a GMT-level concept (a universal quantification
-over test functions of `secondVariation`-non-negativity) rather than a
-regularity-theory-specific construct. `OpenGALib/Regularity/AlphaStructural.lean`
-re-imports.
-
 ## Sibling concepts
 
   * `IsStable V` — $\delta^2 V \ge 0$ for all test functions

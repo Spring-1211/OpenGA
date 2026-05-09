@@ -88,20 +88,4 @@ Tensor/DifferentialForm  ← smooth differential n-forms
   `Ω^n⟮E, F⟯`. **On normed space `E`, not yet on manifold.**
 * `Congr`, `Rough`, `Basic` — index reordering + computational layer +
   polished API.
-
-## Phase B audit note
-
-As of Phase A close-out, this namespace has **no internal consumer in the
-rest of OpenGALib** (GMT / Regularity / Riemannian core). It is preserved
-as self-contained tooling, suitable for future:
-
-* Mathlib upstream PR candidates (each sub-module is largely
-  Mathlib-conforming).
-* Bridge to `Riemannian.Curvature` (planned: Riemann tensor as
-  `(1,3)`-tensor section).
-* Bridge to `Riemannian.Operators` (planned: chart-Christoffel concrete
-  Hessian as `Operators.Bilin` carrier).
-
-These bridges are **substantive refactor work** (Phase C tier 3); the
-current commit lands the algebraic infrastructure only.
 -/
