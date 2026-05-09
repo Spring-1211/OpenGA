@@ -38,9 +38,16 @@ What's the refactor about?
 │   docstrings; find all theorems referencing X; etc.)?
 │   └─ Lake script. See "Lake script vs bash" below.
 │
-└─ Bulk delete dead content (e.g., a sub-package being removed)?
-    └─ git rm -r + scripts/lean-grep.sh to find dangling refs +
-       manual cleanup of those refs.
+├─ Bulk delete dead content (e.g., a sub-package being removed)?
+│   └─ git rm -r + scripts/lean-grep.sh to find dangling refs +
+│      manual cleanup of those refs.
+│
+└─ Consolidate textbook-style sub-files into a single verifiable
+   object (e.g., `Metric/{Basic, Riesz, Smooth, RieszSmooth}.lean`
+   → `Metric.lean`)?
+   └─ See "Verifiable-object consolidation" below.
+      Merge + private engineering + section organization +
+      redirect downstream imports + delete sub-files.
 ```
 
 ---
@@ -143,6 +150,143 @@ examples.
    **don't push to a public repo with a trailer you'd regret**.
    Memory `feedback_release_repo_attribution.md` enforces this for
    MathNetwork/OpenGA going forward.
+
+---
+
+## Verifiable-object consolidation
+
+The refactor that turns a *textbook-chapter*-shaped split (`Foo/Basic.lean`
++ `Foo/Riesz.lean` + `Foo/Smooth.lean` + ... + `Foo.lean` facade) into
+a single *verifiable-object*-shaped file (one `Foo.lean` containing the
+full public API of one math object).
+
+Performed for: `Riemannian/Curvature.lean`, `Riemannian/Gradient.lean`,
+`Riemannian/Operators/{Hessian, Laplacian}.lean` (rename + doc cleanup,
+no merge), `Riemannian/Metric.lean` (5 → 1 merge).
+
+### When to use
+
+* The current split corresponds to a workflow stage (`Basic` →
+  `Riesz` → `Smooth`), not to a sub-object boundary.
+* Every consumer needs the union of two or more sub-files anyway
+  (e.g., `LeviCivita.lean` needed both `Riesz` and `RieszSmooth`).
+* The facade is just `import Sub1; import Sub2; import Sub3` with
+  re-export semantics, no value beyond namespace bundling.
+* Sub-files share the same `variable` block — duplication is itself
+  a smell.
+
+### When NOT to use
+
+* The sub-files correspond to genuinely separate math objects
+  (e.g., `riemannCurvature` vs `ricci` could plausibly be split if
+  consumers diverge — though currently they don't).
+* The split provides actual modularity (consumer A imports only
+  the lightweight typeclass def, consumer B imports the heavy
+  smoothness theorems). Check `lean-grep` for asymmetric usage
+  before merging.
+* Sub-file is a forward-compat / Mathlib-bridge / experimental
+  layer with its own life cycle (`MathlibBridge.lean` stayed
+  separate after the Metric refactor for this reason).
+
+### Procedure
+
+1. **Identify the object.** Read the sub-files. Confirm they're all
+   API for the same math object (`RiemannianMetric` typeclass +
+   inner + Riesz + smoothness = one object; not four).
+
+2. **Audit external consumers.** For every public symbol in the
+   sub-files, grep the entire repo for references outside the
+   sub-files themselves:
+   ```
+   scripts/lean-grep.sh '\b(symbol1|symbol2|...)\b'
+   ```
+   Mark each as: (a) public, externally consumed; (b) internal
+   only — candidate for `private`.
+
+3. **Audit external imports.** For each sub-file, grep `import` of
+   that path:
+   ```
+   scripts/lean-grep.sh 'import OpenGALib.Riemannian.Metric\.'
+   ```
+   List the consumer files. They will need their `import` lines
+   redirected.
+
+4. **Plan section structure.** Order by dependency / use flow,
+   not by file-of-origin. For Metric: Typeclass → Inner +
+   algebra → TangentSpace instances → Riesz → Smoothness.
+
+5. **Write the unified file.** One `import` block (union),
+   one `variable` block (factored across sections where
+   applicable), section comments mark the structure. Engineering
+   helpers get `private` if step 2 says they're internal-only.
+
+6. **Redirect imports.** For each consumer file from step 3,
+   replace `import OpenGALib.Foo.Sub1` (etc.) with the single
+   `import OpenGALib.Foo`. Multiple sub-imports collapse to one
+   line.
+
+7. **Delete sub-files.** `rm OpenGALib/Foo/Sub*.lean`.
+
+8. **Verify per-file.** `lake env lean OpenGALib/Foo.lean` (LSP
+   diagnostics — silent = clean). Then each downstream consumer.
+   Then full `lake build OpenGALib.<TopNamespace>`.
+
+9. **Drop SelfTest sections.** Sub-file facades often have
+   `example` blocks proving the typeclass cascade works. These
+   are documentation, not tests — delete on consolidation.
+
+10. **Module docstring.** Rewrite to `# Object` + 1-paragraph
+    summary + `## Main definitions` + `## Main results` +
+    `Reference: <book §X>`. Drop historical/phase-tracking
+    narrative.
+
+### Pitfalls specific to consolidation
+
+* **Cyclic import via `Internal.lean` split.** Tempted to put
+  engineering in `Foo/Internal.lean` and re-import from
+  `Foo.lean`? `Foo/Internal.lean` would need the typeclass
+  defined in `Foo.lean` first. Solution: keep everything in
+  `Foo.lean`, use `private` + sections instead of file split.
+  (Tried during Metric refactor, abandoned.)
+
+* **`where`-aux blocks don't cross-reference.** Tempted to extract
+  proof helpers into `where`-aux at the bottom of a theorem? They
+  can't see each other. If `helper2` references `helper1`'s type,
+  `where`-aux won't compile. Solution: keep them inline as
+  `have` clauses, or extract to top-level `private theorem`s
+  outside the `where`-aux. (Tried during Curvature refactor on
+  `ricciFormAt`, reverted.)
+
+* **`backward.isDefEq.respectTransparency false` propagation.**
+  TangentSpace instance bridges need this option in scope. When
+  consolidating, the `set_option ... in` markers must come *with*
+  each instance/theorem that needs them, not at file top
+  (file-level `set_option` doesn't propagate transparently
+  through subsequent `instance` decls in the way you'd expect).
+
+* **Linter `unused section variable` after consolidation.** When
+  merging, a single `variable [g : RiemannianMetric I M]` block
+  covers both the typeclass-needing and typeclass-free theorems.
+  The linter flags theorems where `g` is unused. Add `omit [g]
+  in` (or `omit [IsManifold I ∞ M] in`, etc.) before each
+  affected theorem.
+
+* **Unicode notation `quotPrecheck` failure.** `local notation
+  "𝒞[" V "]" => SmoothVectorField.const ...` failed because Lean
+  rejects `𝒞` as an identifier head. Fall back to ASCII (`cF[V]`)
+  or use a Unicode symbol that's category `Sm` (e.g. `∇`, `⟦⟧`).
+
+* **`sed` double-substitution on `notation` lines.** `local
+  notation "cF[" V "]" => SmoothVectorField.const X V` — running
+  `sed 's|SmoothVectorField.const X V|cF[V]|g'` substitutes the
+  RHS too, producing recursive `notation "cF[" V "]" => cF[V]`.
+  Always exclude the notation declaration line from the sed
+  pass, or use the Edit tool with `replace_all=false` to be
+  surgical.
+
+* **BSD `sed -i` differs from GNU.** `\b` word boundary doesn't
+  work on macOS BSD sed. Use the Edit tool's `replace_all` mode
+  for cross-platform identifier renames within a single file.
 
 ---
 
