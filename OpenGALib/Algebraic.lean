@@ -1,3 +1,4 @@
+import OpenGALib.Algebraic.Auxiliary.Basis
 import OpenGALib.Algebraic.BilinearForm.Basic
 import OpenGALib.Algebraic.Instances.RatVector
 
