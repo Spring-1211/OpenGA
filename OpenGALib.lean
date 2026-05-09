@@ -1,4 +1,5 @@
 import OpenGALib.Algebraic
+import OpenGALib.Tensor
 import OpenGALib.Riemannian
 import OpenGALib.GeometricMeasureTheory
 import OpenGALib.Regularity
