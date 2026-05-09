@@ -5,7 +5,7 @@ import Mathlib.Geometry.Manifold.VectorField.Pullback
 import Mathlib.LinearAlgebra.Trace
 
 /-!
-# AltRegularity.GMT.Variation.Divergence
+# GMT.Variation.Divergence
 
 Ambient divergence operator on the model normed space and the manifold.
 

@@ -5,7 +5,7 @@ import OpenGALib.GeometricMeasureTheory.HasNormal
 import Mathlib.Geometry.Manifold.IsManifold.Basic
 
 /-!
-# AltRegularity.GMT.Stable
+# GMT.Stable
 
 Stability and Morse-index concepts for varifolds — GMT-level
 classification primitives.

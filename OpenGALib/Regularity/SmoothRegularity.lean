@@ -8,7 +8,7 @@ open GeometricMeasureTheory GeometricMeasureTheory.Varifold Bundle
 open scoped ContDiff
 
 /-!
-# AltRegularity.Regularity.SmoothRegularity
+# Regularity.SmoothRegularity
 
 Smooth regularity for stable codimension-1 integral varifolds in the
 class $\mathcal{S}_\alpha$ (paper §4 Theorem~\ref{thm:wickramasekera},

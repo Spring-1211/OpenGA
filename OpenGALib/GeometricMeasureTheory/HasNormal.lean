@@ -5,7 +5,7 @@ import Mathlib.Geometry.Manifold.ContMDiff.Basic
 import OpenGALib.Riemannian.Metric
 
 /-!
-# AltRegularity.GMT.HasNormal
+# GMT.HasNormal
 
 The `Varifold.HasNormal` typeclass: a varifold carries a unit normal
 field on its support. This is the codim-1 hypothesis built into a

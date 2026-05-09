@@ -2,7 +2,7 @@ import OpenGALib.GeometricMeasureTheory.FinitePerimeter
 import Mathlib.MeasureTheory.Measure.MeasureSpaceDef
 
 /-!
-# AltRegularity.GMT.FlatDistance
+# GMT.FlatDistance
 
 For two Caccioppoli sets $\Omega_1, \Omega_2 \subset M$, the **flat
 distance** is $\mathcal{F}(\Omega_1, \Omega_2) := \mathrm{Vol}(\Omega_1

@@ -4,7 +4,7 @@ import Mathlib.Geometry.Manifold.MFDeriv.Basic
 import Mathlib.MeasureTheory.Integral.Bochner.Basic
 
 /-!
-# AltRegularity.GMT.SecondVariation
+# GMT.SecondVariation
 
 Second variation of a varifold along a normal deformation.
 
@@ -17,9 +17,9 @@ $$\delta^2 V(\varphi, \varphi)
 
 This is the GMT primitive used to express:
   * Stability — paper §4 Definition 4.1 (S2)
-    (`AltRegularity.Regularity.AlphaStructural`)
+    (`Regularity.AlphaStructural`)
   * Local stability of varifolds — paper §7.1
-    (`AltRegularity.Regularity.StabilityVerification`)
+    (`Regularity.StabilityVerification`)
 
 ## Definition style
 

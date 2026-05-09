@@ -9,7 +9,7 @@ import Mathlib.LinearAlgebra.Trace
 import Mathlib.MeasureTheory.Integral.Bochner.Basic
 
 /-!
-# AltRegularity.GMT.Stationary
+# GMT.Stationary
 
 Stationary varifolds.
 
@@ -20,7 +20,7 @@ has two key consequences used throughout the paper:
     $r \mapsto \|V\|(B_r(p))/r^n$ is monotone non-decreasing in $r$, so
     the density $\Theta(\|V\|, p)$ exists pointwise.
   * the **rectifiability theorem** (Proposition 2.12, in
-    `AltRegularity.GMT.Rectifiability`).
+    `GMT.Rectifiability`).
 
 ## Definition style
 

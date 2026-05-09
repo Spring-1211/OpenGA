@@ -5,7 +5,7 @@ import OpenGALib.Riemannian.Gradient
 import Mathlib.MeasureTheory.Integral.Bochner.Basic
 
 /-!
-# AltRegularity.GMT.Variation.SecondVariation
+# GMT.Variation.SecondVariation
 
 Full-form second variation $\delta^2 V(\varphi)$ for codim-1 varifolds
 in the Jacobi form.

@@ -4,7 +4,7 @@ import OpenGALib.Riemannian.Connection
 import Mathlib.MeasureTheory.Integral.Bochner.Basic
 
 /-!
-# AltRegularity.GMT.Variation.FirstVariation
+# GMT.Variation.FirstVariation
 
 Full-form first variation $\delta V(X)$ for codim-1 varifolds
 carrying a unit normal field.

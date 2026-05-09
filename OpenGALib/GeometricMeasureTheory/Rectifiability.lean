@@ -3,7 +3,7 @@ import Mathlib.MeasureTheory.Measure.Hausdorff
 import Mathlib.Topology.EMetricSpace.Lipschitz
 
 /-!
-# AltRegularity.GMT.Rectifiability
+# GMT.Rectifiability
 
 Rectifiability of stationary varifolds with positive density
 (Proposition 2.12 of the paper).

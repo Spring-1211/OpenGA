@@ -9,7 +9,7 @@ import Mathlib.Geometry.Manifold.IsManifold.Basic
 open scoped ContDiff
 
 /-!
-# AltRegularity.GMT.Varifold
+# GMT.Varifold
 
 Varifolds in a metric measurable space.
 

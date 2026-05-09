@@ -4,7 +4,7 @@ import Mathlib.Tactic
 import Mathlib.MeasureTheory.Measure.Typeclasses.Finite
 
 /-!
-# AltRegularity.GMT.FinitePerimeter
+# GMT.FinitePerimeter
 
 Sets of finite perimeter in a metric measurable space (also known in the
 GMT literature as Caccioppoli sets).

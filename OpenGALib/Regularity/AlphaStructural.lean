@@ -10,7 +10,7 @@ open GeometricMeasureTheory GeometricMeasureTheory.Varifold Bundle
 open scoped ContDiff Manifold
 
 /-!
-# AltRegularity.Regularity.AlphaStructural
+# Regularity.AlphaStructural
 
 The $\alpha$-structural hypothesis and the class $\mathcal{S}_\alpha$
 (paper §4 Definition 4.1, [Wickramasekera 2014, Section 2]).
@@ -29,7 +29,7 @@ Riemannian manifold belongs to $\mathcal{S}_\alpha$ iff it satisfies:
        sharing a common $C^{1,\alpha}$ boundary containing $Z$.
 
 These conditions are the input to the smooth regularity theorem
-(`AltRegularity.Regularity.SmoothRegularity`).
+(`Regularity.SmoothRegularity`).
 
 ## Definition style
 
