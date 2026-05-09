@@ -28,3 +28,8 @@ resources/
 # Lean build artifacts (Mathlib oleans, ~7G)
 .lake/
 lake-packages/
+
+# External reference repos (cloned locally for study, not part of our lib).
+# We learn from them and re-implement in our own conventions; their files
+# never enter our git history.
+external/
