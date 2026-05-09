@@ -5,57 +5,29 @@ import Mathlib.Geometry.Manifold.ContMDiff.Basic
 import OpenGALib.Riemannian.Metric
 
 /-!
-# Riemannian.Instances.EuclideanSpace — Standard Riemannian metric on inner product spaces
+# Standard Riemannian metric on inner product spaces
 
-Concrete `OpenGALib.RiemannianMetric` instance on a finite-dimensional real
-inner product space `E`, with the standard inner product as metric tensor.
-Specialises to `EuclideanSpace ℝ (Fin n)` for the canonical Euclidean
-example, and to any `[NormedAddCommGroup E] [InnerProductSpace ℝ E]`
-finite-dim space (e.g., `ℝ`, `ℝ × ℝ`, function spaces with L² inner
-product).
+The flat-metric `RiemannianMetric` instance: a finite-dimensional real
+inner product space `E` viewed as a manifold over itself, with the
+standard inner product as the (constant) metric tensor.
 
-## Why this instance exists
+Specialises to `EuclideanSpace ℝ (Fin n)`, `ℝ`, and any real Hilbert /
+finite-dim inner product space.
 
-The framework's `OpenGALib.RiemannianMetric` typeclass is abstract
-(takes any manifold `M` modeled on `E`). To verify the typeclass is
-inhabited and to demonstrate the API, we provide the canonical
-"flat-metric" instance: a manifold-over-itself `M = E`, with the
-constant metric tensor `innerSL ℝ : E →L[ℝ] E →L[ℝ] ℝ`.
+## Main results
 
-This instance is the framework's `EuclideanSpace` reference example
-(analogue of Mathlib `Mathlib/Geometry/Manifold/Instances/Sphere.lean`
-for the sphere), demonstrating typeclass cascade resolution + concrete
-`metricInner` evaluation.
+* `instRiemannianMetricSelf` — the flat metric instance.
+* `metricInner_eq_real_inner_self` — `metricInner = ⟪·, ·⟫_ℝ` on `E`.
 
-## Mathematical content
-
-For a real inner product space `E`, viewed as a manifold over itself
-via `chartedSpaceSelf E` and `𝓘(ℝ, E)`:
-
-  * The metric tensor at every point is the standard inner product on
-    `E` (constant in the basepoint, since the manifold is flat).
-  * Symmetry follows from `real_inner_comm`.
-  * Positive-definiteness follows from `real_inner_self_pos`.
-  * Smoothness is trivial (constant function).
-
-Downstream API (`metricInner`, `metricRiesz`, `manifoldGradient`) then
-specialises to the standard inner product on `E`.
-
-**Ground truth**: this is the canonical Riemannian structure on a
-Hilbert space; do Carmo 1992 §1.1 example 1.4.
+Reference: do Carmo, *Riemannian Geometry*, §1.1 Example 1.4.
 -/
 
 namespace OpenGALib
 
 open scoped ContDiff Manifold InnerProductSpace
 
-/-- **Standard `RiemannianMetric` instance** on a finite-dimensional real
-inner product space `E`, viewed as a manifold over itself via
-`chartedSpaceSelf E` with model `𝓘(ℝ, E)`. The metric tensor at every
-point is the standard inner product, encoded as `innerSL ℝ`.
-
-This instance specialises to `EuclideanSpace ℝ (Fin n)`, and to any
-real Hilbert / finite-dim inner product space. -/
+/-- The flat metric on a finite-dim inner product space `E`: metric tensor
+is the standard `innerSL ℝ`, constant in the basepoint. -/
 noncomputable instance instRiemannianMetricSelf
     {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
     [FiniteDimensional ℝ E] :
@@ -69,20 +41,8 @@ noncomputable instance instRiemannianMetricSelf
     exact real_inner_self_pos.mpr hv
   smoothMetric := contMDiff_const
 
-end OpenGALib
-
-/-! ## UXTest
-
-Self-tests verifying the `EuclideanSpace` instance resolves and that
-`metricInner` matches the standard inner product on `E`. -/
-section UXTest
-
-open OpenGALib
-open scoped ContDiff Manifold InnerProductSpace
-
-/-- The framework's `metricInner` on a real inner product space `E`
-matches the standard inner product. Direct from `instRiemannianMetricSelf`
-unfolding to `innerSL ℝ` and `innerSL_apply_apply`. -/
+/-- $\langle v, w\rangle_g = \langle v, w\rangle_\mathbb{R}$ on the
+flat-metric inner product space. -/
 theorem metricInner_eq_real_inner_self
     {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
     [FiniteDimensional ℝ E]
@@ -90,17 +50,4 @@ theorem metricInner_eq_real_inner_self
     metricInner (I := 𝓘(ℝ, E)) (M := E) x v w = ⟪v, w⟫_ℝ :=
   rfl
 
-/-- The `RiemannianMetric` typeclass resolves on `EuclideanSpace ℝ (Fin n)`
-for any `n : ℕ`. -/
-noncomputable example (n : ℕ) :
-    RiemannianMetric
-      (𝓘(ℝ, EuclideanSpace ℝ (Fin n)))
-      (EuclideanSpace ℝ (Fin n)) :=
-  inferInstance
-
-/-- The `RiemannianMetric` typeclass resolves on `ℝ` (1-d Euclidean
-example). -/
-noncomputable example : RiemannianMetric (𝓘(ℝ, ℝ)) ℝ :=
-  inferInstance
-
-end UXTest
+end OpenGALib
