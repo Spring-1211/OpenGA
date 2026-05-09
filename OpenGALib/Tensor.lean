@@ -1,14 +1,19 @@
+import OpenGALib.Tensor.Alternating.Basis
 import OpenGALib.Tensor.Alternating.Bundle
 import OpenGALib.Tensor.Alternating.Comp
 import OpenGALib.Tensor.Alternating.Congr
+import OpenGALib.Tensor.Alternating.Curry
 import OpenGALib.Tensor.Alternating.FDeriv
 import OpenGALib.Tensor.Alternating.Flip
+import OpenGALib.Tensor.Alternating.Wedge
 import OpenGALib.Tensor.Multilinear.Basis
 import OpenGALib.Tensor.Multilinear.Bundle
 import OpenGALib.Tensor.Multilinear.Comp
 import OpenGALib.Tensor.Multilinear.Fiber
 import OpenGALib.Tensor.Multilinear.Field
 import OpenGALib.Tensor.Multilinear.Flip
+import OpenGALib.Tensor.Product.Defs
+import OpenGALib.Tensor.Product.HomEquiv
 
 /-!
 # Tensor — vector-bundle algebra

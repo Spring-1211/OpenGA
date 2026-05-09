@@ -3,6 +3,8 @@ import OpenGALib.Algebraic.Auxiliary.Fin
 import OpenGALib.Algebraic.Auxiliary.LIContDiff
 import OpenGALib.Algebraic.Auxiliary.MultiKroneckerDelta
 import OpenGALib.Algebraic.Auxiliary.Perm
+import OpenGALib.Algebraic.Auxiliary.ShuffleDecomposition
+import OpenGALib.Algebraic.Auxiliary.ShuffleDeriv
 import OpenGALib.Algebraic.Auxiliary.ShuffleSplit
 import OpenGALib.Algebraic.BilinearForm.Basic
 import OpenGALib.Algebraic.Instances.RatVector
