@@ -1,4 +1,4 @@
-import OpenGALib.Riemannian.Connection.Bianchi
+import OpenGALib.Riemannian.Connection
 
 /-!
 # Riemannian notation — Riemann curvature tier
