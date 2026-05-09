@@ -8,6 +8,10 @@ import OpenGALib.Riemannian.Metric
 import OpenGALib.Riemannian.Operators.Hessian
 import OpenGALib.Riemannian.Operators.Laplacian
 import OpenGALib.Riemannian.SecondFundamentalForm
+import OpenGALib.Riemannian.Tensor.BundleSectionContinuity
+import OpenGALib.Riemannian.Tensor.ChartJacobianSmooth
+import OpenGALib.Riemannian.Tensor.ChartJacobianSmoothness
+import OpenGALib.Riemannian.Tensor.Defs
 import OpenGALib.Riemannian.TangentBundle.Smoothness
 import OpenGALib.Riemannian.TangentBundle.SmoothSection
 import OpenGALib.Riemannian.Instances.EuclideanSpace

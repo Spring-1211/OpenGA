@@ -13,11 +13,17 @@ import OpenGALib.Tensor.DifferentialForm.Rough
 import OpenGALib.Tensor.Multilinear.Basis
 import OpenGALib.Tensor.Multilinear.Bundle
 import OpenGALib.Tensor.Multilinear.Comp
+import OpenGALib.Tensor.Multilinear.Curry
 import OpenGALib.Tensor.Multilinear.Fiber
 import OpenGALib.Tensor.Multilinear.Field
 import OpenGALib.Tensor.Multilinear.Flip
+import OpenGALib.Tensor.Product.Basis
+import OpenGALib.Tensor.Product.Bundle
 import OpenGALib.Tensor.Product.Defs
+import OpenGALib.Tensor.Product.Fiber
 import OpenGALib.Tensor.Product.HomEquiv
+import OpenGALib.Tensor.Product.Pretrivialization
+import OpenGALib.Tensor.Product.Section
 
 /-!
 # Tensor — vector-bundle algebra
