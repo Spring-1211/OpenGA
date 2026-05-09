@@ -12,8 +12,7 @@ import OpenGALib.Riemannian.Tensor.BundleSectionContinuity
 import OpenGALib.Riemannian.Tensor.ChartJacobianSmooth
 import OpenGALib.Riemannian.Tensor.ChartJacobianSmoothness
 import OpenGALib.Riemannian.Tensor.Defs
-import OpenGALib.Riemannian.TangentBundle.Smoothness
-import OpenGALib.Riemannian.TangentBundle.SmoothSection
+import OpenGALib.Riemannian.TangentBundle
 import OpenGALib.Riemannian.Instances.EuclideanSpace
 
 /-!

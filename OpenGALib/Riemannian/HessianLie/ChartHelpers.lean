@@ -1,6 +1,6 @@
 import Mathlib.Geometry.Manifold.MFDeriv.Atlas
 import Mathlib.Geometry.Manifold.MFDeriv.NormedSpace
-import OpenGALib.Riemannian.TangentBundle.Smoothness
+import OpenGALib.Riemannian.TangentBundle
 
 /-!
 # Chart-bridge helpers for `mfderiv` ↔ `fderivWithin`

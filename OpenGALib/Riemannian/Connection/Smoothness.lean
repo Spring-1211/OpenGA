@@ -1,5 +1,5 @@
 import OpenGALib.Riemannian.Connection.LeviCivita
-import OpenGALib.Riemannian.TangentBundle.SmoothVectorField
+import OpenGALib.Riemannian.TangentBundle
 
 /-!
 # `covDeriv` smoothness lemmas

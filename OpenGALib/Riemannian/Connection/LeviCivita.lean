@@ -4,7 +4,7 @@ import Mathlib.Geometry.Manifold.VectorBundle.Tensoriality
 import OpenGALib.Riemannian.Connection.Koszul
 import OpenGALib.Riemannian.Connection.KoszulCotangent
 import OpenGALib.Riemannian.Metric
-import OpenGALib.Riemannian.TangentBundle.SmoothVectorField
+import OpenGALib.Riemannian.TangentBundle
 
 /-!
 # Levi-Civita connection via Koszul + Riesz

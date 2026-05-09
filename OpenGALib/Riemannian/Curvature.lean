@@ -1,6 +1,6 @@
 import OpenGALib.Riemannian.Connection
 import OpenGALib.Riemannian.Connection.Smoothness
-import OpenGALib.Riemannian.TangentBundle.SmoothVectorField
+import OpenGALib.Riemannian.TangentBundle
 import OpenGALib.Riemannian.HessianLie
 import OpenGALib.Util.Notation.Riemann
 import Mathlib.LinearAlgebra.Trace

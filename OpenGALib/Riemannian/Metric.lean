@@ -9,8 +9,7 @@ import Mathlib.LinearAlgebra.BilinearMap
 import Mathlib.Topology.Algebra.Module.FiniteDimension
 import OpenGALib.Algebraic.BilinearForm.Basic
 import OpenGALib.Algebraic.BilinearForm.Riesz
-import OpenGALib.Riemannian.TangentBundle.Smoothness
-import OpenGALib.Riemannian.TangentBundle.SmoothSection
+import OpenGALib.Riemannian.TangentBundle
 import OpenGALib.Util.Attributes
 
 /-!
