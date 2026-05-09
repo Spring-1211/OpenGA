@@ -4,11 +4,6 @@ import Mathlib.Topology.FiberBundle.Basic
 
 /-!
 # Pretrivialization for tensor-product bundles
-
-**Inspired by** `qinz1yang/differential-geometry/Tensor/Product/Pretrivialization.lean`
-(authors: Yuan Liao, Jack McCarthy). Re-implemented in
-`OpenGALib.Tensor.Product` namespace tier; semantics unchanged.
-
 # Pretrivialization for Tensor Product Bundles
 
 This file constructs the pretrivialization and coordinate change maps for the tensor product

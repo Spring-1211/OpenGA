@@ -9,10 +9,6 @@ import Mathlib.Order.Hom.PowersetCard
 
 Helper equivalences and computational lemmas about `Fin n` used in the
 multilinear / alternating tensor development.
-
-**Inspired by** `qinz1yang/differential-geometry/Tensor/Auxiliary/Fin.lean`
-(authors: Yury Kudryashov, Jack McCarthy). Re-implemented in
-`OpenGALib.Algebraic.Auxiliary` namespace tier; semantics unchanged.
 -/
 
 namespace Fin

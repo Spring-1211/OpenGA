@@ -19,10 +19,6 @@ cosets because block-permutations preserve `Sum.inl` / `Sum.inr`.
   invariant under right-multiplication by block-permutations.
 * `removeNone_inv_mul`, `removeNone_sign` — `Equiv.removeNone` is multiplicative
   and sign-preserving on the stabilizer of `none`.
-
-**Inspired by** `qinz1yang/differential-geometry/Tensor/Auxiliary/ShuffleSplit.lean`
-(author: Jack McCarthy). Re-implemented in `OpenGALib.Algebraic.Auxiliary`
-namespace tier; semantics unchanged.
 -/
 
 namespace ShuffleSplit

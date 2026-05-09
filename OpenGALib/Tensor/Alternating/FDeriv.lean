@@ -8,10 +8,6 @@ import Mathlib.Analysis.Normed.Module.Alternating.Basic
 The Fréchet derivative of `f : E → F [⋀^ι]→L[𝕜] G` valued in continuous
 alternating maps commutes with pointwise evaluation:
 `fderiv 𝕜 f x y v = fderiv 𝕜 (f · v) x y`.
-
-**Inspired by** `qinz1yang/differential-geometry/Tensor/Alternating/FDeriv.lean`
-(authors: Yury Kudryashov, Jack McCarthy). Re-implemented in
-`OpenGALib.Tensor.Alternating` namespace tier; semantics unchanged.
 -/
 
 namespace ContinuousAlternatingMap

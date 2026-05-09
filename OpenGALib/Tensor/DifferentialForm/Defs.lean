@@ -13,10 +13,6 @@ space `E` valued in `F`. Underlying data: a smooth function
 `E → E [⋀^Fin n]→L[ℝ] F`.
 
 Algebraic instances (zero, add, neg, sub, scalar smul) and `FunLike` coercion.
-
-**Inspired by** `qinz1yang/differential-geometry/DifferentialForm/Defs.lean`
-(authors: Yury Kudryashov, Jack McCarthy). Re-implemented in
-`OpenGALib.Tensor.DifferentialForm` namespace tier; semantics unchanged.
 -/
 
 noncomputable section

@@ -3,11 +3,6 @@ import Mathlib.Topology.VectorBundle.Basic
 
 /-!
 # Fiber-level results for the tensor-product bundle
-
-**Inspired by** `qinz1yang/differential-geometry/Tensor/Product/Fiber.lean`
-(author: Jack McCarthy). Re-implemented in `OpenGALib.Tensor.Product`
-namespace tier; semantics unchanged.
-
 # Fiber-level results for the tensor product bundle
 
 This file establishes the topology and topological algebra instances on each fiber

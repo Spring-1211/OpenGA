@@ -29,10 +29,6 @@ the wedge product / interior product.
   fixing `inl 0` (resp. `inr 0`) to the complement.
 * `normalizeLeft`, `normalizeRight` — normalize a representative so that it
   fixes the distinguished element.
-
-**Inspired by** `qinz1yang/differential-geometry/Tensor/Auxiliary/ShuffleDecomposition.lean`
-(author: Jack McCarthy). Re-implemented in `OpenGALib.Algebraic.Auxiliary`
-namespace tier; semantics unchanged.
 -/
 
 namespace ContinuousAlternatingMap

@@ -28,12 +28,6 @@ following the pattern of Mathlib's `Bundle.continuousAlternatingMap`.
   maps on a vector bundle form a vector bundle.
 * `Bundle.continuousMultilinearMap.vectorPrebundle.isSmooth` — `C^n`-smooth
   structure on the multilinear bundle.
-
-**Inspired by** `qinz1yang/differential-geometry/Tensor/Multilinear/Bundle.lean`
-(author: Jack McCarthy). Re-implemented under `OpenGALib.Tensor.Multilinear`;
-unused dep on `Tensor.Alternating.Comp` dropped (the file has no
-content reference to alternating maps).
-
 ## Tags
 
 multilinear map, vector bundle, tensor bundle

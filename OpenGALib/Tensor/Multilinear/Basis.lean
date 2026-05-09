@@ -20,10 +20,6 @@ functions in this basis are smooth.
 * `continuousMultilinearMap_basisElem b s σ` — the basis element at `σ`.
 * `continuousMultilinearMap_basis b s` — the explicit basis.
 * `contMDiff_multilinearSection_iff_coord` — smoothness via coordinates.
-
-**Inspired by** `qinz1yang/differential-geometry/Tensor/Multilinear/Basis.lean`
-(author: Jack McCarthy). Re-implemented in `OpenGALib.Tensor.Multilinear`
-namespace tier; semantics unchanged.
 -/
 
 noncomputable section

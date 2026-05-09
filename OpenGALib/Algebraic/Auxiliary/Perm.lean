@@ -6,10 +6,6 @@ import OpenGALib.Algebraic.Auxiliary.Fin
 
 Permutation conjugations and block-permutation lemmas used in wedge products
 and shuffle decompositions.
-
-**Inspired by** `qinz1yang/differential-geometry/Tensor/Auxiliary/Perm.lean`
-(authors: Yury Kudryashov, Jack McCarthy). Re-implemented in
-`OpenGALib.Algebraic.Auxiliary` namespace tier; UNUSED parts dropped.
 -/
 
 namespace Equiv.Perm

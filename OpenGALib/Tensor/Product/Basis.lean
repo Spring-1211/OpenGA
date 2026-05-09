@@ -3,11 +3,6 @@ import Mathlib.LinearAlgebra.TensorProduct.Basis
 
 /-!
 # Basis for the tensor product of finite-dimensional spaces (OpenGALib)
-
-**Inspired by** `qinz1yang/differential-geometry/Tensor/Product/Basis.lean`
-(author: Jack McCarthy). Re-implemented in `OpenGALib.Tensor.Product`
-namespace tier; semantics unchanged.
-
 # Basis for the Tensor Product of Finite-Dimensional Spaces
 
 If `b₁` is a basis for `F₁` indexed by `Fin d₁` and `b₂` is a basis for `F₂` indexed

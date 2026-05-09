@@ -14,11 +14,6 @@ Given `k : Fin (m + n + 1)` (derivative position) and
 sends `0 ↦ k` and `(j+1) ↦ k.succAbove (σ_fin j)`, with sign
 `(-1)^k * sign σ`. Conjugating by `Φ := finSumFinEquiv.trans Fin.finAddFlipAssoc`
 gives the corresponding `τ : Perm (Fin (m+1) ⊕ Fin n)`.
-
-**Inspired by** `qinz1yang/differential-geometry/Tensor/Auxiliary/ShuffleDeriv.lean`
-(author: Jack McCarthy). Re-implemented in `OpenGALib.Algebraic.Auxiliary`
-namespace tier; carries 3 PRE-PAPER sorrys (rank-injectivity counting,
-cardinality balance, sign preservation) inherited from external lib.
 -/
 
 open Equiv

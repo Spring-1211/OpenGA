@@ -3,11 +3,6 @@ import OpenGALib.Tensor.Product.Fiber
 
 /-!
 # The vector bundle of tensor products
-
-**Inspired by** `qinz1yang/differential-geometry/Tensor/Product/Bundle.lean`
-(authors: Yuan Liao, Jack McCarthy). Re-implemented in
-`OpenGALib.Tensor.Product` namespace tier; semantics unchanged.
-
 # The Vector Bundle of Tensor Products
 
 This file constructs the tensor product of two vector bundles as a vector bundle.

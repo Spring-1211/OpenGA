@@ -32,10 +32,6 @@ which are the building blocks for defining the wedge product.
   `uncurryFin (uncurryFinCLM.comp f) = 0`.
 * `ContinuousAlternatingMap.lift_comp_domCoprod_eq_uncurrySum`: the tensor product lift of a
   bilinear map composed with `AlternatingMap.domCoprod` equals `uncurrySum` of the composition.
-
-**Inspired by** `qinz1yang/differential-geometry/Tensor/Alternating/Curry.lean`
-(authors: Yury Kudryashov, Jack McCarthy). Re-implemented in
-`OpenGALib.Tensor.Alternating` namespace tier; semantics unchanged.
 -/
 
 namespace ContinuousAlternatingMap

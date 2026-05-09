@@ -9,10 +9,6 @@ import Mathlib.RingTheory.Finiteness.Defs
 
 A linear isometry `L : E →ₗᵢ[𝕜] F` into a finite-dimensional `F` is a smooth
 embedding: `f : G → E` is `C^n` iff `L ∘ f` is `C^n`.
-
-**Inspired by** `qinz1yang/differential-geometry/Tensor/Auxiliary/LIContDiff.lean`
-(author: Jack McCarthy). Re-implemented in `OpenGALib.Algebraic.Auxiliary`
-namespace tier; semantics unchanged.
 -/
 
 section LinearIsometry

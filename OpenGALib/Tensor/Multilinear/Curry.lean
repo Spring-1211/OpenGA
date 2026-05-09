@@ -12,10 +12,6 @@ via the decomposition `Fin (r+r') ≃ Fin r ⊕ Fin r'`.
 * `continuousMultilinearMap_curryEquiv r r'` — currying linear isometry.
 * `continuousMultilinearMap_curryLeft r r'` — currying as a CLM.
 * `continuousMultilinearMap_uncurryLeft r r'` — uncurrying as a CLM.
-
-**Inspired by** `qinz1yang/differential-geometry/Tensor/Multilinear/Curry.lean`
-(author: Jack McCarthy). Re-implemented in `OpenGALib.Tensor.Multilinear`
-namespace tier; semantics unchanged.
 -/
 
 noncomputable section

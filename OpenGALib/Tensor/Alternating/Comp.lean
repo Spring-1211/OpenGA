@@ -28,10 +28,6 @@ about continuous multilinear maps lift to alternating maps.
   `p ↦ (· ∘ p)` on alternating maps.
 * `compContinuousLinearMapCLM_contMDiff` — `C^∞` smoothness of the same
   pre-composition when fibers are finite-dimensional.
-
-**Inspired by** `qinz1yang/differential-geometry/Tensor/Alternating/Comp.lean`
-(authors: Yury Kudryashov, Jack McCarthy). Re-implemented in
-`OpenGALib.Tensor.Alternating` namespace tier; semantics unchanged.
 -/
 
 open ContinuousAlternatingMap

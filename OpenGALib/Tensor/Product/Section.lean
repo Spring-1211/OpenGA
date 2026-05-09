@@ -2,11 +2,6 @@ import OpenGALib.Tensor.Product.Bundle
 
 /-!
 # Tensor product of smooth sections (OpenGALib)
-
-**Inspired by** `qinz1yang/differential-geometry/Tensor/Product/Section.lean`
-(author: Jack McCarthy). Re-implemented in `OpenGALib.Tensor.Product`
-namespace tier; semantics unchanged.
-
 # Tensor product of smooth sections
 
 If `g` is a `C^n` section of a vector bundle `E₁` and `h` is a `C^n` section of a vector

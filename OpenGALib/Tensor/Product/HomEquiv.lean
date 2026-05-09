@@ -25,11 +25,6 @@ and uses it to induce a normed space structure on the tensor product `F₁ ⊗[�
 * `clmEquiv` : linear equivalence `F₁ ⊗ F₂ ≃ₗ (cDual F₁ →L F₂)`.
 * `instNormedAddCommGroup_tensor` : induced normed group structure on `F₁ ⊗ F₂`.
 * `instNormedSpace_tensor` : induced normed space structure on `F₁ ⊗ F₂`.
-
-**Inspired by** `qinz1yang/differential-geometry/Tensor/Product/HomEquiv.lean`
-(authors: Yuan Liao, Jack McCarthy). Re-implemented in `OpenGALib.Tensor.Product`
-namespace tier; semantics unchanged.
-
 ## Tags
 
 tensor product, hom equivalence, normed space, dual

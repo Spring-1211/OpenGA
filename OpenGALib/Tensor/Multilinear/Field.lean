@@ -20,10 +20,6 @@ scalar-function ↔ `0`-multilinear-section equivalence.
 * `toScalarField_contMDiff` — extracted scalar is `C^n`.
 * `toScalarField_fromScalarField`, `fromScalarField_toScalarField` — round-trip.
 * `toScalarField_add`, `toScalarField_smulByFun` — algebra compatibility.
-
-**Inspired by** `qinz1yang/differential-geometry/Tensor/Multilinear/Field.lean`
-(author: Jack McCarthy). Re-implemented in `OpenGALib.Tensor.Multilinear`
-namespace tier; semantics unchanged.
 -/
 
 noncomputable section

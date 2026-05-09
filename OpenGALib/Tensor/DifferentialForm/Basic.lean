@@ -13,10 +13,6 @@ import Mathlib.Geometry.Manifold.VectorBundle.Tangent
 
 The polished public-facing API for `DifferentialForm n E F`: wedge, pullback,
 exterior derivative, and identities.
-
-**Inspired by** `qinz1yang/differential-geometry/DifferentialForm/Basic.lean`
-(authors: Yury Kudryashov, Jack McCarthy). Re-implemented in
-`OpenGALib.Tensor.DifferentialForm` namespace tier; semantics unchanged.
 -/
 
 noncomputable section

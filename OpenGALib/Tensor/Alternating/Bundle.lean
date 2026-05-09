@@ -20,10 +20,6 @@ is a vector bundle with model fiber `F₁ [⋀^ι]→L[𝕜] F₂`.
 * `Bundle.continuousAlternatingMap.vectorBundle` — `VectorBundle` instance.
 * `SmoothVectorBundle.continuousAlternatingMap` — `C^∞` smooth-bundle instance
   when `E₁`, `E₂` are `C^∞` and fibres are finite-dimensional.
-
-**Inspired by** `qinz1yang/differential-geometry/Tensor/Alternating/Bundle.lean`
-(authors: Heather Macbeth, Jack McCarthy). Re-implemented in
-`OpenGALib.Tensor.Alternating` namespace tier; semantics unchanged.
 -/
 
 noncomputable section

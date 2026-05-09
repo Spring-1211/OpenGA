@@ -13,10 +13,6 @@ space of continuous multilinear maps.
 * `LinearIsometryEquiv.flipMultilinear` — isometric equivalence
   `(G →L[𝕜] CMM 𝕜 E G') ≃ₗᵢ[𝕜] CMM 𝕜 E (G →L[𝕜] G')`.
 * `ContinuousMultilinearMap.flipMultilinear` — flips a CMM-valued CMM.
-
-**Inspired by** `qinz1yang/differential-geometry/Tensor/Multilinear/Flip.lean`
-(authors: Yury Kudryashov, Jack McCarthy). Re-implemented in
-`OpenGALib.Tensor.Multilinear` namespace tier; semantics unchanged.
 -/
 
 noncomputable section Flip

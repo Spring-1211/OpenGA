@@ -8,10 +8,6 @@ import Mathlib.LinearAlgebra.Alternating.Basic
 continuous alternating map along an equivalence. We give basic properties:
 linearity over addition / `Finset.sum`, and commutativity of alternatization
 with `MultilinearMap.domDomCongr`.
-
-**Inspired by** `qinz1yang/differential-geometry/Tensor/Alternating/Congr.lean`
-(author: Jack McCarthy). Re-implemented in `OpenGALib.Tensor.Alternating`
-namespace tier; semantics unchanged.
 -/
 
 noncomputable section

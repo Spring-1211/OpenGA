@@ -15,11 +15,6 @@ product `tensorProductMap` used by the wedge product.
   `(F₁ →L G₁) →L (F₂ →L G₂) →L (F₁⊗F₂ →L G₁⊗G₂)`.
 * `ContinuousAlternatingMap.tensorProductMap` — alternating tensor product via
   bilinear `f`.
-
-**Inspired by** `qinz1yang/differential-geometry/Tensor/Product/Defs.lean`
-(authors: Yuan Liao, Jack McCarthy). Re-implemented in `OpenGALib.Tensor.Product`
-namespace tier; the `RSTensor` section (Riemannian-specific) is dropped — that
-content belongs in `Riemannian/Tensor/`. Semantics unchanged for the kept parts.
 -/
 
 open scoped Topology TensorProduct

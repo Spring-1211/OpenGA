@@ -15,10 +15,6 @@ space of alternating maps.
   maps into an alternating map valued in CMMs.
 * `ContinuousAlternatingMap.flipAlternating` — flip an alternating map valued
   in alternating maps.
-
-**Inspired by** `qinz1yang/differential-geometry/Tensor/Alternating/Flip.lean`
-(authors: Yury Kudryashov, Jack McCarthy). Re-implemented in
-`OpenGALib.Tensor.Alternating` namespace tier; semantics unchanged.
 -/
 
 open ContinuousAlternatingMap

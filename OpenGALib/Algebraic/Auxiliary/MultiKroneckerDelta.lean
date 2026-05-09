@@ -13,10 +13,6 @@ The Cauchy-Binet identity ties this generalized delta to wedge-product
 expansions:
 `(m! · p!)⁻¹ · ∑ σ, sign σ · δ(I, v∘σ∘castAdd) · δ(J, v∘σ∘natAdd)
   = δ(addCases I J, v)`.
-
-**Inspired by** `qinz1yang/differential-geometry/Tensor/Auxiliary/MultiKroneckerDelta.lean`
-(authors: Yury Kudryashov, Jack McCarthy). Re-implemented in
-`OpenGALib.Algebraic.Auxiliary` namespace tier; semantics unchanged.
 -/
 
 open Equiv.Perm

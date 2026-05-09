@@ -18,10 +18,6 @@ d(Sum_J ω_J dx^J) := Sum dω_J ∧ dx^J
 
 The wedge product `α ∧ β`, its bilinear / sign / associativity / Leibniz
 properties, and the elementary-covector basis expansion.
-
-**Inspired by** `qinz1yang/differential-geometry/Tensor/Alternating/Wedge.lean`
-(authors: Yury Kudryashov, Jack McCarthy). Re-implemented in
-`OpenGALib.Tensor.Alternating` namespace tier; semantics unchanged.
 -/
 
 noncomputable section

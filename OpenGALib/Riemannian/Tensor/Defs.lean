@@ -10,11 +10,6 @@ import Mathlib.LinearAlgebra.Multilinear.FiniteDimensional
 Model fibers + point-wise fibers for covariant and mixed tensor bundles on
 smooth manifolds. The (0,s) covariant tensor bundle is defined as a
 `Bundle.continuousMultilinearMap` applied to the tangent bundle.
-
-**Inspired by** `qinz1yang/differential-geometry/Tensor/RSTensor/Defs.lean`
-(authors: Yuan Liao, Jack McCarthy). Re-implemented in
-`OpenGALib.Riemannian.Tensor` namespace tier; semantics unchanged.
-
 # Tensor Definitions and Bundle Instances
 
 We define the model fibers and point-wise fibers for covariant and mixed tensor bundles

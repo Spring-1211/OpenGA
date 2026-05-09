@@ -5,10 +5,6 @@ import OpenGALib.Tensor.Alternating.Flip
 # Index reordering for differential forms
 
 Reindexing `DifferentialForm n E F` along an equivalence on the index type.
-
-**Inspired by** `qinz1yang/differential-geometry/DifferentialForm/Congr.lean`
-(authors: Yury Kudryashov, Jack McCarthy). Re-implemented in
-`OpenGALib.Tensor.DifferentialForm` namespace tier; semantics unchanged.
 -/
 
 open ContinuousAlternatingMap

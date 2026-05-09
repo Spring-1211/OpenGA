@@ -19,10 +19,6 @@ continuous dual.
 * `ContinuousAlternatingMap.elementaryCovector b ι` : given a basis `b` of the continuous
   dual `E →L[𝕜] 𝕜` and a multi-index `ι : Fin k → Fin n`, the elementary k-covector
   mapping `(v 0, ..., v (k-1))` to `det (fun i j => b (ι i) (v j))`.
-
-**Inspired by** `qinz1yang/differential-geometry/Tensor/Alternating/Basis.lean`
-(author: Jack McCarthy). Re-implemented in `OpenGALib.Tensor.Alternating`
-namespace tier; semantics unchanged.
 -/
 
 noncomputable section

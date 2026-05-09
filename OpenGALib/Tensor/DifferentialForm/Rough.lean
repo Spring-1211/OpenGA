@@ -12,10 +12,6 @@ import Mathlib.Geometry.Manifold.VectorBundle.Tangent
 Pointwise evaluation, smoothness lemmas, and exterior derivative on
 representatives. The "rough" name signals this is the computational layer
 used to derive the polished `Basic` API.
-
-**Inspired by** `qinz1yang/differential-geometry/DifferentialForm/Rough.lean`
-(authors: Yury Kudryashov, Jack McCarthy). Re-implemented in
-`OpenGALib.Tensor.DifferentialForm` namespace tier; semantics unchanged.
 -/
 
 noncomputable section

@@ -26,12 +26,6 @@ codomain) and then using `CPolynomialAt.contDiffAt` together with Mathlib's
 intermediate `CPolynomialAt` lemma operates on `(p, β)`-bivariate functions
 into `CMM`, where the only relevant instances are on `F₁` (no diamond) and
 on the `CMM` itself (Banach space, no diamond).
-
-**Inspired by** `qinz1yang/differential-geometry/Tensor/Multilinear/Comp.lean`
-(authors: Yury Kudryashov, Jack McCarthy). Re-implemented in
-`OpenGALib.Tensor.Multilinear` namespace tier; semantics differ in proof
-strategy (cpolynomial-based) due to Mathlib v4.30 typeclass diamond on
-`ContinuousLinearMap` instances.
 -/
 
 noncomputable section Comp

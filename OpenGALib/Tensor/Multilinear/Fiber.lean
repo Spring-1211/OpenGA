@@ -16,10 +16,6 @@ equivalence to the model fiber.
   `IsTopologicalAddGroup`, `ContinuousSMul`, `FiniteDimensional` on fibers.
 * `Bundle.continuousMultilinearMap.continuousLinearEquivAt` — CLE to the model fiber.
 * `Bundle.continuousMultilinearMap.finrank_eq` — fiber dimension is `(finrank 𝕜 F) ^ s`.
-
-**Inspired by** `qinz1yang/differential-geometry/Tensor/Multilinear/Fiber.lean`
-(author: Jack McCarthy). Re-implemented in `OpenGALib.Tensor.Multilinear`
-namespace tier; semantics unchanged.
 -/
 
 noncomputable section

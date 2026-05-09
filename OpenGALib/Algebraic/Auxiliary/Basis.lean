@@ -14,11 +14,6 @@ linear equivalence).
 Used by the multilinear / alternating bundle development (see
 `OpenGALib.Tensor.Multilinear`) to extract concrete tensor coordinates
 from a basis of dual sections.
-
-**Inspired by** `qinz1yang/differential-geometry/Tensor/Auxiliary/Basis.lean`
-(authors: Jack McCarthy). Re-implemented in `OpenGALib.Algebraic.Auxiliary`
-namespace tier; semantics unchanged.
-
 **Ground truth**: standard finite-dimensional duality (Bourbaki *Algebra* II
 §7), continuous-version in normed spaces follows from the topological
 equivalence of `E →ₗ[𝕜] 𝕜` and `E →L[𝕜] 𝕜` for finite-dimensional `E`.
