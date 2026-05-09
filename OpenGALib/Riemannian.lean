@@ -55,6 +55,16 @@ Regularity                   ← consumer
     squared.
   * `BumpFunction.lean` — scalar / radial / manifold bumps + tangent
     vector field extension (`OpenGALib.BumpFunction`).
+  * `Operators/` — second-order differential operators: `Hessian` (vector-field
+    bilinear form via `covDeriv` + `manifoldGradient` + `metricInner`,
+    plus Frobenius / trace Cauchy-Schwarz inequality), `Laplacian` (trace of
+    Hessian).
+  * `Tensor/` — `(0,s)` and `(r,s)` tensor bundle types over the tangent
+    bundle, plus chart-Jacobian smoothness lemmas. Sub-namespace consumes
+    `OpenGALib.Tensor.Multilinear` (in particular `Multilinear/Curry`).
+    Phase B audit: not yet integrated with `Curvature.riemannCurvature`
+    (which uses vector-field-input form, not tensor sections); see
+    `docs/AUDIT_PHASE_B.md` Plan 1.
 
 ## Concrete instances
 
