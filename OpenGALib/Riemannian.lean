@@ -5,6 +5,8 @@ import OpenGALib.Util.Notation
 import OpenGALib.Util.Tactic
 import OpenGALib.Riemannian.Gradient
 import OpenGALib.Riemannian.Metric
+import OpenGALib.Riemannian.Operators.Hessian
+import OpenGALib.Riemannian.Operators.Laplacian
 import OpenGALib.Riemannian.SecondFundamentalForm
 import OpenGALib.Riemannian.TangentBundle.Smoothness
 import OpenGALib.Riemannian.TangentBundle.SmoothSection
