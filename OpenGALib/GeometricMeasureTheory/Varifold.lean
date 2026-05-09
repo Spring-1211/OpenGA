@@ -84,14 +84,9 @@ def support (V : Varifold M) : Set M :=
   simp [massOn]
 
 /-- The zero varifold has empty support. -/
-@[simp] theorem support_zero : support (0 : Varifold M) = ∅ := by
-  ext p
-  constructor
-  · intro hp
-    have h_univ : Set.univ ∈ nhds p := by simp
-    exact False.elim ((hp Set.univ h_univ) (by simp))
-  · intro hp
-    cases hp
+@[simp] theorem support_zero : support (0 : Varifold M) = ∅ :=
+  Set.eq_empty_iff_forall_notMem.mpr fun p hp =>
+    hp Set.univ Filter.univ_mem (by simp)
 
 /-- Pointwise density $\Theta(\|V\|, p) := \lim_{r \to 0} \|V\|(B_r(p))/(\omega_n r^n)$
 where $n = V.\mathrm{dim}$.
