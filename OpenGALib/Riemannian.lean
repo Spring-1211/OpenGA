@@ -1,8 +1,8 @@
 import OpenGALib.Riemannian.BumpFunction
 import OpenGALib.Riemannian.Connection
 import OpenGALib.Riemannian.Curvature
-import OpenGALib.Riemannian.Foundations.Notation
-import OpenGALib.Riemannian.Foundations.Tactic
+import OpenGALib.Riemannian.Util.Notation
+import OpenGALib.Riemannian.Util.Tactic
 import OpenGALib.Riemannian.Gradient
 import OpenGALib.Riemannian.Metric
 import OpenGALib.Riemannian.SecondFundamentalForm
@@ -113,12 +113,12 @@ intermediate identities) are internal and may change without notice.
     `TangentBundle.symmLFlat_mdifferentiableAt`
   * `OpenGALib.MDifferentiableAt.metricInner_smoothAt`
 
-**Foundations** (`Foundations/`):
-  * `Foundations/Notation.lean` — textbook notation: `⟪V, W⟫_g`,
+**Util — engineering layer** (`Util/`, no mathematical content):
+  * `Util/Notation.lean` — textbook notation: `⟪V, W⟫_g`,
     `‖V‖²_g`, `∇[X] Y`, `Riem(X, Y) Z` (scoped to `OpenGALib` /
     `Riemannian` scopes; `open scoped` to enable).
-  * `Foundations/Attributes.lean` — `metric_simp` simp set declaration.
-  * `Foundations/Tactic.lean` — user-facing entry point for tactic
+  * `Util/Attributes.lean` — `metric_simp` simp set declaration.
+  * `Util/Tactic.lean` — user-facing entry point for tactic
     infrastructure.
 
 Stability tier: pre-`v0.1.0` everything is **experimental**. The
@@ -140,13 +140,13 @@ typeclass diamond resolved without deep unfolding. No proof is on a
 heartbeat-limit hot edge; future expansion has comfortable headroom.
 -/
 
-/-! ## UXTest — Foundations layer
+/-! ## UXTest — Util layer
 
 Verifies that the notation + `metric_simp` tactic infrastructure resolve
 end-to-end. Regression guard against signature drift in the notation
 elaboration. -/
 
-section UXTestFoundations
+section UXTestUtil
 
 open OpenGALib
 open scoped ContDiff
@@ -191,4 +191,4 @@ example
     ⟪V - 0, -W + W⟫_g = 0 := by
   simp [metric_simp]
 
-end UXTestFoundations
+end UXTestUtil
