@@ -4,11 +4,11 @@ import OpenGALib.Riemannian.Connection
 # Riemannian notation — Riemann curvature tier
 
 Single notation declaration: `Riem(X, Y) Z` for the Riemann curvature
-operator. Lives in its own dep tier (post-Bianchi, pre-Curvature)
+operator. Lives in its own file
 because:
 
-  * `riemannCurvature` is defined in `Connection/Bianchi.lean`, so
-    this notation file must import Bianchi.
+  * `riemannCurvature` is defined in `Connection.lean`, so
+    this notation file must import Connection.
   * `Curvature.lean` (which defines `ricci`, `scalarCurvature`) needs
     `Riem(X, Y) Z` to state `riemannCurvature_antisymm`, so the
     notation must be importable BY `Curvature.lean` — which requires

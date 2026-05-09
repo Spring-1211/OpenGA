@@ -2,10 +2,10 @@ import OpenGALib.Riemannian.Connection
 import OpenGALib.Riemannian.Metric
 
 /-!
-# Riemannian notation — pre-Bianchi tier
+# Riemannian notation — connection tier
 
 Notations for connection-level and metric-level primitives. Imported by
-`Connection/Bianchi.lean` so the Riemann curvature def can read in
+`Connection.lean` (Bianchi section) so the Riemann curvature def can read in
 math notation; imported by all downstream theorem code that uses
 `∇`, `⟦,⟧`, `⟪,⟫_g`.
 

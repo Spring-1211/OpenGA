@@ -17,7 +17,7 @@ downstream of the curvature math layer.
   * `grad_g f`     — `manifoldGradient f` as a section
 
 The Riemann curvature notation `Riem(X, Y) Z` lives in
-`Util/Notation/Riemann.lean` (post-Bianchi, pre-Curvature) so that
+`Util/Notation/Riemann.lean` so that
 `Curvature.lean` itself can use it.
 
 All `scoped` to `Riemannian`. Eta-reduced for simp-friendly elaboration.
