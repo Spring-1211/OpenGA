@@ -183,7 +183,8 @@ Performed for: `Riemannian/Curvature.lean`, `Riemannian/Gradient.lean`,
 `Riemannian/Operators/{Hessian, Laplacian}.lean` (rename + doc cleanup,
 no merge), `Riemannian/Metric.lean` (5 → 1 merge),
 `Riemannian/TangentBundle.lean` (4 → 1 merge),
-`Riemannian/HessianLie.lean` (4 → 1 merge).
+`Riemannian/HessianLie.lean` (4 → 1 merge),
+`Riemannian/Connection.lean` (5 → 1 merge, ~2100 line single file).
 
 ### When to use
 
@@ -260,6 +261,25 @@ no merge), `Riemannian/Metric.lean` (5 → 1 merge),
     summary + `## Main definitions` + `## Main results` +
     `Reference: <book §X>`. Drop historical/phase-tracking
     narrative.
+
+### Programmatic consolidation for large multi-file merges
+
+For `Connection/{5 files}.lean` (2500 lines) and similar large refactors,
+hand-writing a unified `.lean` file is too costly. Use a Python script:
+
+1. Walk each sub-file in dep order (bottom-up: leaf first, facade last).
+2. Collect imports / `open` / `open scoped` into sets (deduped at write time).
+3. Strip per-sub-file leading docstring + `namespace X` / `end X` wrappers.
+4. Detect notation-using lines that need denotation (e.g. `∇[X] Y` → `covDeriv X Y`)
+   if the unified file imports nothing downstream — handle by inline regex *or*
+   manual fix after build error report.
+5. Tag known-internal symbols `private` via post-pass regex
+   (`^(theorem|def|noncomputable\s+def) <name>` → prepend `private`).
+6. Write unified file with one module docstring at top.
+
+Pattern as run on Connection: ~50-line script, 90% mechanical, manual
+fix-up of the 1-2 notation-bearing lines after first build attempt.
+Saves ~30 min vs hand-writing.
 
 ### Pitfalls specific to consolidation
 
