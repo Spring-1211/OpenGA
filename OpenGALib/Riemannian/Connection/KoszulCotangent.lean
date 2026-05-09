@@ -1,5 +1,5 @@
 import OpenGALib.Riemannian.Connection.Koszul
-import OpenGALib.Riemannian.Metric.RieszSmooth
+import OpenGALib.Riemannian.Metric
 import OpenGALib.Riemannian.TangentBundle.MFDerivSmooth
 import OpenGALib.Riemannian.TangentBundle.SmoothVectorField
 

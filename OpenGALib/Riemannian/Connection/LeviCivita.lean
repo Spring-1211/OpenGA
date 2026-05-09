@@ -3,8 +3,7 @@ import Mathlib.Geometry.Manifold.VectorBundle.CovariantDerivative.Torsion
 import Mathlib.Geometry.Manifold.VectorBundle.Tensoriality
 import OpenGALib.Riemannian.Connection.Koszul
 import OpenGALib.Riemannian.Connection.KoszulCotangent
-import OpenGALib.Riemannian.Metric.Riesz
-import OpenGALib.Riemannian.Metric.RieszSmooth
+import OpenGALib.Riemannian.Metric
 import OpenGALib.Riemannian.TangentBundle.SmoothVectorField
 
 /-!

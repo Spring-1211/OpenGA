@@ -1,7 +1,6 @@
 import Mathlib.Geometry.Manifold.MFDeriv.Basic
 import Mathlib.Geometry.Manifold.VectorField.LieBracket
-import OpenGALib.Riemannian.Metric.Basic
-import OpenGALib.Riemannian.Metric.Smooth
+import OpenGALib.Riemannian.Metric
 
 /-!
 # Koszul functional + algebraic identities

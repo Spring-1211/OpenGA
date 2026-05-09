@@ -2,7 +2,7 @@ import Mathlib.Topology.VectorBundle.Riemannian
 import Mathlib.Geometry.Manifold.VectorBundle.Riemannian
 import Mathlib.Geometry.Manifold.VectorBundle.Tangent
 import Mathlib.Topology.MetricSpace.ProperSpace.Real
-import OpenGALib.Riemannian.Metric.Basic
+import OpenGALib.Riemannian.Metric
 
 /-!
 # Mathlib bridge: `OpenGALib.RiemannianMetric` → `Bundle.RiemannianBundle`

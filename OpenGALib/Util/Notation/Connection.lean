@@ -1,5 +1,5 @@
 import OpenGALib.Riemannian.Connection.LeviCivita
-import OpenGALib.Riemannian.Metric.Basic
+import OpenGALib.Riemannian.Metric
 
 /-!
 # Riemannian notation — pre-Bianchi tier
