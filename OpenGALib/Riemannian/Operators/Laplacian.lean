@@ -1,24 +1,30 @@
 import OpenGALib.Riemannian.Operators.Hessian
 
 /-!
-# Laplace–Beltrami operator via trace of the Hessian
+# Laplace–Beltrami operator
 
-The Laplace–Beltrami operator on a smooth scalar function `f : M → ℝ` is the
-trace of the Hessian: `Δ_g f x = trace_g (Hess f) x`. With a user-supplied
-pointwise bilinear-form Hessian `B : pointwiseBilin I M`, this file defines
-`laplacianViaTrace B x := traceFun B x` (the trace against the canonical basis
-`Module.finBasis ℝ E`) and records its basic algebraic properties.
+For a smooth scalar $f : M \to \mathbb{R}$ on a Riemannian manifold $(M, g)$,
+the **Laplace–Beltrami operator** is the trace of the Hessian:
+$$\Delta_g f(x) = \operatorname{tr}_g (\operatorname{Hess} f)(x).$$
 
-The chart-coordinate Voss–Weyl identification of `Δ_g f = trace_g (Hess f)` and
-the divergence-of-gradient definition are deferred to a future
-`Riemannian/Operators/VossWeyl.lean` (depends on chart machinery + integration,
-out of scope here).
+This file defines $\Delta_g$ on a user-supplied pointwise bilinear-form
+Hessian `B : Bilin I M`, computed against the canonical basis of $E$, and
+records its basic algebraic properties.
 
-**Inspired by** `qinz1yang/differential-geometry/Geometry/Laplacian.lean`
-(divergence-of-gradient form). The trace-of-Hessian form chosen here is
-self-build, framework-aligned, no integration / chart-Christoffel deps.
+The Voss–Weyl chart formula and the divergence-of-gradient identity belong
+with the chart machinery and are out of scope here.
 
-**Ground truth**: do Carmo 1992 §3.6 (Laplacian = trace of Hessian).
+## Main definitions
+
+* `laplacian B x` — the trace of `B` against the canonical basis.
+
+## Main results
+
+* `laplacian_add`, `laplacian_smul` — linearity in `B`.
+* `laplacian_sq_le_dim_mul_frobeniusSq` — Cauchy-Schwarz bound
+  $(\Delta_g B(x))^2 \le n \cdot \operatorname{frobeniusSq} B(x)$.
+
+Reference: do Carmo §3.6.
 -/
 
 noncomputable section
@@ -37,27 +43,23 @@ variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [InnerProductSpa
   {M : Type*} [TopologicalSpace M] [ChartedSpace H M] [IsManifold I ∞ M]
   [RiemannianMetric I M]
 
-/-- The **Laplace–Beltrami operator** as the trace of a pointwise Hessian
-bilinear form `B`, computed against the canonical basis:
-`Δ_g f x = ∑ i, B x (e_i) (e_i)`.
+/-- The **Laplace–Beltrami operator** $\Delta_g$ acting on a pointwise Hessian
+bilinear form $B$:
+$$\Delta_g B(x) = \sum_i B(x)(e_i, e_i).$$ -/
+noncomputable def laplacian
+    (B : Bilin (M := M) I) (x : M) : ℝ :=
+  trace B x
 
-Clients supply `B` from a concrete construction (chart-Christoffel formula,
-`hessianVF f` lifted to a pointwise carrier, etc.). -/
-noncomputable def laplacianViaTrace
-    (B : pointwiseBilin (M := M) I) (x : M) : ℝ :=
-  traceFun B x
+@[simp] lemma laplacian_def
+    (B : Bilin (M := M) I) (x : M) :
+    laplacian (I := I) (M := M) B x = trace B x := rfl
 
-@[simp] lemma laplacianViaTrace_def
-    (B : pointwiseBilin (M := M) I) (x : M) :
-    laplacianViaTrace (I := I) (M := M) B x = traceFun B x := rfl
-
-/-- Linearity in the bilinear form: `Δ_g (B + C) = Δ_g B + Δ_g C`. -/
-theorem laplacianViaTrace_add
-    (B C : pointwiseBilin (M := M) I) (x : M) :
-    laplacianViaTrace (I := I) (M := M) (B + C) x =
-      laplacianViaTrace (I := I) (M := M) B x +
-        laplacianViaTrace (I := I) (M := M) C x := by
-  simp only [laplacianViaTrace, traceFun]
+/-- $\Delta_g (B + C) = \Delta_g B + \Delta_g C$. -/
+theorem laplacian_add
+    (B C : Bilin (M := M) I) (x : M) :
+    laplacian (I := I) (M := M) (B + C) x =
+      laplacian (I := I) (M := M) B x + laplacian (I := I) (M := M) C x := by
+  simp only [laplacian, trace]
   rw [← Finset.sum_add_distrib]
   refine Finset.sum_congr rfl fun i _ => ?_
   show (B x + C x) ((Module.finBasis ℝ E) i) ((Module.finBasis ℝ E) i) =
@@ -65,27 +67,25 @@ theorem laplacianViaTrace_add
       C x ((Module.finBasis ℝ E) i) ((Module.finBasis ℝ E) i)
   rfl
 
-/-- Homogeneity in the scalar: `Δ_g (c • B) = c · Δ_g B`. -/
-theorem laplacianViaTrace_smul
-    (c : ℝ) (B : pointwiseBilin (M := M) I) (x : M) :
-    laplacianViaTrace (I := I) (M := M) (c • B) x =
-      c * laplacianViaTrace (I := I) (M := M) B x := by
-  simp only [laplacianViaTrace, traceFun]
+/-- $\Delta_g (c \cdot B) = c \cdot \Delta_g B$. -/
+theorem laplacian_smul
+    (c : ℝ) (B : Bilin (M := M) I) (x : M) :
+    laplacian (I := I) (M := M) (c • B) x =
+      c * laplacian (I := I) (M := M) B x := by
+  simp only [laplacian, trace]
   rw [Finset.mul_sum]
   refine Finset.sum_congr rfl fun i _ => ?_
   show (c • B x) ((Module.finBasis ℝ E) i) ((Module.finBasis ℝ E) i) =
     c * B x ((Module.finBasis ℝ E) i) ((Module.finBasis ℝ E) i)
   simp [LinearMap.smul_apply]
 
-/-- The trace–Frobenius Cauchy-Schwarz bound, restated for the Laplacian:
-`(Δ_g B x)² ≤ (finrank ℝ E) · frobeniusSqFun B x`. This is the inequality used
-downstream of the Bochner identity to bound `(Δf)² ≤ n · |Hess f|²`. -/
-theorem laplacianViaTrace_sq_le_dim_mul_frobeniusSqFun
-    (B : pointwiseBilin (M := M) I) (x : M) :
-    (laplacianViaTrace (I := I) (M := M) B x)^2 ≤
-      (Module.finrank ℝ E : ℝ) * frobeniusSqFun (I := I) (M := M) B x := by
-  simpa [laplacianViaTrace] using
-    traceFun_sq_le_dim_mul_frobeniusSqFun (I := I) (M := M) B x
+/-- $(\Delta_g B(x))^2 \le n \cdot \operatorname{frobeniusSq} B(x)$, the
+Cauchy-Schwarz bound used downstream of the Bochner identity. -/
+theorem laplacian_sq_le_dim_mul_frobeniusSq
+    (B : Bilin (M := M) I) (x : M) :
+    (laplacian (I := I) (M := M) B x)^2 ≤
+      (Module.finrank ℝ E : ℝ) * frobeniusSq (I := I) (M := M) B x := by
+  simpa [laplacian] using trace_sq_le_dim_mul_frobeniusSq (I := I) (M := M) B x
 
 end Operators
 end Riemannian

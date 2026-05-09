@@ -100,7 +100,7 @@ as self-contained tooling, suitable for future:
 * Bridge to `Riemannian.Curvature` (planned: Riemann tensor as
   `(1,3)`-tensor section).
 * Bridge to `Riemannian.Operators` (planned: chart-Christoffel concrete
-  Hessian as `pointwiseBilin` carrier).
+  Hessian as `Operators.Bilin` carrier).
 
 These bridges are **substantive refactor work** (Phase C tier 3); the
 current commit lands the algebraic infrastructure only.

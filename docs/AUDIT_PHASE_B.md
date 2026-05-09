@@ -23,7 +23,7 @@ A pre-port file is identified as a "consumer" if either holds.
 
 Tested identifiers include `compContinuousLinearMapL_diag`,
 `MultilinearSection`, `ContinuousAlternatingMap.tensorProductMap`, `Wedge`,
-`DifferentialForm`, `hessianVF`, `laplacianViaTrace`, `TensorProduct.mapL`,
+`DifferentialForm`, `hessian`, `laplacian`, `TensorProduct.mapL`,
 `Tensor0SBundle`, `TensorRSSpace`, `multiKroneckerDelta`,
 `shuffleLeftRestrict`. All return zero matches.
 
@@ -37,22 +37,26 @@ analytical core (`GMT/Variation`, `GMT/Stable`, `GMT/Stationary`,
 * `DifferentialForm` is in `NormedSpace ℝ E` layer (normed-space differential
   forms). **Not yet on manifold**. The transition to manifold-valued forms is
   a planned bridge.
-* `Operators/Hessian.hessianVF` is well-formed (composes `covDeriv` +
+* `Operators/Hessian.hessian` is well-formed (composes `covDeriv` +
   `manifoldGradient` + `metricInner`) but has no caller.
-* `Operators/Hessian.pointwiseBilin` is an abstract carrier — no concrete
-  client constructs a `B : pointwiseBilin` from chart-Christoffel.
+* `Operators/Hessian.Bilin` is an abstract carrier — no concrete
+  client constructs a `B : Bilin` from chart-Christoffel.
 * `Riemannian/Tensor/Defs` provides `(0,s)` and `(r,s)` tensor bundle types.
   Not consumed by `Riemannian.riemannCurvature` / `Riemannian.ricci` (they
   use vector-field-input form, not tensor sections).
 
 ## Finding 3 — Naming inconsistencies
 
-* Mix of `snake_case` and `camelCase` for theorem names within the same
-  namespace (`continuousMultilinearMap_basis` vs `frobeniusSqFun`). Audit
-  the entire ported content during Phase C and pick a consistent style.
-* Namespace structure: `OpenGALib.Tensor.Multilinear.X` parallels
-  `OpenGALib.Riemannian.Tensor.X`. Decide whether `Tensor` should always
-  be top-level or always nested.
+Style mismatches between definitions / theorems within the same namespace
+(e.g. `continuousMultilinearMap_basis` mixing snake-case-with-camelcase in
+ported code). Resolved during Phase C tier 2 by `docs/NAMING_CONVENTION.md`
+(camelCase for definitions, `_`-separated theorem suffixes per Mathlib).
+Files refactored so far: `Riemannian/Curvature.lean`, `Riemannian/Gradient.lean`,
+`Riemannian/Operators/{Hessian, Laplacian}.lean`.
+
+Namespace structure: `OpenGALib.Tensor.Multilinear.X` parallels
+`OpenGALib.Riemannian.Tensor.X`. Decide whether `Tensor` should always
+be top-level or always nested (deferred).
 
 ## Finding 4 — Silver lining: Mathlib upstream candidates
 
@@ -84,10 +88,10 @@ section of the `(1,3)`-tensor bundle from `Riemannian/Tensor/Defs`.
 
 ### Plan 2 — Bridge `Operators/Hessian` to `HessianLie`
 
-**Trigger**: `hessianVF` symmetry needed by a downstream consumer.
+**Trigger**: `hessian` symmetry needed by a downstream consumer.
 
 **Mechanism**: Use `mfderiv_iterate_sub_eq_mlieBracket_apply`
-(`HessianLie/Manifold.lean`) to derive `hessianVF f X Y = hessianVF f Y X`
+(`HessianLie/Manifold.lean`) to derive `hessian f X Y = hessian f Y X`
 when `X, Y` are smooth vector fields and `f` is `C^2`.
 
 **Cost**: Single-file work. Defer until consumer surfaces.

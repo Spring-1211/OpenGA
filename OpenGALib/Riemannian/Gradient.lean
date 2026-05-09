@@ -1,22 +1,24 @@
 import OpenGALib.Riemannian.Connection
 
 /-!
-# Riemannian.Gradient
+# Manifold gradient
 
-Manifold gradient via Riesz duality on `TangentSpace I x`.
+For a smooth scalar function $f : M \to \mathbb{R}$ on a Riemannian manifold
+$(M, g)$, the **gradient** $\nabla^M f : (x : M) \to T_xM$ is the unique vector
+field characterised by Riesz duality:
+$$\langle \nabla^M f(x), v \rangle_g = (\mathrm{d}f)_x(v) \quad \forall v \in T_xM.$$
 
-## Form
+## Main definitions
 
-The manifold gradient $\nabla^M f : (x : M) \to T_xM$ of a smooth scalar
-function $f : M \to \mathbb{R}$ is defined by Riesz duality:
-$\langle \nabla^M f(x), v \rangle = (\mathrm{d}f)_x(v)$ for all
-$v \in T_xM$.
+* `manifoldGradient f x` — the gradient $\nabla^M f(x) \in T_xM$.
+* `manifoldGradientNormSq f x` — the squared gradient norm $|\nabla^M f|^2(x)$.
 
-The inner product on `TangentSpace I x` is the framework-owned
-`metricInner`; the Riesz isomorphism is `metricRiesz` (see
-`Riemannian.Metric`).
+## Main results
 
-**Ground truth**: do Carmo 1992 §3 ex. 8 (manifold gradient).
+* `manifoldGradient_inner_eq` — the defining Riesz identity.
+* `manifoldGradientNormSq_nonneg` — $|\nabla^M f|^2 \ge 0$.
+
+Reference: do Carmo §3 ex. 8.
 -/
 
 open Bundle OpenGALib
@@ -30,45 +32,24 @@ variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [CompleteSpace E
   {M : Type*} [TopologicalSpace M] [ChartedSpace H M] [IsManifold I ∞ M]
   [RiemannianMetric I M]
 
-/-- The **manifold gradient** $\nabla^M f : (x : M) \to T_xM$, defined
-via **Riesz duality** on the tangent space.
-
-Concretely: $\nabla^M f(x)$ is the unique $v \in T_xM$ such that
-$\langle v, w \rangle_g = (\mathrm{d}f)_x(w)$ for all $w \in T_xM$,
-where $\langle \cdot, \cdot \rangle_g$ is the framework-owned
-`metricInner`. Implemented via `metricRiesz` applied to
-the manifold differential `mfderiv I 𝓘(ℝ, ℝ) f x`.
-
-**Ground truth**: do Carmo 1992 §3 ex. 8.
-
-Real `noncomputable def` (no `Classical.choose` over an existence
-axiom) — Riesz duality is a constructive bijection via
-`metricRiesz`, which is built from positive-definiteness and
-finite-dim invertibility of the metric tensor. -/
+/-- The **manifold gradient** $\nabla^M f(x) \in T_xM$, defined via Riesz duality
+on the tangent space: the unique $v$ with $\langle v, w \rangle_g = (\mathrm{d}f)_x(w)$
+for all $w$. -/
 noncomputable def manifoldGradient
     (f : M → ℝ) (x : M) : TangentSpace I x :=
   metricRiesz x (mfderiv I 𝓘(ℝ, ℝ) f x)
 
 omit [CompleteSpace E] [IsManifold I ∞ M] in
-/-- **Riesz duality for the manifold gradient**:
-$\langle \nabla^M f(x), v \rangle_g = (\mathrm{d}f)_x(v)$.
-
-Holds by construction of `manifoldGradient` via `metricRiesz`. The
-inner product is the framework-owned `metricInner`. -/
-theorem manifoldGradient_riesz
+/-- $\langle \nabla^M f(x), v \rangle_g = (\mathrm{d}f)_x(v)$. -/
+theorem manifoldGradient_inner_eq
     (f : M → ℝ) (x : M) (v : TangentSpace I x) :
     metricInner x (manifoldGradient f x) v = (mfderiv I 𝓘(ℝ, ℝ) f x) v :=
   metricRiesz_inner x (mfderiv I 𝓘(ℝ, ℝ) f x) v
 
-/-- The **squared gradient norm** $|\nabla^M f|^2 : M \to \mathbb{R}$,
-defined as $\langle \nabla^M f(x), \nabla^M f(x)\rangle_g$ via the
-framework-owned `metricInner`.
+/-- The **squared gradient norm** $|\nabla^M f|^2(x) := \langle \nabla^M f(x),
+\nabla^M f(x) \rangle_g$.
 
-**Ground truth**: standard; used in Jacobi second-variation formula
-(Simon 1983 §49).
-
-Real `noncomputable def` (no `Classical.choose`) — direct constructive
-form via `metricInner`. -/
+Used in the Jacobi second-variation formula (Simon §49). -/
 noncomputable def manifoldGradientNormSq
     (I' : ModelWithCorners ℝ E H)
     [ChartedSpace H M] [IsManifold I' ∞ M]
@@ -77,8 +58,7 @@ noncomputable def manifoldGradientNormSq
   metricInner x (manifoldGradient (I := I') f x) (manifoldGradient (I := I') f x)
 
 omit [CompleteSpace E] [ChartedSpace H M] in
-/-- **$|\nabla^M f|^2 \geq 0$**: gradient squared norm is non-negative.
-Direct from `metricInner_self_nonneg`. -/
+/-- $|\nabla^M f|^2(x) \ge 0$. -/
 @[simp]
 theorem manifoldGradientNormSq_nonneg
     (I' : ModelWithCorners ℝ E H)
@@ -89,43 +69,3 @@ theorem manifoldGradientNormSq_nonneg
   metricInner_self_nonneg x _
 
 end Riemannian
-
-/-! ## UXTest
-
-Self-tests verifying that the manifold gradient + gradient-norm-squared
-primitives resolve their typeclass cascade. Regression guard against
-signature drift in `RiemannianMetric` / `metricRiesz`. -/
-
-section UXTest
-
-open Riemannian OpenGALib
-open scoped ContDiff Manifold
-
-noncomputable example
-    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [CompleteSpace E]
-    [FiniteDimensional ℝ E]
-    {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
-    {M : Type*} [TopologicalSpace M] [ChartedSpace H M] [IsManifold I ∞ M]
-    [RiemannianMetric I M]
-    (f : M → ℝ) (x : M) :
-    TangentSpace I x := manifoldGradient f x
-
-example
-    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [CompleteSpace E]
-    [FiniteDimensional ℝ E]
-    {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
-    {M : Type*} [TopologicalSpace M] [ChartedSpace H M] [IsManifold I ∞ M]
-    [RiemannianMetric I M]
-    (f : M → ℝ) (x : M) (v : TangentSpace I x) :
-    metricInner x (manifoldGradient f x) v = (mfderiv I 𝓘(ℝ, ℝ) f x) v :=
-  manifoldGradient_riesz f x v
-
-noncomputable example
-    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [CompleteSpace E]
-    [FiniteDimensional ℝ E]
-    {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
-    {M : Type*} [TopologicalSpace M] [ChartedSpace H M] [IsManifold I ∞ M]
-    [RiemannianMetric I M]
-    (f : M → ℝ) (x : M) : ℝ := manifoldGradientNormSq I f x
-
-end UXTest
