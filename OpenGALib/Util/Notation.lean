@@ -17,7 +17,7 @@ surface. Re-exports three dep-tier-split notation files:
 
 Activate via `open scoped Riemannian OpenGALib`.
 
-The tier split is necessary because `Connection/Bianchi.lean` itself
+The tier split is necessary because `Connection.lean` (Bianchi section) itself
 uses the pre-Bianchi notation in `riemannCurvature`'s def body — so
 that tier must be defined before Bianchi. The Riemann-tier defines
 `Riem(X, Y) Z` post-Bianchi (after `riemannCurvature` is in scope).

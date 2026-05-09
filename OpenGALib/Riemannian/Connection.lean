@@ -53,7 +53,7 @@ open scoped ContDiff Manifold Topology Riemannian
 
 namespace Riemannian
 
-/-! ## from `Connection/Koszul.lean` -/
+/-! ## from `Connection.lean` (Koszul section) -/
 
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [CompleteSpace E]
   [FiniteDimensional ℝ E]
@@ -617,7 +617,7 @@ private theorem koszul_smul_middle
   rw [h_fromTS_X, h_fromTS_Z]
   ring
 
-/-! ## from `Connection/KoszulCotangent.lean` -/
+/-! ## from `Connection.lean` (private) -/
 
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [CompleteSpace E]
   [FiniteDimensional ℝ E]
@@ -986,7 +986,7 @@ theorem koszulCotangentCLM_smoothAt
   rw [h_eq]
   exact koszulCotangentScalar_mdifferentiableAt v Y (basis i) x
 
-/-! ## from `Connection/LeviCivita.lean` -/
+/-! ## from `Connection.lean` (LeviCivita section) -/
 
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [CompleteSpace E]
   [FiniteDimensional ℝ E]
@@ -1761,7 +1761,7 @@ private theorem covDeriv_congr_eventuallyEq_middle
       covDeriv_inner_eq_half_koszul X Y₂ Z x hX hY₂ hZ_smooth,
       koszulFunctional_eventuallyEq_middle X Y₁ Y₂ Z x h]
 
-/-! ## from `Connection/Bianchi.lean` -/
+/-! ## from `Connection.lean` (Bianchi section) -/
 
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [CompleteSpace E]
   [FiniteDimensional ℝ E]
@@ -2080,7 +2080,7 @@ theorem bianchi_first
   rw [h_jac, h_YZX, asym_outer]
   abel
 
-/-! ## from `Connection/Smoothness.lean` -/
+/-! ## from `Connection.lean` (smoothness section) -/
 
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [CompleteSpace E]
   [FiniteDimensional ℝ E]

@@ -21,7 +21,7 @@ The bridge is provided for **interoperability / future Mathlib catch-up**.
 The framework does NOT route its public IPS API through Mathlib's bundle
 path — see "Phase 1C architectural lesson" below for the NACG diamond
 that prevents this. The framework's own
-`OpenGALib.metricInner` (in `Metric/Basic.lean`) is the canonical
+`OpenGALib.metricInner` (in `Metric.lean`) is the canonical
 geometric inner product API on tangent vectors, NOT `inner ℝ`.
 
 ## Phase 1B/1C status
@@ -158,7 +158,7 @@ hypothesis is in scope — Lean finds the background instance via
   Curvature, Gradient, TangentBundle, Riesz, Metric, FirstVariation,
   Stationary). The `RiemannianMetric` typeclass declaration now requires
   only `[NormedSpace ℝ E]`.
-* Framework bridges added on `TangentSpace I x` (`Metric/Basic.lean`
+* Framework bridges added on `TangentSpace I x` (`Metric.lean`
   `NACGBridge` section): `NormedSpace ℝ`, `IsTopologicalAddGroup`,
   `ContinuousConstSMul ℝ`.
 * `[InnerProductSpace ℝ E]` retained where structurally necessary:
@@ -185,7 +185,7 @@ The framework chooses chart-background NACG/norm globally (via the
 **not** taken; instead, `Metric/Basic.lean InnerProductBridge`
 provides background-derived IPS for downstream files needing
 `stdOrthonormalBasis`. The geometric inner product is exposed via
-`OpenGALib.metricInner` (in `Metric/Basic.lean`), which is the
+`OpenGALib.metricInner` (in `Metric.lean`), which is the
 framework's official API for Riemannian inner products on tangent
 vectors — NOT `inner ℝ v w`.
 

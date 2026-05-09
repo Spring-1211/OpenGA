@@ -91,7 +91,7 @@ section of the `(1,3)`-tensor bundle from `Riemannian/Tensor/Defs`.
 **Trigger**: `hessian` symmetry needed by a downstream consumer.
 
 **Mechanism**: Use `mfderiv_iterate_sub_eq_mlieBracket_apply`
-(`HessianLie/Manifold.lean`) to derive `hessian f X Y = hessian f Y X`
+(`HessianLie.lean`) to derive `hessian f X Y = hessian f Y X`
 when `X, Y` are smooth vector fields and `f` is `C^2`.
 
 **Cost**: Single-file work. Defer until consumer surfaces.
