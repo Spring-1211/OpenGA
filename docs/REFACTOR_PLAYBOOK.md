@@ -143,7 +143,26 @@ examples.
    (b) make `I` explicit in the notation.
    `abbrev`-based shorthands hit similar issues.
 
-6. **Force-pushing to remove an oversight is partially effective.**
+6. **Library-wide section deletion needs Python, not sed.** When deleting
+   a section bracketed by patterns like `^/-! ## UXTest` ... `^end XYZTest`
+   across many files, BSD `sed -i` patterns get fragile (different test
+   sections have different end-marker names). Python with `re.match` per
+   line, plus a backwards search for the matching `end XYZTest`, is
+   reliable and self-explaining. See `/tmp/strip_uxtest.py` style:
+   collect target files via `glob`, walk lines, locate start/end, splice.
+
+7. **`.gitkeep` is dead weight in non-empty directories.** It exists to
+   make Git track empty dirs; once the dir has any other file, the
+   `.gitkeep` is a stale signal. Periodic
+   `find . -name .gitkeep -path '*/<existing-dir>/*'` audit catches it.
+
+8. **Bulk attribution-paragraph strip needs paragraph-level matching.**
+   Phase A external ports left `**Inspired by** <repo>/...` paragraphs
+   (multi-line, ending at blank line or `-/`). A line-level grep+replace
+   only catches one line; you need to walk lines and skip from
+   `Inspired by` line through next blank line / `-/` / next `## ` heading.
+
+9. **Force-pushing to remove an oversight is partially effective.**
    `Co-Authored-By: ...` trailers, once pushed to a public repo,
    remain in GitHub's contributor cache even after the commit is
    force-pushed away. The orphan commit is still server-side. Lesson:
@@ -162,7 +181,9 @@ full public API of one math object).
 
 Performed for: `Riemannian/Curvature.lean`, `Riemannian/Gradient.lean`,
 `Riemannian/Operators/{Hessian, Laplacian}.lean` (rename + doc cleanup,
-no merge), `Riemannian/Metric.lean` (5 → 1 merge).
+no merge), `Riemannian/Metric.lean` (5 → 1 merge),
+`Riemannian/TangentBundle.lean` (4 → 1 merge),
+`Riemannian/HessianLie.lean` (4 → 1 merge).
 
 ### When to use
 
