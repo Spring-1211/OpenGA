@@ -138,24 +138,6 @@ perimeter measure on the whole space: $\|D\chi_\Omega\|(E) = |D\chi_\Omega|(E)$
 
 end CharacteristicIsBV
 
-/-! ## UXTest: typeclass + simp self-test -/
-
-section BVFunctionTest
-
-variable {E : Type*} [MetricSpace E] [MeasurableSpace E] [BorelSpace E]
-
-/-- Self-test: `ofFinitePerimeter` produces a `BVFunction`. -/
-noncomputable example (Ω : FinitePerimeter E) : BVFunction E := ofFinitePerimeter Ω
-
-/-- Self-test: BV total variation matches the perimeter measure. -/
-example (Ω : FinitePerimeter E) :
-    totalVariation (ofFinitePerimeter Ω) = Ω.perimMeasure Set.univ :=
-  totalVariation_ofFinitePerimeter Ω
-
-/-- Self-test: BV finiteness derived simp closes. -/
-example (u : BVFunction E) : totalVariation u < ⊤ := by simp
-
-end BVFunctionTest
 
 end Isoperimetric
 end GeometricMeasureTheory

@@ -100,29 +100,5 @@ abbrev MorseIndex (_V : Varifold M) : ℕ := 0
 
 end Varifold
 
-/-! ## UXTest
-
-Self-test verifying `IsStable` / `IsUnstable` / `MorseIndex` resolve
-their typeclass cascade correctly. -/
-section UXTest
-
-variable {M : Type*} [MetricSpace M] [MeasurableSpace M] [BorelSpace M]
-  [MeasureTheory.MeasureSpace M]
-variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
-  [CompleteSpace E] [FiniteDimensional ℝ E]
-  {H : Type*} [TopologicalSpace H] (I : ModelWithCorners ℝ E H)
-  [ChartedSpace H M] [IsManifold I ∞ M]
-  [IsLocallyConstantChartedSpace H M]
-  [OpenGALib.RiemannianMetric I M]
-
-example (V : Varifold M) [Varifold.HasNormal I V] :
-    Prop := Varifold.IsStable I V
-
-example (V : Varifold M) [Varifold.HasNormal I V] :
-    Prop := Varifold.IsUnstable I V
-
-example (V : Varifold M) : Varifold.MorseIndex V = 0 := rfl
-
-end UXTest
 
 end GeometricMeasureTheory

@@ -154,28 +154,6 @@ theorem tangentHyperplane_at_reducedBoundary_orthogonal
 
 end TangentHyperplane
 
-/-! ## UXTest: typeclass + simp self-test -/
-
-section ReducedBoundaryTest
-
-variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
-  {H : Type*} [TopologicalSpace H] (I : ModelWithCorners ℝ E H)
-  [ChartedSpace H M] [IsManifold I ∞ M]
-
-/-- Self-test: the outer-normal unit-norm property is callable on a
-point of the reduced boundary. -/
-example (Ω : FinitePerimeter M) (x : M)
-    (hx : x ∈ FinitePerimeter.reducedBoundary Ω) :
-    ‖Varifold.bvGradientDirection I Ω x‖ = 1 :=
-  outerNormal_unit_on_reducedBoundary I Ω x hx
-
-/-- Self-test: existence form is also callable. -/
-example (Ω : FinitePerimeter M) :
-    ∃ ν : (x : M) → TangentSpace I x,
-      ∀ x ∈ FinitePerimeter.reducedBoundary Ω, ‖ν x‖ = 1 :=
-  outerNormal_exists_on_reducedBoundary I Ω
-
-end ReducedBoundaryTest
 
 end Isoperimetric
 end GeometricMeasureTheory

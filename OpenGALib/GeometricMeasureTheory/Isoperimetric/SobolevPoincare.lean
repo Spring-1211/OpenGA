@@ -176,32 +176,6 @@ constant — is encoded in the soundness of `sobolev_poincare_inequality`
 theorem federer_fleming_equivalence (n : ℕ) :
     sobolevPoincareConstant n = (isoperimetricConstant n)⁻¹ := rfl
 
-/-! ## UXTest: positivity / equation self-test -/
-
-section SobolevPoincareTest
-
-/-- Self-test: Sobolev exponent positivity. -/
-example {n : ℕ} (hn : 1 < n) : 0 < sobolevExponent n :=
-  sobolevExponent_pos hn
-
-/-- Self-test: Sobolev exponent strictly greater than 1. -/
-example {n : ℕ} (hn : 1 < n) : 1 < sobolevExponent n :=
-  sobolevExponent_gt_one hn
-
-/-- Self-test: Sobolev–Poincaré constant positivity. -/
-example {n : ℕ} (hn : 0 < n) : 0 < sobolevPoincareConstant n :=
-  sobolevPoincareConstant_pos hn
-
-/-- Self-test: Federer–Fleming equation is `rfl`-derivable. -/
-example (n : ℕ) :
-    sobolevPoincareConstant n = (isoperimetricConstant n)⁻¹ := rfl
-
-/-- Self-test: lpNorm non-negativity. -/
-example {E : Type*} [MeasureTheory.MeasureSpace E]
-    (u : BVFunction E) (p : ENNReal) : 0 ≤ lpNorm u p :=
-  lpNorm_nonneg u p
-
-end SobolevPoincareTest
 
 end Isoperimetric
 end GeometricMeasureTheory

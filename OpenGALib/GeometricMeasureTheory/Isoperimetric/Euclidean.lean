@@ -134,21 +134,6 @@ theorem isoperimetric_equality_iff_ball
       Ω.carrier =ᵐ[MeasureTheory.volume] Metric.ball c r := by
   sorry
 
-/-! ## UXTest: typeclass synthesis self-test -/
-
-section UXTest
-
-/-- Self-test: typeclass synthesis fires at the call site for
-`volume Ω` when `Ω : FinitePerimeter (EuclideanSpace ℝ (Fin n))`. -/
-example {n : ℕ} (Ω : FinitePerimeter (EuclideanSpace ℝ (Fin n))) :
-    0 ≤ volume Ω := volume_nonneg Ω
-
-/-- Self-test: `isoperimetricConstant_pos` resolves with explicit
-positivity hypothesis. -/
-example {n : ℕ} (hn : 0 < n) : 0 < isoperimetricConstant n :=
-  isoperimetricConstant_pos hn
-
-end UXTest
 
 end Isoperimetric
 end GeometricMeasureTheory

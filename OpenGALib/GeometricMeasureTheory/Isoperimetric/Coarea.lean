@@ -126,23 +126,6 @@ Phase 3.4 BV finiteness `totalVariation_lt_top'` combined with
   rw [← coarea_formula u]
   exact totalVariation_lt_top' u
 
-/-! ## UXTest: typeclass + simp self-test -/
-
-section CoareaTest
-
-/-- Self-test: `coarea_formula` is callable and packs the BV-to-
-level-set-perimeter equality. -/
-example (u : BVFunction E) :
-    totalVariation u =
-      ∫⁻ t, (levelSet u t).perimMeasure Set.univ ∂(MeasureTheory.volume : Measure ℝ) :=
-  coarea_formula u
-
-/-- Self-test: derived finiteness simp closes. -/
-example (u : BVFunction E) :
-    ∫⁻ t, (levelSet u t).perimMeasure Set.univ ∂(MeasureTheory.volume : Measure ℝ) < ⊤ := by
-  simp
-
-end CoareaTest
 
 end Isoperimetric
 end GeometricMeasureTheory

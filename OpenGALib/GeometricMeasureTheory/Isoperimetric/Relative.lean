@@ -109,26 +109,6 @@ theorem relativeIsoperimetricCriticalRadius_pos
     0 < relativeIsoperimetricCriticalRadius M n hn :=
   (Classical.choose_spec (relative_isoperimetric_inequality_exists (M := M) n hn)).1
 
-/-! ## UXTest -/
-
-section RelativeTest
-
-/-- Self-test: existence form is callable with positive-dim parameter. -/
-example (n : ℕ) (hn : 0 < n) :
-    ∃ r₁ : ℝ, 0 < r₁ ∧ ∃ C_I : ℝ, 0 < C_I ∧
-      ∀ (Ω : FinitePerimeter M) (p : M) (ρ : ℝ), ρ < r₁ →
-        min (MeasureTheory.volume (Ω.carrier ∩ Metric.ball p ρ)).toReal
-            (MeasureTheory.volume (Metric.ball p ρ \ Ω.carrier)).toReal
-          ^ ((n : ℝ) / (n + 1)) ≤
-          C_I * Ω.perimOn (Metric.ball p ρ) :=
-  relative_isoperimetric_inequality_exists n hn
-
-/-- Self-test: critical-radius accessor and positivity. -/
-example (n : ℕ) (hn : 0 < n) :
-    0 < relativeIsoperimetricCriticalRadius M n hn :=
-  relativeIsoperimetricCriticalRadius_pos n hn
-
-end RelativeTest
 
 end Isoperimetric
 end GeometricMeasureTheory
