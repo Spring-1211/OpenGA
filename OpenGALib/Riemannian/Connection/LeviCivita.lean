@@ -510,7 +510,7 @@ textbook setup; an unconditional form would be an over-statement.
 **Smoothness clause** (3rd conjunct): for any `Y : SmoothVectorField I M` and
 `v : E`, `y ↦ cov.toFun Y.toFun y v` is `TangentSmoothAt` at every point.
 Supports downstream smoothness witnesses in `Riemannian.Curvature` (used in
-`ricciTraceMap` and `ricciFormAt` linearity/bilinearity slots).
+`curvatureEndo` and `ricciTensor` linearity/bilinearity slots).
 
 Closed via `hcov` eq spec at `X = (fun _ => v)` + `koszulCovDeriv_const_smoothAt`
 (itself closed via Riesz uniqueness through `koszulCotangentCLM_smoothAt` —

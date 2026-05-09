@@ -6,8 +6,8 @@ import OpenGALib.Riemannian.TangentBundle.SmoothVectorField
 
 Smoothness of `covDeriv (const v) (const w) y` in `y` for chart-frame
 constant tangent sections — the form arising in
-`Riemannian.Curvature.ricciTraceMap` (additivity / smul slots) and
-`Riemannian.Curvature.ricciFormAt` (bilinear form linearity slots).
+`Riemannian.Curvature.curvatureEndo` (additivity / smul slots) and
+`Riemannian.Curvature.ricciTensor` (bilinear form linearity slots).
 
 ## Form
 
@@ -33,7 +33,7 @@ in `y`.
 `covDeriv_const_smoothVF_smoothAt` is a **PRE-PAPER sorry** (NOT an
 axiom — Phase 1.6 invariant "zero existence axioms in Riemannian package"
 is preserved). The lemma is used 10× in `Riemannian.Curvature`
-(`ricciTraceMap` linearity smoothness witnesses, `ricciFormAt` bilinearity
+(`curvatureEndo` linearity smoothness witnesses, `ricciTensor` bilinearity
 smoothness witnesses).
 
 Closure path is **bridge investment** (multi-file framework refactor):

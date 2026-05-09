@@ -7,47 +7,37 @@ import Mathlib.LinearAlgebra.Trace
 import Mathlib.Analysis.InnerProductSpace.PiL2
 
 /-!
-# Riemannian.Curvature
+# Riemann curvature, Ricci, and scalar curvature
 
-Riemann curvature tensor, Ricci curvature, scalar curvature.
+For a Riemannian manifold $(M, g)$ with Levi-Civita connection $\nabla$:
 
-## Form
+* The **Riemann curvature tensor** is the trilinear map on vector fields
+  $$R(X, Y) Z := \nabla_X \nabla_Y Z - \nabla_Y \nabla_X Z - \nabla_{[X, Y]} Z.$$
+* The **Ricci curvature** is the trace of the curvature endomorphism
+  $z \mapsto R(z, X) Y$ on $T_xM$:
+  $$\mathrm{Ric}(X, Y)(x) := \mathrm{tr}\bigl(z \mapsto R(z, X) Y(x)\bigr).$$
+* The **scalar curvature** is the metric trace of the Ricci tensor
+  $$\mathrm{scal}(x) := \mathrm{tr}_g \mathrm{Ric}(x) = \mathrm{tr}(\mathrm{Ric}^{\sharp}_x).$$
 
-  * `riemannCurvature` — real `noncomputable def` built directly from
-    `covDeriv` (Levi-Civita) and `mlieBracket` via the standard formula
-    $R(X, Y)Z = \nabla_X \nabla_Y Z - \nabla_Y \nabla_X Z - \nabla_{[X, Y]} Z$.
-  * `ricciTraceMap` — the linear map $z \mapsto R(z, X)Y(x)$ on $T_xM$,
-    bundling the curvature endomorphism for the trace.
-  * `ricci` — real `noncomputable def` via `LinearMap.trace ℝ (TangentSpace I x)`
-    applied to `ricciTraceMap`. Finite-dimensional trace operator from
-    Mathlib (`LinearMap.trace`); the `[FiniteDimensional ℝ E]` cascade
-    propagates through the framework-owned NACG / IPS bridges
-    (`Riemannian.Metric`).
-  * `ricciFormAt` — Ricci as a bilinear form $T_xM \times T_xM \to \mathbb{R}$
-    bundled as `LinearMap → LinearMap → ℝ`. Bilinearity slots are PRE-PAPER
-    (closure via `koszulCovDeriv` tensoriality).
-  * `ricciEndo` — Ricci endomorphism $T_xM \to T_xM$ via metric raising
-    of `ricciFormAt` (Riesz extraction through `metricRiesz`).
-  * `scalarCurvature` — real `noncomputable def` as $\mathrm{tr}(\mathrm{Ric}^{\sharp})$,
-    i.e., `LinearMap.trace ℝ` applied to `ricciEndo`. **Basis-free**:
-    avoids `stdOrthonormalBasis`, which (per the framework's IPS bridge
-    `instInnerProductSpaceTangent`) is orthonormal w.r.t. background
-    `inner E`, NOT w.r.t. the Riemannian metric `g_x` — the previous
-    definition would have produced wrong values on any non-Euclidean
-    manifold.
+`riemannCurvature` itself lives in `Riemannian.Connection.Bianchi` (it is
+connection-level, not metric). This file collects the antisymmetry corollary
+and the metric-dependent Ricci / scalar-curvature constructions.
 
-## Sorry status
+## Main definitions
 
-  * `ricciTraceMap.map_add'` and `map_smul'` — PRE-PAPER. The
-    `C^\infty(M)`-linearity of the curvature endomorphism in its first
-    argument (when extended via constants from $T_xM$) requires the
-    Levi-Civita-on-`covDeriv` linearity lemmas. Repair: derive from
-    `koszulCovDeriv`'s linearity in $X$ when its linearity proofs land.
-  * `ricci_symm` — PRE-PAPER. Symmetry of Ricci requires the algebraic
-    Bianchi identity on the Riemann tensor. Repair: framework self-build
-    of Bianchi from torsion-freeness + curvature definition.
+* `curvatureEndo X Y x` — the endomorphism $z \mapsto R(z, X) Y(x)$ on $T_xM$.
+* `ricci X Y x` — the Ricci scalar $\mathrm{Ric}(X, Y)(x)$ as $\mathrm{tr}(\mathrm{curvatureEndo}\,X\,Y\,x)$.
+* `ricciTensor x` — the Ricci tensor at $x$ as a bilinear form on $T_xM$.
+* `ricciSharp x` — the Ricci endomorphism $\mathrm{Ric}^{\sharp}_x$ via metric raising.
+* `scalarCurvature x` — the scalar curvature $\mathrm{scal}(x) = \mathrm{tr}(\mathrm{ricciSharp}\,x)$.
 
-**Ground truth**: do Carmo 1992 §4 (Riemann curvature, sectional, Ricci).
+## Main results
+
+* `riemannCurvature_antisymm` — $R(X, Y) Z = -R(Y, X) Z$.
+* `riemannCurvature_inner_self_zero` (sorry, PRE-PAPER) — $\langle R(X, Y) Z, Z \rangle_g = 0$.
+* `ricci_symm` (sorry, PRE-PAPER) — $\mathrm{Ric}(X, Y) = \mathrm{Ric}(Y, X)$.
+
+Reference: do Carmo 1992 §4.
 -/
 
 open Bundle VectorField OpenGALib
@@ -62,24 +52,15 @@ variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [CompleteSpace E
   [IsLocallyConstantChartedSpace H M]
   [RiemannianMetric I M]
 
-/-! `riemannCurvature`, `riemannCurvature_def`, and the helper
-`covDeriv_mlieBracket_swap_apply` are connection-level content (depend
-only on `covDeriv` and `mlieBracket`, not metric). They live in
-`Riemannian.Connection.Bianchi`. The `riemannCurvature_antisymm`
-theorem below uses `Riem(X, Y) Z` notation (declared in
-`Util/Notation/Curvature.lean`, post-Bianchi tier) so it must live
-here, not in Bianchi. -/
+/-- Constant smooth vector field at a tangent vector. Hides
+`SmoothVectorField.const (I := I) (M := M) V` boilerplate inside this file. -/
+local notation "cF[" V "]" => SmoothVectorField.const (I := I) (M := M) V
 
-/-- **Riemann tensor antisymmetry in the first two arguments**:
-$R(X, Y) Z = -R(Y, X) Z$ pointwise.
+/-! ## Math API -/
 
-Math: Lie bracket is antisymmetric and the connection is linear in its
-direction argument. `simp only [riem_simp]` unfolds `R` to its
-$\nabla \nabla - \nabla \nabla - \nabla_{[\cdot,\cdot]}$ form;
-`covDeriv_mlieBracket_swap_apply` pulls the bracket-swap negation
-through `covDeriv`; `abel` finishes.
+/-- $R(X, Y) Z = -R(Y, X) Z$.
 
-**Ground truth**: do Carmo 1992 §4 Proposition 2.5 (i). -/
+Reference: do Carmo §4 Proposition 2.5 (i). -/
 theorem riemannCurvature_antisymm
     (X Y Z : Π x : M, TangentSpace I x) (x : M) :
     Riem(X, Y) Z x = -Riem(Y, X) Z x := by
@@ -87,15 +68,9 @@ theorem riemannCurvature_antisymm
   rw [covDeriv_mlieBracket_swap_apply]
   abel
 
-/-- **Ricci-trace linear map** at a point: the linear map
-$z \mapsto R(z\text{-extended}, X) Y(x)$ on $T_xM$, where
-$z\text{-extended}$ is the constant section with value $z$.
-
-`X, Y` are bundled `SmoothVectorField`s, providing the global smoothness
-witnesses needed for the underlying covariant-derivative additivity
-(via `IsCovariantDerivativeOn.add`) and Lie-bracket linearity
-(`mlieBracket_add_left`, `mlieBracket_const_smul_left`). -/
-noncomputable def ricciTraceMap
+/-- The endomorphism $z \mapsto R(z, X) Y(x)$ on $T_xM$ (with $z$ extended to
+the constant section). Trace of this is the Ricci tensor at $x$. -/
+noncomputable def curvatureEndo
     [IsManifold I 2 M]
     (X Y : SmoothVectorField I M) (x : M) :
     TangentSpace I x →ₗ[ℝ] TangentSpace I x where
@@ -140,10 +115,10 @@ noncomputable def ricciTraceMap
     -- isCovariantDerivativeOnUniv applied at the constant section.
     have h_const_z₁_smooth : ∀ y, OpenGALib.TangentSmoothAt
         (fun _ : M => z₁) y :=
-      fun y => (SmoothVectorField.const (I := I) (M := M) z₁).smoothAt y
+      fun y => (cF[z₁]).smoothAt y
     have h_const_z₂_smooth : ∀ y, OpenGALib.TangentSmoothAt
         (fun _ : M => z₂) y :=
-      fun y => (SmoothVectorField.const (I := I) (M := M) z₂).smoothAt y
+      fun y => (cF[z₂]).smoothAt y
     have hY_smooth := Y.smoothAt
     have hT2 : covDeriv X.toFun (fun y => covDeriv (fun _ : M => z₁ + z₂) Y.toFun y) x
         = covDeriv X.toFun (fun y => covDeriv (fun _ => z₁) Y.toFun y) x
@@ -193,7 +168,7 @@ noncomputable def ricciTraceMap
     have h_const_smul : ((fun _ : M => c • z) : (y : M) → TangentSpace I y)
         = c • (fun _ => z) := by funext y; rfl
     have h_const_z_smooth : ∀ y, OpenGALib.TangentSmoothAt (fun _ : M => z) y :=
-      fun y => (SmoothVectorField.const (I := I) (M := M) z).smoothAt y
+      fun y => (cF[z]).smoothAt y
     have hY_smooth := Y.smoothAt
     -- Term 1: CLM map_smul.
     have hT1 : covDeriv (fun _ : M => c • z) (fun y => covDeriv X.toFun Y.toFun y) x
@@ -236,146 +211,95 @@ noncomputable def ricciTraceMap
     -- Goal: c • A - c • B - c • C = c • (A - B - C)
     rw [smul_sub, smul_sub]
 
-/-- The **Ricci curvature** $\mathrm{Ric}(X, Y) \in \mathbb{R}$ at a point
-$x$, defined as the trace of the linear map $z \mapsto R(z, X)Y$ on
-$T_xM$:
-$$\mathrm{Ric}(X, Y)(x) := \mathrm{tr}(\mathrm{ricciTraceMap}\,X\,Y\,x).$$
+/-- The **Ricci curvature** $\mathrm{Ric}(X, Y) \in \mathbb{R}$ at $x$:
+$$\mathrm{Ric}(X, Y)(x) := \mathrm{tr}(\mathrm{curvatureEndo}\,X\,Y\,x).$$
 
-**Ground truth**: do Carmo 1992 §4 ex. 1.
-
-Real `noncomputable def` via `LinearMap.trace ℝ (TangentSpace I x)`
-applied to `ricciTraceMap`. The trace operator is well-defined for
-finite-dimensional modules (Mathlib `LinearMap.trace`); since
-$E$ is `[FiniteDimensional ℝ E]` in our cascade, the trace returns
-a meaningful scalar.
-
-The ℝ-linearity proofs inside `ricciTraceMap` (`map_add'`,
-`map_smul'` in the trace argument $z$) are sorry'd (PRE-PAPER,
-repair via Mathlib's `CovariantDerivative` linearity lemmas
-applied through `riemannCurvature`'s defining formula). -/
+Reference: do Carmo §4 ex. 1. -/
 noncomputable def ricci
     (X Y : SmoothVectorField I M) (x : M) : ℝ :=
-  LinearMap.trace ℝ (TangentSpace I x) (ricciTraceMap X Y x)
+  LinearMap.trace ℝ (TangentSpace I x) (curvatureEndo X Y x)
 
-/-- **Skew-symmetry of `R(X,Y)` as endomorphism, diagonal form**:
-$\langle R(X,Y) Z, Z \rangle_g(x) = 0$.
+/-- $\langle R(X, Y) Z, Z \rangle_g(x) = 0$.
 
-Proof outline (do Carmo 1992 §4 Proposition 2.5 (iii)):
-expand `riemannCurvature` to `∇∇` form, apply metric-compat 4× to
-reduce each `⟨∇_·∇_· Z, Z⟩` term to `(1/2)·X(Y(f))` with `f := ⟨Z,Z⟩`,
-then collapse via the manifold scalar Hessian-Lie identity
-(`mfderiv_iterate_sub_eq_mlieBracket_apply`).
+Reference: do Carmo §4 Proposition 2.5 (iii).
 
-Closure path is fully laid out in proof body; substantive metric-compat
-applications + scalar manipulations remain. ~150 lines mechanical Lean. -/
-theorem riemannCurvature_inner_diagonal_zero
+**Sorry: PRE-PAPER**. Closure path: expand `riemannCurvature` to its
+$\nabla\nabla - \nabla\nabla - \nabla_{[\cdot,\cdot]}$ form, apply
+metric-compatibility four times to reduce each $\langle \nabla_\cdot \nabla_\cdot Z, Z\rangle$
+to $\tfrac12 X(Y(f))$ where $f := \langle Z, Z\rangle$, and collapse via the
+manifold scalar Hessian-Lie identity (`mfderiv_iterate_sub_eq_mlieBracket_apply`). -/
+theorem riemannCurvature_inner_self_zero
     [IsManifold I 2 M]
     (X Y Z : SmoothVectorField I M) (x : M) :
     metricInner x (riemannCurvature X Y Z x) (Z x) = 0 := by
-  -- Define f := ⟨Z, Z⟩ : M → ℝ (smooth from Z C^∞ + metric C^∞).
-  -- Apply metric-compat to ⟨∇_Y Z, Z⟩, ⟨∇_X Z, Z⟩, ⟨∇_{[X,Y]} Z, Z⟩:
-  --   ⟨∇_A Z, Z⟩ = (1/2) A(f).
-  -- Then for ⟨∇_X∇_Y Z, Z⟩:
-  --   apply metric-compat to ⟨∇_Y Z, Z⟩ along X-direction:
-  --     X(⟨∇_Y Z, Z⟩) = ⟨∇_X∇_Y Z, Z⟩ + ⟨∇_Y Z, ∇_X Z⟩
-  --     ⟹ ⟨∇_X∇_Y Z, Z⟩ = (1/2) X(Y(f)) - ⟨∇_Y Z, ∇_X Z⟩.
-  --   Similarly ⟨∇_Y∇_X Z, Z⟩ = (1/2) Y(X(f)) - ⟨∇_X Z, ∇_Y Z⟩.
-  --   And ⟨∇_{[X,Y]} Z, Z⟩ = (1/2) [X,Y](f).
-  -- Substitute into ⟨R(X,Y)Z, Z⟩:
-  --   = (1/2)[X(Y(f)) - Y(X(f)) - [X,Y](f)]   (cross ⟨∇,∇⟩ terms cancel by inner symm)
-  --   = 0   by manifold Hessian-Lie applied to f.
   sorry
 
-/-- **Ricci curvature is symmetric**: $\mathrm{Ric}(X, Y) = \mathrm{Ric}(Y, X)$.
+/-- $\mathrm{Ric}(X, Y) = \mathrm{Ric}(Y, X)$.
 
-Proof: trace-via-orthonormal-basis + Bianchi I + first-arg antisymmetry of `R`
-+ skew-symm of `R` endomorphism (`riemannCurvature_inner_diagonal_zero`).
+Reference: do Carmo §4 ex. 1.
 
-For each `e_i` in the orthonormal basis, Bianchi I applied to
-`(constE e_i, X, Y)` gives:
-  `⟨R(e_i, X) Y, e_i⟩ - ⟨R(e_i, Y) X, e_i⟩ = -⟨R(X, Y) e_i, e_i⟩`.
-Summing:
-  `ricci(X,Y) - ricci(Y,X) = -∑_i ⟨R(X,Y) e_i, e_i⟩ = 0`
-by diagonal-zero applied to each `e_i`.
-
-**Ground truth**: do Carmo 1992 §4 ex. 1. -/
+**Sorry: PRE-PAPER**. Closure path: trace-via-orthonormal-basis + Bianchi I +
+first-arg antisymmetry of $R$ + diagonal-zero (`riemannCurvature_inner_self_zero`).
+For each $e_i$ in an orthonormal basis, Bianchi I on $(\mathrm{const}\,e_i, X, Y)$
+gives $\langle R(e_i, X) Y, e_i\rangle - \langle R(e_i, Y) X, e_i\rangle = -\langle R(X, Y) e_i, e_i\rangle$;
+summing produces $\mathrm{Ric}(X, Y) - \mathrm{Ric}(Y, X) = -\mathrm{tr}(R(X, Y)) = 0$. -/
 theorem ricci_symm
     [IsManifold I 2 M]
     (X Y : SmoothVectorField I M) (x : M) :
     ricci X Y x = ricci Y X x := by
-  -- Trace via OnB + Bianchi I + diagonal-zero. Concrete chain:
-  -- 1. `LinearMap.trace ℝ V L = ∑_i ⟪L(e_i), e_i⟫` for OnB e_i (Mathlib).
-  -- 2. `ricciTraceMap X Y x e_i = R(constE e_i, X) Y x` (def).
-  -- 3. Bianchi I on (constE e_i, X, Y) at x:
-  --    R(e_i, X) Y + R(X, Y) e_i + R(Y, e_i) X = 0
-  -- 4. R first-arg antisymm: R(Y, e_i) = -R(e_i, Y), so:
-  --    ⟨R(e_i, X) Y, e_i⟩ - ⟨R(e_i, Y) X, e_i⟩ = -⟨R(X, Y) e_i, e_i⟩
-  -- 5. Sum over i: LHS = ricci(X,Y) - ricci(Y,X), RHS = -trace(R(X,Y) endo).
-  -- 6. By `riemannCurvature_inner_diagonal_zero`, each ⟨R(X,Y) e_i, e_i⟩ = 0.
-  --    Hence trace = 0.
-  -- 7. ricci(X,Y) - ricci(Y,X) = 0.
   sorry
 
-/-- **Ricci bilinear form at a point**: $T_xM \times T_xM \to \mathbb{R}$,
-$(V, W) \mapsto \mathrm{Ric}(V, W)(x)$ where $V, W$ are extended to
-constant sections.
-
-Bundled as a `LinearMap → LinearMap → ℝ` so that downstream raising via
-the metric (`metricRiesz`) and trace (`LinearMap.trace`) is direct.
-
-The four linearity slots (`map_add'` / `map_smul'` in each argument) are
-PRE-PAPER. Repair: derive from `koszulCovDeriv`'s $C^\infty(M)$-linearity
-in the differentiated section + the connection's tensoriality in the
-direction argument; the curvature formula then propagates linearity to
-each tangent-vector argument of $\mathrm{Ric}$. -/
-noncomputable def ricciFormAt (x : M) :
+/-- The **Ricci tensor** at $x$ as a bilinear form $T_xM \times T_xM \to \mathbb{R}$,
+$(V, W) \mapsto \mathrm{Ric}(V, W)(x)$ with $V, W$ extended to constant sections.
+Bundled as a `LinearMap → LinearMap → ℝ` for downstream metric raising. -/
+noncomputable def ricciTensor (x : M) :
     TangentSpace I x →ₗ[ℝ] TangentSpace I x →ₗ[ℝ] ℝ where
   toFun V :=
     { toFun := fun W =>
-        ricci (SmoothVectorField.const (I := I) (M := M) V)
-              (SmoothVectorField.const (I := I) (M := M) W) x
+        ricci (cF[V])
+              (cF[W]) x
       map_add' := fun W₁ W₂ => by
-        -- Route via `ricciTraceMap` LinearMap-additivity, then trace.
-        show ricci (SmoothVectorField.const (I := I) (M := M) V)
-              (SmoothVectorField.const (I := I) (M := M) (W₁ + W₂)) x
-            = ricci (SmoothVectorField.const (I := I) (M := M) V)
-                (SmoothVectorField.const (I := I) (M := M) W₁) x
-              + ricci (SmoothVectorField.const (I := I) (M := M) V)
-                (SmoothVectorField.const (I := I) (M := M) W₂) x
+        -- Route via `curvatureEndo` LinearMap-additivity, then trace.
+        show ricci (cF[V])
+              (cF[W₁ + W₂]) x
+            = ricci (cF[V])
+                (cF[W₁]) x
+              + ricci (cF[V])
+                (cF[W₂]) x
         unfold ricci
-        rw [show ricciTraceMap (SmoothVectorField.const (I := I) (M := M) V)
-                  (SmoothVectorField.const (I := I) (M := M) (W₁ + W₂)) x
-              = ricciTraceMap (SmoothVectorField.const (I := I) (M := M) V)
-                  (SmoothVectorField.const (I := I) (M := M) W₁) x
-                + ricciTraceMap (SmoothVectorField.const (I := I) (M := M) V)
-                  (SmoothVectorField.const (I := I) (M := M) W₂) x from ?_]
+        rw [show curvatureEndo (cF[V])
+                  (cF[W₁ + W₂]) x
+              = curvatureEndo (cF[V])
+                  (cF[W₁]) x
+                + curvatureEndo (cF[V])
+                  (cF[W₂]) x from ?_]
         · exact (LinearMap.trace ℝ _).map_add _ _
         -- Pointwise LinearMap equality.
         refine LinearMap.ext fun z => ?_
         show riemannCurvature (fun _ => z)
-              (SmoothVectorField.const (I := I) (M := M) V).toFun
-              (SmoothVectorField.const (I := I) (M := M) (W₁ + W₂)).toFun x
+              (cF[V]).toFun
+              (cF[W₁ + W₂]).toFun x
             = riemannCurvature (fun _ => z)
-                (SmoothVectorField.const (I := I) (M := M) V).toFun
-                (SmoothVectorField.const (I := I) (M := M) W₁).toFun x
+                (cF[V]).toFun
+                (cF[W₁]).toFun x
               + riemannCurvature (fun _ => z)
-                (SmoothVectorField.const (I := I) (M := M) V).toFun
-                (SmoothVectorField.const (I := I) (M := M) W₂).toFun x
+                (cF[V]).toFun
+                (cF[W₂]).toFun x
         -- Π-equality: const(W₁+W₂) = const W₁ + const W₂.
         have h_const_add : ((fun _ : M => W₁ + W₂) : (y : M) → TangentSpace I y)
             = (fun _ => W₁) + (fun _ => W₂) := by funext y; rfl
         have h_const_W₁_smooth : ∀ y, OpenGALib.TangentSmoothAt
             (fun _ : M => W₁) y :=
-          fun y => (SmoothVectorField.const (I := I) (M := M) W₁).smoothAt y
+          fun y => (cF[W₁]).smoothAt y
         have h_const_W₂_smooth : ∀ y, OpenGALib.TangentSmoothAt
             (fun _ : M => W₂) y :=
-          fun y => (SmoothVectorField.const (I := I) (M := M) W₂).smoothAt y
+          fun y => (cF[W₂]).smoothAt y
         have h_const_z_smooth : ∀ y, OpenGALib.TangentSmoothAt
             (fun _ : M => z) y :=
-          fun y => (SmoothVectorField.const (I := I) (M := M) z).smoothAt y
+          fun y => (cF[z]).smoothAt y
         have h_const_V_smooth : ∀ y, OpenGALib.TangentSmoothAt
             (fun _ : M => V) y :=
-          fun y => (SmoothVectorField.const (I := I) (M := M) V).smoothAt y
+          fun y => (cF[V]).smoothAt y
         show covDeriv (fun _ => z) (fun y => covDeriv (fun _ : M => V)
                   (fun _ : M => W₁ + W₂) y) x
               - covDeriv (fun _ : M => V) (fun y => covDeriv (fun _ => z)
@@ -452,9 +376,9 @@ noncomputable def ricciFormAt (x : M) :
             (fun y => covDeriv (fun _ : M => V) (fun _ : M => W₁) y)
             (fun y => covDeriv (fun _ : M => V) (fun _ : M => W₂) y) x
             (covDeriv_const_smoothVF_smoothAt (I := I) (M := M) V
-              (SmoothVectorField.const (I := I) (M := M) W₁) x)
+              (cF[W₁]) x)
             (covDeriv_const_smoothVF_smoothAt (I := I) (M := M) V
-              (SmoothVectorField.const (I := I) (M := M) W₂) x)
+              (cF[W₂]) x)
         rw [hT1]
         -- Outer T2: direction `(fun _ => V)` of inner T2 sum.
         have hT2 :
@@ -470,35 +394,35 @@ noncomputable def ricciFormAt (x : M) :
             (fun y => covDeriv (fun _ : M => z) (fun _ : M => W₁) y)
             (fun y => covDeriv (fun _ : M => z) (fun _ : M => W₂) y) x
             (covDeriv_const_smoothVF_smoothAt (I := I) (M := M) z
-              (SmoothVectorField.const (I := I) (M := M) W₁) x)
+              (cF[W₁]) x)
             (covDeriv_const_smoothVF_smoothAt (I := I) (M := M) z
-              (SmoothVectorField.const (I := I) (M := M) W₂) x)
+              (cF[W₂]) x)
         rw [hT2]
         abel
       map_smul' := fun c W => by
-        show ricci (SmoothVectorField.const (I := I) (M := M) V)
-              (SmoothVectorField.const (I := I) (M := M) (c • W)) x
+        show ricci (cF[V])
+              (cF[c • W]) x
             = (RingHom.id ℝ) c • ricci
-                (SmoothVectorField.const (I := I) (M := M) V)
-                (SmoothVectorField.const (I := I) (M := M) W) x
+                (cF[V])
+                (cF[W]) x
         unfold ricci
-        rw [show ricciTraceMap (SmoothVectorField.const (I := I) (M := M) V)
-                  (SmoothVectorField.const (I := I) (M := M) (c • W)) x
-              = c • ricciTraceMap (SmoothVectorField.const (I := I) (M := M) V)
-                  (SmoothVectorField.const (I := I) (M := M) W) x from ?_]
+        rw [show curvatureEndo (cF[V])
+                  (cF[c • W]) x
+              = c • curvatureEndo (cF[V])
+                  (cF[W]) x from ?_]
         · simp
         refine LinearMap.ext fun z => ?_
         show riemannCurvature (fun _ => z)
-              (SmoothVectorField.const (I := I) (M := M) V).toFun
-              (SmoothVectorField.const (I := I) (M := M) (c • W)).toFun x
+              (cF[V]).toFun
+              (cF[c • W]).toFun x
             = c • riemannCurvature (fun _ => z)
-                (SmoothVectorField.const (I := I) (M := M) V).toFun
-                (SmoothVectorField.const (I := I) (M := M) W).toFun x
+                (cF[V]).toFun
+                (cF[W]).toFun x
         have h_const_smul : ((fun _ : M => c • W) : (y : M) → TangentSpace I y)
             = c • (fun _ => W) := by funext y; rfl
         have h_const_W_smooth : ∀ y, OpenGALib.TangentSmoothAt
             (fun _ : M => W) y :=
-          fun y => (SmoothVectorField.const (I := I) (M := M) W).smoothAt y
+          fun y => (cF[W]).smoothAt y
         show covDeriv (fun _ => z) (fun y => covDeriv (fun _ : M => V)
                   (fun _ : M => c • W) y) x
               - covDeriv (fun _ : M => V) (fun y => covDeriv (fun _ => z)
@@ -555,7 +479,7 @@ noncomputable def ricciFormAt (x : M) :
           covDeriv_smul_const_field (fun _ => z)
             (fun y => covDeriv (fun _ : M => V) (fun _ : M => W) y) x c
             (covDeriv_const_smoothVF_smoothAt (I := I) (M := M) V
-              (SmoothVectorField.const (I := I) (M := M) W) x)
+              (cF[W]) x)
         rw [hT1]
         have hT2 :
             covDeriv (fun _ : M => V)
@@ -566,44 +490,44 @@ noncomputable def ricciFormAt (x : M) :
           covDeriv_smul_const_field (fun _ => V)
             (fun y => covDeriv (fun _ : M => z) (fun _ : M => W) y) x c
             (covDeriv_const_smoothVF_smoothAt (I := I) (M := M) z
-              (SmoothVectorField.const (I := I) (M := M) W) x)
+              (cF[W]) x)
         rw [hT2]
         rw [smul_sub, smul_sub] }
   map_add' V₁ V₂ := by
     -- LinearMap-level additivity in V slot.
     refine LinearMap.ext fun W => ?_
-    show ricci (SmoothVectorField.const (I := I) (M := M) (V₁ + V₂))
-            (SmoothVectorField.const (I := I) (M := M) W) x
-        = ricci (SmoothVectorField.const (I := I) (M := M) V₁)
-            (SmoothVectorField.const (I := I) (M := M) W) x
-          + ricci (SmoothVectorField.const (I := I) (M := M) V₂)
-            (SmoothVectorField.const (I := I) (M := M) W) x
+    show ricci (cF[V₁ + V₂])
+            (cF[W]) x
+        = ricci (cF[V₁])
+            (cF[W]) x
+          + ricci (cF[V₂])
+            (cF[W]) x
     unfold ricci
-    rw [show ricciTraceMap (SmoothVectorField.const (I := I) (M := M) (V₁ + V₂))
-              (SmoothVectorField.const (I := I) (M := M) W) x
-          = ricciTraceMap (SmoothVectorField.const (I := I) (M := M) V₁)
-              (SmoothVectorField.const (I := I) (M := M) W) x
-            + ricciTraceMap (SmoothVectorField.const (I := I) (M := M) V₂)
-              (SmoothVectorField.const (I := I) (M := M) W) x from ?_]
+    rw [show curvatureEndo (cF[V₁ + V₂])
+              (cF[W]) x
+          = curvatureEndo (cF[V₁])
+              (cF[W]) x
+            + curvatureEndo (cF[V₂])
+              (cF[W]) x from ?_]
     · exact (LinearMap.trace ℝ _).map_add _ _
     refine LinearMap.ext fun z => ?_
     show riemannCurvature (fun _ => z)
-          (SmoothVectorField.const (I := I) (M := M) (V₁ + V₂)).toFun
-          (SmoothVectorField.const (I := I) (M := M) W).toFun x
+          (cF[V₁ + V₂]).toFun
+          (cF[W]).toFun x
         = riemannCurvature (fun _ => z)
-            (SmoothVectorField.const (I := I) (M := M) V₁).toFun
-            (SmoothVectorField.const (I := I) (M := M) W).toFun x
+            (cF[V₁]).toFun
+            (cF[W]).toFun x
           + riemannCurvature (fun _ => z)
-            (SmoothVectorField.const (I := I) (M := M) V₂).toFun
-            (SmoothVectorField.const (I := I) (M := M) W).toFun x
+            (cF[V₂]).toFun
+            (cF[W]).toFun x
     have h_const_add : ((fun _ : M => V₁ + V₂) : (y : M) → TangentSpace I y)
         = (fun _ => V₁) + (fun _ => V₂) := by funext y; rfl
     have h_const_V₁_smooth : ∀ y, OpenGALib.TangentSmoothAt
         (fun _ : M => V₁) y :=
-      fun y => (SmoothVectorField.const (I := I) (M := M) V₁).smoothAt y
+      fun y => (cF[V₁]).smoothAt y
     have h_const_V₂_smooth : ∀ y, OpenGALib.TangentSmoothAt
         (fun _ : M => V₂) y :=
-      fun y => (SmoothVectorField.const (I := I) (M := M) V₂).smoothAt y
+      fun y => (cF[V₂]).smoothAt y
     show covDeriv (fun _ => z) (fun y => covDeriv (fun _ : M => V₁ + V₂)
               (fun _ : M => W) y) x
           - covDeriv (fun _ : M => V₁ + V₂)
@@ -688,35 +612,35 @@ noncomputable def ricciFormAt (x : M) :
         (fun y => covDeriv (fun _ : M => V₁) (fun _ : M => W) y)
         (fun y => covDeriv (fun _ : M => V₂) (fun _ : M => W) y) x
         (covDeriv_const_smoothVF_smoothAt (I := I) (M := M) V₁
-          (SmoothVectorField.const (I := I) (M := M) W) x)
+          (cF[W]) x)
         (covDeriv_const_smoothVF_smoothAt (I := I) (M := M) V₂
-          (SmoothVectorField.const (I := I) (M := M) W) x)
+          (cF[W]) x)
     rw [hT1, hT3]
     abel
   map_smul' c V := by
     refine LinearMap.ext fun W => ?_
-    show ricci (SmoothVectorField.const (I := I) (M := M) (c • V))
-            (SmoothVectorField.const (I := I) (M := M) W) x
-        = ((RingHom.id ℝ) c • ricci (SmoothVectorField.const (I := I) (M := M) V)
-            (SmoothVectorField.const (I := I) (M := M) W) x : ℝ)
+    show ricci (cF[c • V])
+            (cF[W]) x
+        = ((RingHom.id ℝ) c • ricci (cF[V])
+            (cF[W]) x : ℝ)
     unfold ricci
-    rw [show ricciTraceMap (SmoothVectorField.const (I := I) (M := M) (c • V))
-              (SmoothVectorField.const (I := I) (M := M) W) x
-          = c • ricciTraceMap (SmoothVectorField.const (I := I) (M := M) V)
-              (SmoothVectorField.const (I := I) (M := M) W) x from ?_]
-    · simp [LinearMap.map_smul]
+    rw [show curvatureEndo (cF[c • V])
+              (cF[W]) x
+          = c • curvatureEndo (cF[V])
+              (cF[W]) x from ?_]
+    · simp
     refine LinearMap.ext fun z => ?_
     show riemannCurvature (fun _ => z)
-          (SmoothVectorField.const (I := I) (M := M) (c • V)).toFun
-          (SmoothVectorField.const (I := I) (M := M) W).toFun x
+          (cF[c • V]).toFun
+          (cF[W]).toFun x
         = c • riemannCurvature (fun _ => z)
-            (SmoothVectorField.const (I := I) (M := M) V).toFun
-            (SmoothVectorField.const (I := I) (M := M) W).toFun x
+            (cF[V]).toFun
+            (cF[W]).toFun x
     have h_const_smul : ((fun _ : M => c • V) : (y : M) → TangentSpace I y)
         = c • (fun _ => V) := by funext y; rfl
     have h_const_V_smooth : ∀ y, OpenGALib.TangentSmoothAt
         (fun _ : M => V) y :=
-      fun y => (SmoothVectorField.const (I := I) (M := M) V).smoothAt y
+      fun y => (cF[V]).smoothAt y
     show covDeriv (fun _ => z) (fun y => covDeriv (fun _ : M => c • V)
               (fun _ : M => W) y) x
           - covDeriv (fun _ : M => c • V)
@@ -782,119 +706,54 @@ noncomputable def ricciFormAt (x : M) :
       covDeriv_smul_const_field (fun _ => z)
         (fun y => covDeriv (fun _ : M => V) (fun _ : M => W) y) x c
         (covDeriv_const_smoothVF_smoothAt (I := I) (M := M) V
-          (SmoothVectorField.const (I := I) (M := M) W) x)
+          (cF[W]) x)
     rw [hT1]
     rw [smul_sub, smul_sub]
 
-/-- **Ricci endomorphism** $\mathrm{Ric}^{\sharp}_x : T_xM \to T_xM$,
-defined by metric raising of the Ricci bilinear form:
-$\langle \mathrm{Ric}^{\sharp}_x(V), W\rangle_g = \mathrm{Ric}(V, W)(x)$.
-
-This is the basis-free Ricci-as-endomorphism whose trace is the scalar
-curvature. Linearity is inherited from `metricToDualEquiv.symm` (a
-`LinearEquiv`) composed with `ricciFormAt x V` (auto-continuous in
-finite dim via `LinearMap.toContinuousLinearMap`). -/
-noncomputable def ricciEndo (x : M) :
+/-- The **Ricci endomorphism** $\mathrm{Ric}^{\sharp}_x : T_xM \to T_xM$ defined
+by metric raising of the Ricci tensor:
+$\langle \mathrm{Ric}^{\sharp}_x V, W \rangle_g = \mathrm{Ric}(V, W)(x)$. -/
+noncomputable def ricciSharp (x : M) :
     TangentSpace I x →ₗ[ℝ] TangentSpace I x where
   toFun V :=
-    metricRiesz (g := ‹_›) x (ricciFormAt (I := I) (M := M) x V).toContinuousLinearMap
+    metricRiesz (g := ‹_›) x (ricciTensor (I := I) (M := M) x V).toContinuousLinearMap
   map_add' V₁ V₂ := by
-    show metricRiesz x ((ricciFormAt x (V₁ + V₂)).toContinuousLinearMap)
-        = metricRiesz x ((ricciFormAt x V₁).toContinuousLinearMap)
-        + metricRiesz x ((ricciFormAt x V₂).toContinuousLinearMap)
-    rw [show ricciFormAt (I := I) (M := M) x (V₁ + V₂)
-          = ricciFormAt x V₁ + ricciFormAt x V₂ from
-        (ricciFormAt (I := I) (M := M) x).map_add V₁ V₂]
+    show metricRiesz x ((ricciTensor x (V₁ + V₂)).toContinuousLinearMap)
+        = metricRiesz x ((ricciTensor x V₁).toContinuousLinearMap)
+        + metricRiesz x ((ricciTensor x V₂).toContinuousLinearMap)
+    rw [show ricciTensor (I := I) (M := M) x (V₁ + V₂)
+          = ricciTensor x V₁ + ricciTensor x V₂ from
+        (ricciTensor (I := I) (M := M) x).map_add V₁ V₂]
     show (metricToDualEquiv x).symm
-          ((ricciFormAt x V₁ + ricciFormAt x V₂).toContinuousLinearMap)
-        = (metricToDualEquiv x).symm ((ricciFormAt x V₁).toContinuousLinearMap)
-        + (metricToDualEquiv x).symm ((ricciFormAt x V₂).toContinuousLinearMap)
-    rw [show (ricciFormAt (I := I) (M := M) x V₁
-                + ricciFormAt x V₂).toContinuousLinearMap
-          = (ricciFormAt x V₁).toContinuousLinearMap
-            + (ricciFormAt x V₂).toContinuousLinearMap from
+          ((ricciTensor x V₁ + ricciTensor x V₂).toContinuousLinearMap)
+        = (metricToDualEquiv x).symm ((ricciTensor x V₁).toContinuousLinearMap)
+        + (metricToDualEquiv x).symm ((ricciTensor x V₂).toContinuousLinearMap)
+    rw [show (ricciTensor (I := I) (M := M) x V₁
+                + ricciTensor x V₂).toContinuousLinearMap
+          = (ricciTensor x V₁).toContinuousLinearMap
+            + (ricciTensor x V₂).toContinuousLinearMap from
         LinearMap.toContinuousLinearMap.map_add _ _]
     exact (metricToDualEquiv x).symm.map_add _ _
   map_smul' c V := by
-    show metricRiesz x ((ricciFormAt x (c • V)).toContinuousLinearMap)
-        = c • metricRiesz x ((ricciFormAt x V).toContinuousLinearMap)
-    rw [show ricciFormAt (I := I) (M := M) x (c • V)
-          = c • ricciFormAt x V from
-        (ricciFormAt (I := I) (M := M) x).map_smul c V]
-    show (metricToDualEquiv x).symm ((c • ricciFormAt x V).toContinuousLinearMap)
-        = c • (metricToDualEquiv x).symm ((ricciFormAt x V).toContinuousLinearMap)
-    rw [show (c • ricciFormAt (I := I) (M := M) x V).toContinuousLinearMap
-          = c • (ricciFormAt x V).toContinuousLinearMap from
+    show metricRiesz x ((ricciTensor x (c • V)).toContinuousLinearMap)
+        = c • metricRiesz x ((ricciTensor x V).toContinuousLinearMap)
+    rw [show ricciTensor (I := I) (M := M) x (c • V)
+          = c • ricciTensor x V from
+        (ricciTensor (I := I) (M := M) x).map_smul c V]
+    show (metricToDualEquiv x).symm ((c • ricciTensor x V).toContinuousLinearMap)
+        = c • (metricToDualEquiv x).symm ((ricciTensor x V).toContinuousLinearMap)
+    rw [show (c • ricciTensor (I := I) (M := M) x V).toContinuousLinearMap
+          = c • (ricciTensor x V).toContinuousLinearMap from
         LinearMap.toContinuousLinearMap.map_smul _ _]
     exact (metricToDualEquiv x).symm.map_smul c _
 
 /-- The **scalar curvature** $\mathrm{scal}(x) := \mathrm{tr}_g \mathrm{Ric}(x)
 = \mathrm{tr}(\mathrm{Ric}^{\sharp}_x)$.
 
-**Basis-free** definition: trace of the Ricci endomorphism (Ricci
-bilinear form raised by the metric). This avoids the previous
-`stdOrthonormalBasis` definition, which was orthonormal w.r.t. the
-background `inner E` — not the Riemannian metric `g_x` — and would
-have produced the wrong value on any non-Euclidean manifold.
-
-Equivalent to $\sum_i \mathrm{Ric}(e_i, e_i)$ for any $g$-orthonormal
-basis $\{e_i\}$ of $T_xM$, but the basis-free form is the canonical
-mathematical definition.
-
-**Ground truth**: do Carmo 1992 §4 (defined as $g^{ij} \mathrm{Ric}_{ij}$,
-i.e., metric trace of the Ricci $(0,2)$-tensor). -/
+Basis-free definition: trace of the Ricci endomorphism. Equals $\sum_i \mathrm{Ric}(e_i, e_i)$
+for any $g$-orthonormal basis $\{e_i\}$ of $T_xM$. -/
 noncomputable def scalarCurvature (x : M) : ℝ :=
-  LinearMap.trace ℝ (TangentSpace I x) (ricciEndo (I := I) (M := M) x)
+  LinearMap.trace ℝ (TangentSpace I x) (ricciSharp (I := I) (M := M) x)
 
 end Riemannian
 
-/-! ## UXTest
-
-Self-test verifying curvature primitives resolve their typeclass
-cascade. -/
-section UXTest
-
-open Riemannian
-
-noncomputable example
-    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [CompleteSpace E]
-    [FiniteDimensional ℝ E]
-    {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
-    {M : Type*} [TopologicalSpace M] [ChartedSpace H M] [IsManifold I ∞ M]
-    [IsLocallyConstantChartedSpace H M]
-    [OpenGALib.RiemannianMetric I M]
-    (X Y Z : Π x : M, TangentSpace I x) (x : M) :
-    TangentSpace I x := riemannCurvature X Y Z x
-
-/-- Antisymmetry corollary `riemannCurvature_antisymm` is invocable. -/
-example
-    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [CompleteSpace E]
-    [FiniteDimensional ℝ E]
-    {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
-    {M : Type*} [TopologicalSpace M] [ChartedSpace H M] [IsManifold I ∞ M]
-    [IsLocallyConstantChartedSpace H M]
-    [OpenGALib.RiemannianMetric I M]
-    (X Y Z : Π x : M, TangentSpace I x) (x : M) :
-    riemannCurvature X Y Z x = -riemannCurvature Y X Z x :=
-  riemannCurvature_antisymm X Y Z x
-
-noncomputable example
-    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [CompleteSpace E]
-    [FiniteDimensional ℝ E]
-    {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
-    {M : Type*} [TopologicalSpace M] [ChartedSpace H M] [IsManifold I ∞ M]
-    [IsLocallyConstantChartedSpace H M]
-    [OpenGALib.RiemannianMetric I M]
-    (X Y : SmoothVectorField I M) (x : M) : ℝ := ricci X Y x
-
-noncomputable example
-    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [CompleteSpace E]
-    [FiniteDimensional ℝ E]
-    {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
-    {M : Type*} [TopologicalSpace M] [ChartedSpace H M] [IsManifold I ∞ M]
-    [IsLocallyConstantChartedSpace H M]
-    [OpenGALib.RiemannianMetric I M]
-    (x : M) : ℝ :=
-  scalarCurvature (I := I) x
-
-end UXTest

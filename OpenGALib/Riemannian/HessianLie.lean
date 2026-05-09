@@ -31,7 +31,7 @@ on `C^∞(M, ℝ)`:
 
 ## Used by
 
-  * `Riemannian.Curvature` — `riemannCurvature_inner_diagonal_zero`
+  * `Riemannian.Curvature` — `riemannCurvature_inner_self_zero`
     (skew-symmetry of Riemann endomorphism), feeding `ricci_symm` via
     `bianchi_first` (`Riemannian.Connection.Bianchi`).
 
