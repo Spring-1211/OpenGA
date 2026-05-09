@@ -6,6 +6,10 @@ import OpenGALib.Tensor.Alternating.Curry
 import OpenGALib.Tensor.Alternating.FDeriv
 import OpenGALib.Tensor.Alternating.Flip
 import OpenGALib.Tensor.Alternating.Wedge
+import OpenGALib.Tensor.DifferentialForm.Basic
+import OpenGALib.Tensor.DifferentialForm.Congr
+import OpenGALib.Tensor.DifferentialForm.Defs
+import OpenGALib.Tensor.DifferentialForm.Rough
 import OpenGALib.Tensor.Multilinear.Basis
 import OpenGALib.Tensor.Multilinear.Bundle
 import OpenGALib.Tensor.Multilinear.Comp
