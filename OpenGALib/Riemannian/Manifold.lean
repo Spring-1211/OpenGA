@@ -29,12 +29,13 @@ Operators downstream (`metricInner`, `manifoldGradient`, `Δ_g`, `Ric`,
   symplectic, contact) extend `SmoothManifold M` the same way; the
   framework's typeclass family is uniform.
 
-## Backward compatibility
+## Metric access
 
-A `[RiemannianManifold M]` provides a `[RiemannianMetric I M]` instance
-via `RiemannianManifold.toRiemannianMetric`. All existing operators
-written against `RiemannianMetric I M` work unchanged when the user
-declares `[RiemannianManifold M]`.
+A `[RiemannianManifold M]` carries the metric as a regular field
+`(metric : RiemannianMetric modelI M)` — `RiemannianMetric` is now
+Mathlib's `Bundle.ContMDiffRiemannianMetric` aliased, i.e. data, not a
+typeclass. Operators access `(RiemannianManifold.metric).metricInner x V W`
+or use polymorphic notation that pulls the metric from the typeclass.
 
 ## Extension policy
 
@@ -78,11 +79,13 @@ class SmoothManifold (M : Type*) [TopologicalSpace M] where
   [isManifold_M : IsManifold modelI ∞ M]
 
 /-- A **Riemannian manifold** $(M, g)$ as a single bundled typeclass.
-Extends `SmoothManifold M` with a `RiemannianMetric` instance for
-$M$'s smooth structure. -/
+Extends `SmoothManifold M` with a regular field `metric : RiemannianMetric modelI M`.
+The metric is *data* (an inhabitant of `Bundle.ContMDiffRiemannianMetric`),
+not a typeclass attribute. Operators access it via
+`(RiemannianManifold.metric : RiemannianMetric modelI M).metricInner x V W`. -/
 class RiemannianManifold (M : Type*) [TopologicalSpace M]
     extends SmoothManifold M where
   /-- The metric on $M$, attached to the inherited `modelI`. -/
-  [toRiemannianMetric : RiemannianMetric modelI M]
+  metric : RiemannianMetric modelI M
 
 end OpenGALib
