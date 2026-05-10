@@ -707,31 +707,12 @@ variable {M : Type*} [NormedAddCommGroup M] [NormedSpace ℝ M] [FiniteDimension
 
 open Fin
 
--- UNUSED functionality
+-- UNUSED functionality (proof depends on a removed Mathlib lemma
+-- `Equiv.Perm.finAddFlip_equiv_eqFin`; sorry'd until the auxiliary
+-- equivalence is restored or the lemma is rewritten).
 lemma domDomCongr_finAddFlip_wedge_self (g : M [⋀^Fin m]→L[ℝ] ℝ) :
     domDomCongr finAddFlip (g∧[ℝ]g) = (g∧[ℝ]g) := by
-  ext x
-  rw[wedge_product_mul, uncurryFinAdd, domDomCongr_apply, domDomCongr_apply, uncurrySum_apply,
-    ContinuousMultilinearMap.sum_apply, wedge_product_mul, uncurryFinAdd, domDomCongr_apply,
-    uncurrySum_apply, ContinuousMultilinearMap.sum_apply]
-  conv_rhs => rw[← Equiv.sum_comp Equiv.Perm.finAddFlip_equiv_eqFin]
-  apply Finset.sum_congr rfl
-  rintro σ -
-  rcases σ with ⟨σ₁⟩
-  simp only [Function.comp_apply, Equiv.Perm.finAddFlip_equiv_eqFin_apply]
-  rw[uncurrySum.summand_mk]
-  rw[uncurrySum.summand_mk]
-  rw[ContinuousMultilinearMap.smul_apply, ContinuousMultilinearMap.domDomCongr_apply,
-    ContinuousMultilinearMap.uncurrySum_apply, ContinuousMultilinearMap.flipMultilinear_apply,
-    coe_toContinuousMultilinearMap, ContinuousMultilinearMap.flipAlternating_apply,
-    coe_toContinuousMultilinearMap, ContinuousLinearMap.compContinuousAlternatingMap₂_apply,
-    ContinuousLinearMap.mul_apply']
-  rw[ContinuousMultilinearMap.smul_apply, ContinuousMultilinearMap.domDomCongr_apply,
-    ContinuousMultilinearMap.uncurrySum_apply, ContinuousMultilinearMap.flipMultilinear_apply,
-    coe_toContinuousMultilinearMap, ContinuousMultilinearMap.flipAlternating_apply,
-    coe_toContinuousMultilinearMap, ContinuousLinearMap.compContinuousAlternatingMap₂_apply,
-    ContinuousLinearMap.mul_apply']
-  simp [Function.comp_def, finAddFlip, mul_comm]
+  sorry
 
 /- Corollary of `wedge_antisymm` saying that a wedge of g with itself is
 zero if m is odd. -/

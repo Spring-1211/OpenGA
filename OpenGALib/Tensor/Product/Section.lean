@@ -1,4 +1,5 @@
 import OpenGALib.Tensor.Product.Bundle
+import Mathlib.Geometry.Manifold.VectorBundle.SmoothSection
 
 /-!
 # Tensor product of smooth sections (OpenGALib)

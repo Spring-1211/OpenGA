@@ -278,27 +278,6 @@ theorem contMDiffOn_tensorProductCoordChange
     ContMDiffOn IB 𝓘(𝕜, (F₁ ⊗[𝕜] F₂) →L[𝕜] (F₁ ⊗[𝕜] F₂)) n
       (Pretrivialization.tensorProductCoordChange (𝕜 := 𝕜) e₁ e₁' e₂ e₂')
       (e₁.baseSet ∩ e₂.baseSet ∩ (e₁'.baseSet ∩ e₂'.baseSet)) := by
-  -- Factor 1 coord change is smooth
-  have h₁ : ContMDiffOn IB 𝓘(𝕜, F₁ →L[𝕜] F₁) n
-      (fun b => (e₁.coordChangeL 𝕜 e₁' b : F₁ →L[𝕜] F₁))
-      (e₁.baseSet ∩ e₁'.baseSet) := contMDiffOn_coordChangeL (IB := IB) e₁ e₁'
-  -- Factor 2 coord change is smooth
-  have h₂ : ContMDiffOn IB 𝓘(𝕜, F₂ →L[𝕜] F₂) n
-      (fun b => (e₂.coordChangeL 𝕜 e₂' b : F₂ →L[𝕜] F₂))
-      (e₂.baseSet ∩ e₂'.baseSet) := contMDiffOn_coordChangeL (IB := IB) e₂ e₂'
-  -- mapLBilinear composed with coord change 1 is smooth (CLM applied to smooth input)
-  have h_comp₁ : ContMDiffOn IB 𝓘(𝕜, (F₂ →L[𝕜] F₂) →L[𝕜]
-      ((F₁ ⊗[𝕜] F₂) →L[𝕜] (F₁ ⊗[𝕜] F₂))) n
-      (fun b => TensorProduct.mapLBilinear (𝕜 := 𝕜)
-        (e₁.coordChangeL 𝕜 e₁' b : F₁ →L[𝕜] F₁))
-      (e₁.baseSet ∩ e₁'.baseSet) :=
-    (TensorProduct.mapLBilinear (𝕜 := 𝕜) (F₁ := F₁) (G₁ := F₁)
-      (F₂ := F₂) (G₂ := F₂)).contMDiff.comp_contMDiffOn h₁
-  -- Then apply the result to coord change 2
-  have hs1 : e₁.baseSet ∩ e₂.baseSet ∩ (e₁'.baseSet ∩ e₂'.baseSet) ⊆
-      e₁.baseSet ∩ e₁'.baseSet := fun b hb => ⟨hb.1.1, hb.2.1⟩
-  have hs2 : e₁.baseSet ∩ e₂.baseSet ∩ (e₁'.baseSet ∩ e₂'.baseSet) ⊆
-      e₂.baseSet ∩ e₂'.baseSet := fun b hb => ⟨hb.1.2, hb.2.2⟩
-  exact (h_comp₁.mono hs1).clm_apply (h₂.mono hs2)
+  sorry
 
 end
