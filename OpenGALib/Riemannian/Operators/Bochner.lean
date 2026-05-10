@@ -48,7 +48,7 @@ theorem bochner_weitzenboeck (f : M → ℝ) (x : M) :
     (1 / 2 : ℝ) * (Δ_g[I] (gradNormSq (I := I) f)) x
     = (hessNormSq_g[I] f) x
       + ⟪(grad_g[I] f) x,
-         Riemannian.manifoldGradient (I := I) (Δ_g[I] f) x⟫_g
+         (grad_g[I] (Δ_g[I] f)) x⟫_g
       + Ric_g((grad_g[I] f) x,
               (grad_g[I] f) x) x := by
   sorry
