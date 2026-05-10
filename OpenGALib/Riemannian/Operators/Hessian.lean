@@ -170,6 +170,59 @@ theorem trace_sq_le_dim_mul_frobeniusSq
   simp only [trace_def, frobeniusSq_def]
   exact h
 
+/-- The **Hessian as a `Bilin` section**: at each point $x$,
+$\operatorname{Hess} f(x)(v, w) = \langle \nabla_{(\text{const }v)}\,\nabla^M f,\,
+w\rangle_g(x)$. Tensoriality (independence of the choice of vector-field
+extension of $v, w$) is built in: the constant extension $\tilde v(y) := v$
+suffices because the Levi-Civita connection is C∞-linear in its first slot
+and the second slot is just evaluated. -/
+noncomputable def hessianBilin
+    [IsLocallyConstantChartedSpace H M]
+    (f : M → ℝ) : Bilin (M := M) I := fun x =>
+  LinearMap.mk₂ ℝ
+    (fun v w => metricInner x
+      (covDeriv (fun _ : M => v) (manifoldGradient (I := I) f) x) w)
+    (fun v₁ v₂ w => by
+      show metricInner x
+            (covDeriv (fun _ : M => v₁ + v₂) (manifoldGradient (I := I) f) x) w
+          = metricInner x
+              (covDeriv (fun _ => v₁) (manifoldGradient (I := I) f) x) w
+          + metricInner x
+              (covDeriv (fun _ => v₂) (manifoldGradient (I := I) f) x) w
+      have hAdd :
+          covDeriv (fun _ : M => v₁ + v₂) (manifoldGradient (I := I) f) x
+            = covDeriv (fun _ => v₁) (manifoldGradient (I := I) f) x
+              + covDeriv (fun _ => v₂) (manifoldGradient (I := I) f) x := by
+        show ((leviCivitaConnection (I := I) (M := M)).toFun
+              (manifoldGradient (I := I) f) x) (v₁ + v₂)
+            = ((leviCivitaConnection (I := I) (M := M)).toFun
+              (manifoldGradient (I := I) f) x) v₁
+            + ((leviCivitaConnection (I := I) (M := M)).toFun
+              (manifoldGradient (I := I) f) x) v₂
+        exact map_add _ _ _
+      rw [hAdd, metricInner_add_left])
+    (fun c v w => by
+      show metricInner x
+            (covDeriv (fun _ : M => c • v) (manifoldGradient (I := I) f) x) w
+          = c • metricInner x
+            (covDeriv (fun _ => v) (manifoldGradient (I := I) f) x) w
+      have hSmul :
+          covDeriv (fun _ : M => c • v) (manifoldGradient (I := I) f) x
+            = c • covDeriv (fun _ => v) (manifoldGradient (I := I) f) x := by
+        show ((leviCivitaConnection (I := I) (M := M)).toFun
+              (manifoldGradient (I := I) f) x) (c • v)
+            = c • ((leviCivitaConnection (I := I) (M := M)).toFun
+              (manifoldGradient (I := I) f) x) v
+        exact ContinuousLinearMap.map_smul _ _ _
+      rw [hSmul, metricInner_smul_left]; rfl)
+    (fun v w₁ w₂ => metricInner_add_right x _ w₁ w₂)
+    (fun c v w => by
+      show metricInner x (covDeriv (fun _ : M => v) (manifoldGradient (I := I) f) x)
+            (c • w)
+          = c • metricInner x
+            (covDeriv (fun _ : M => v) (manifoldGradient (I := I) f) x) w
+      rw [metricInner_smul_right]; rfl)
+
 /-- The **squared Frobenius norm** $|\nabla^2 f|_g^2(x)$ of the Hessian
 of a smooth scalar $f$ at $x$: $\sum_{i,j} \operatorname{Hess} f(e_i, e_j)(x)^2$.
 Used by the Bochner identity. -/
@@ -182,6 +235,14 @@ noncomputable def hessianSqNorm
         (fun (_ : M) => ((Module.finBasis ℝ E) i : TangentSpace I x))
         (fun (_ : M) => ((Module.finBasis ℝ E) j : TangentSpace I x))
         x) ^ 2
+
+/-- Bridge: `hessianSqNorm f x = frobeniusSq (hessianBilin f) x`. The two
+defs are definitionally equal — `hessianBilin f x v w` evaluated at the
+canonical basis vectors equals `hessian f (const v) (const w) x`. -/
+theorem hessianSqNorm_eq_frobeniusSq_hessianBilin
+    [IsLocallyConstantChartedSpace H M] (f : M → ℝ) (x : M) :
+    hessianSqNorm (I := I) (M := M) f x
+      = frobeniusSq (I := I) (M := M) (hessianBilin (I := I) (M := M) f) x := rfl
 
 /-- $(\operatorname{trace} B(x))^2 / n \le \operatorname{frobeniusSq} B(x)$. -/
 theorem trace_sq_div_dim_le_frobeniusSq
