@@ -181,46 +181,21 @@ noncomputable def hessianBilin
     (f : M → ℝ) : Bilin (M := M) I := fun x =>
   LinearMap.mk₂ ℝ
     (fun v w => metricInner x
-      (covDeriv (fun _ : M => v) (manifoldGradient (I := I) f) x) w)
+      (covDerivAt (manifoldGradient (I := I) f) x v) w)
     (fun v₁ v₂ w => by
-      show metricInner x
-            (covDeriv (fun _ : M => v₁ + v₂) (manifoldGradient (I := I) f) x) w
-          = metricInner x
-              (covDeriv (fun _ => v₁) (manifoldGradient (I := I) f) x) w
-          + metricInner x
-              (covDeriv (fun _ => v₂) (manifoldGradient (I := I) f) x) w
-      have hAdd :
-          covDeriv (fun _ : M => v₁ + v₂) (manifoldGradient (I := I) f) x
-            = covDeriv (fun _ => v₁) (manifoldGradient (I := I) f) x
-              + covDeriv (fun _ => v₂) (manifoldGradient (I := I) f) x := by
-        show ((leviCivitaConnection (I := I) (M := M)).toFun
-              (manifoldGradient (I := I) f) x) (v₁ + v₂)
-            = ((leviCivitaConnection (I := I) (M := M)).toFun
-              (manifoldGradient (I := I) f) x) v₁
-            + ((leviCivitaConnection (I := I) (M := M)).toFun
-              (manifoldGradient (I := I) f) x) v₂
-        exact map_add _ _ _
-      rw [hAdd, metricInner_add_left])
+      show metricInner x (covDerivAt (manifoldGradient (I := I) f) x (v₁ + v₂)) w
+          = metricInner x (covDerivAt (manifoldGradient (I := I) f) x v₁) w
+          + metricInner x (covDerivAt (manifoldGradient (I := I) f) x v₂) w
+      rw [map_add, metricInner_add_left])
     (fun c v w => by
-      show metricInner x
-            (covDeriv (fun _ : M => c • v) (manifoldGradient (I := I) f) x) w
-          = c • metricInner x
-            (covDeriv (fun _ => v) (manifoldGradient (I := I) f) x) w
-      have hSmul :
-          covDeriv (fun _ : M => c • v) (manifoldGradient (I := I) f) x
-            = c • covDeriv (fun _ => v) (manifoldGradient (I := I) f) x := by
-        show ((leviCivitaConnection (I := I) (M := M)).toFun
-              (manifoldGradient (I := I) f) x) (c • v)
-            = c • ((leviCivitaConnection (I := I) (M := M)).toFun
-              (manifoldGradient (I := I) f) x) v
-        exact ContinuousLinearMap.map_smul _ _ _
-      rw [hSmul, metricInner_smul_left]; rfl)
+      show metricInner x (covDerivAt (manifoldGradient (I := I) f) x (c • v)) w
+          = c • metricInner x (covDerivAt (manifoldGradient (I := I) f) x v) w
+      rw [(covDerivAt (manifoldGradient (I := I) f) x).map_smul,
+          metricInner_smul_left]; rfl)
     (fun v w₁ w₂ => metricInner_add_right x _ w₁ w₂)
     (fun c v w => by
-      show metricInner x (covDeriv (fun _ : M => v) (manifoldGradient (I := I) f) x)
-            (c • w)
-          = c • metricInner x
-            (covDeriv (fun _ : M => v) (manifoldGradient (I := I) f) x) w
+      show metricInner x (covDerivAt (manifoldGradient (I := I) f) x v) (c • w)
+          = c • metricInner x (covDerivAt (manifoldGradient (I := I) f) x v) w
       rw [metricInner_smul_right]; rfl)
 
 /-- The **squared Frobenius norm** $|\nabla^2 f|_g^2(x)$ of the Hessian
