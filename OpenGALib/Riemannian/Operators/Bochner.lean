@@ -46,7 +46,7 @@ $$\tfrac{1}{2}\,\Delta_g\,|\nabla f|_g^2
     + \mathrm{Ric}(\nabla f, \nabla f).$$ -/
 theorem bochner_weitzenboeck (f : M → ℝ) (x : M) :
     (1 / 2 : ℝ) * scalarLaplacian (I := I) (M := M) (gradNormSq (I := I) f) x
-    = hessianSqNorm (I := I) (M := M) f x
+    = (hessNormSq_g[I] f) x
       + ⟪Riemannian.manifoldGradient (I := I) f x,
          Riemannian.manifoldGradient (I := I)
            (fun y : M => scalarLaplacian (I := I) (M := M) f y) x⟫_g
