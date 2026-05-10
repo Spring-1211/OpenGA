@@ -2,6 +2,7 @@ import OpenGALib.GeometricMeasureTheory.HasNormal
 import OpenGALib.Riemannian.Curvature
 import OpenGALib.Riemannian.SecondFundamentalForm
 import OpenGALib.Riemannian.Gradient
+import OpenGALib.Util.Notation
 import Mathlib.MeasureTheory.Integral.Bochner.Basic
 
 /-!
@@ -20,7 +21,7 @@ $$\delta^2 V(\varphi) = \int_M
 
 Where:
   * $|\nabla^M \varphi|^2$ — squared norm of the manifold gradient
-    (`Riemannian.manifoldGradientNormSq`);
+    (polymorphic `‖grad_g[I] φ‖²_g`);
   * $|A|^2$ — squared norm of the second fundamental form
     (`Riemannian.secondFundamentalFormSqNorm`);
   * $\mathrm{Ric}(\nu, \nu)$ — Ricci curvature in the normal direction
@@ -40,7 +41,7 @@ are replaced with constructive defs (Phase 4 repair trigger).
 §1 (stable hypersurfaces); Wickramasekera 2014 §2.
 -/
 
-open scoped ContDiff Manifold
+open scoped ContDiff Manifold Riemannian OpenGALib
 open Riemannian
 
 namespace GeometricMeasureTheory.Variation
@@ -58,8 +59,8 @@ Requires:
     `[NontriviallyNormedField ℝ]` for the underlying Riemannian primitives;
   * `[Varifold.HasNormal I V]` providing the unit normal field.
 
-The kinetic term is `manifoldGradientNormSq`; the curvature term
-combines `secondFundamentalFormSqNorm` and `ricci`. All three primitives
+The kinetic term is the polymorphic `‖grad_g[I] φ‖²_g`; the curvature
+term combines `secondFundamentalFormSqNorm` and `ricci`. All three primitives
 currently use `Classical.choose` over existence axioms (PRE-PAPER); the
 real values come online when their existence axioms are replaced with
 constructive defs (Phase 4 catch-up event with Mathlib's eventual
@@ -83,7 +84,7 @@ noncomputable def secondVariationFull
   -- (Phase 1.7 GMT-side refactor: add `unitNormal_smooth` field).
   let νSmooth : SmoothVectorField I M :=
     ⟨hN.unitNormal, sorry⟩
-  ∫ x, (manifoldGradientNormSq I φ x -
+  ∫ x, (‖grad_g[I] φ‖²_g x -
         (secondFundamentalFormSqNorm hN.unitNormal x +
          ricci νSmooth νSmooth x) * φ x ^ 2)
       ∂V.massMeasure

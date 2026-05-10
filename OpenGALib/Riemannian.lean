@@ -110,7 +110,6 @@ intermediate identities) are internal and may change without notice.
 
 **Gradient** (`Gradient.lean`):
   * `Riemannian.manifoldGradient`
-  * `Riemannian.manifoldGradientNormSq`
   * `Riemannian.manifoldGradient_inner_eq`
 
 **Bump functions** (`BumpFunction.lean`):

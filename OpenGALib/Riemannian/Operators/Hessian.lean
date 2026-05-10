@@ -198,27 +198,6 @@ noncomputable def hessianBilin
           = c • metricInner x (covDerivAt (manifoldGradient (I := I) f) x v) w
       rw [metricInner_smul_right]; rfl)
 
-/-- The **squared Frobenius norm** $|\nabla^2 f|_g^2(x)$ of the Hessian
-of a smooth scalar $f$ at $x$: $\sum_{i,j} \operatorname{Hess} f(e_i, e_j)(x)^2$.
-Used by the Bochner identity. -/
-noncomputable def hessianSqNorm
-    [IsLocallyConstantChartedSpace H M]
-    (f : M → ℝ) (x : M) : ℝ :=
-  ∑ i : Fin (Module.finrank ℝ E),
-    ∑ j : Fin (Module.finrank ℝ E),
-      (hessian (I := I) (M := M) f
-        (fun (_ : M) => ((Module.finBasis ℝ E) i : TangentSpace I x))
-        (fun (_ : M) => ((Module.finBasis ℝ E) j : TangentSpace I x))
-        x) ^ 2
-
-/-- Bridge: `hessianSqNorm f x = frobeniusSq (hessianBilin f) x`. The two
-defs are definitionally equal — `hessianBilin f x v w` evaluated at the
-canonical basis vectors equals `hessian f (const v) (const w) x`. -/
-theorem hessianSqNorm_eq_frobeniusSq_hessianBilin
-    [IsLocallyConstantChartedSpace H M] (f : M → ℝ) (x : M) :
-    hessianSqNorm (I := I) (M := M) f x
-      = frobeniusSq (I := I) (M := M) (hessianBilin (I := I) (M := M) f) x := rfl
-
 /-- $(\operatorname{trace} B(x))^2 / n \le \operatorname{frobeniusSq} B(x)$. -/
 theorem trace_sq_div_dim_le_frobeniusSq
     (B : Bilin (M := M) I) (x : M) :

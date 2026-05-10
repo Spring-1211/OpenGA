@@ -11,12 +11,14 @@ $$\langle \nabla^M f(x), v \rangle_g = (\mathrm{d}f)_x(v) \quad \forall v \in T_
 ## Main definitions
 
 * `manifoldGradient f x` — the gradient $\nabla^M f(x) \in T_xM$.
-* `manifoldGradientNormSq f x` — the squared gradient norm $|\nabla^M f|^2(x)$.
+
+For the squared gradient norm $|\nabla^M f|^2$ as a scalar function on
+$M$, use the polymorphic `‖grad_g[I] f‖²_g` (the section-level instance
+of `OpenGALib.MetricNormSq`).
 
 ## Main results
 
 * `manifoldGradient_inner_eq` — the defining Riesz identity.
-* `manifoldGradientNormSq_nonneg` — $|\nabla^M f|^2 \ge 0$.
 
 Reference: do Carmo §3 ex. 8.
 -/
@@ -45,27 +47,5 @@ theorem manifoldGradient_inner_eq
     (f : M → ℝ) (x : M) (v : TangentSpace I x) :
     metricInner x (manifoldGradient f x) v = (mfderiv I 𝓘(ℝ, ℝ) f x) v :=
   metricRiesz_inner x (mfderiv I 𝓘(ℝ, ℝ) f x) v
-
-/-- The **squared gradient norm** $|\nabla^M f|^2(x) := \langle \nabla^M f(x),
-\nabla^M f(x) \rangle_g$.
-
-Used in the Jacobi second-variation formula (Simon §49). -/
-noncomputable def manifoldGradientNormSq
-    (I' : ModelWithCorners ℝ E H)
-    [ChartedSpace H M] [IsManifold I' ∞ M]
-    [RiemannianMetric I' M]
-    (f : M → ℝ) (x : M) : ℝ :=
-  metricInner x (manifoldGradient (I := I') f x) (manifoldGradient (I := I') f x)
-
-omit [CompleteSpace E] [ChartedSpace H M] in
-/-- $|\nabla^M f|^2(x) \ge 0$. -/
-@[simp]
-theorem manifoldGradientNormSq_nonneg
-    (I' : ModelWithCorners ℝ E H)
-    [ChartedSpace H M] [IsManifold I' ∞ M]
-    [RiemannianMetric I' M]
-    (f : M → ℝ) (x : M) :
-    0 ≤ manifoldGradientNormSq I' f x :=
-  metricInner_self_nonneg x _
 
 end Riemannian
