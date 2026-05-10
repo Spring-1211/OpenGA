@@ -1614,6 +1614,37 @@ noncomputable def covDeriv
     TangentSpace I x :=
   ((leviCivitaConnection (I := I) (M := M)).toFun Y x) (X x)
 
+/-- The **covariant derivative at a point** as a CLM in the direction slot:
+$\nabla\,Y|_x : T_xM \to_L T_xM$, $v \mapsto (\nabla_v Y)(x)$. Decouples
+linearity in the direction from the section-level `covDeriv`:
+`covDeriv X Y x = covDerivAt Y x (X x)`, so any "linear in $X$ at $x$"
+identity reduces to standard CLM lemmas (`map_add`, `map_smul`,
+`map_zero`, `.comp`) on `covDerivAt Y x`. -/
+noncomputable def covDerivAt
+    [IsLocallyConstantChartedSpace H M]
+    (Y : Π x : M, TangentSpace I x) (x : M) :
+    TangentSpace I x →L[ℝ] TangentSpace I x :=
+  (leviCivitaConnection (I := I) (M := M)).toFun Y x
+
+/-- `covDeriv X Y x = covDerivAt Y x (X x)`: section-level `covDeriv`
+factors through the pointwise CLM `covDerivAt`. -/
+@[simp]
+theorem covDeriv_eq_covDerivAt
+    [IsLocallyConstantChartedSpace H M]
+    (X Y : Π x : M, TangentSpace I x) (x : M) :
+    covDeriv X Y x = covDerivAt Y x (X x) :=
+  rfl
+
+/-- Constant-section specialization: `covDeriv (fun _ => v) Y x =
+covDerivAt Y x v`. Used when only the value of the direction at $x$
+matters (tensoriality of $\nabla_X Y$ in $X$). -/
+@[simp]
+theorem covDeriv_const_eq_covDerivAt
+    [IsLocallyConstantChartedSpace H M]
+    (v : E) (Y : Π x : M, TangentSpace I x) (x : M) :
+    covDeriv (fun _ : M => v) Y x = covDerivAt Y x v :=
+  rfl
+
 /-- **Riesz formula for the covariant derivative**: for smooth $X, Y, Z$,
 $$\langle \nabla_X Y, Z\rangle_g(x) = \tfrac12 K(X, Y; Z)(x).$$
 
