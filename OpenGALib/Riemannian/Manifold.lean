@@ -53,7 +53,8 @@ To add a new geometric structure on smooth manifolds:
 manifolds and Riemannian metrics"). Lee, *Smooth Manifolds*, Ch. 1, 13.
 -/
 
-open scoped ContDiff Manifold
+open Bundle
+open scoped ContDiff Manifold Bundle
 
 namespace OpenGALib
 
@@ -104,5 +105,50 @@ class RiemannianManifold (M : Type*) [TopologicalSpace M]
   [neZero_finrank_E : NeZero (Module.finrank ℝ E)]
   /-- The metric on $M$, attached to the inherited `modelI`. -/
   metric : RiemannianMetric modelI M
+
+/-! ## Global instance bridges
+
+Class fields tagged `[...]` are accessible to type-class search only via
+parent-chain projection from `[SmoothManifold M]` / `[RiemannianManifold
+M]`. Lean's TC engine can occasionally fail to chain these projections at
+the right elaboration sites (especially when the projected type appears
+under an `outParam` like `E` here). The bridges below promote each
+instance field to a top-level instance so synthesis is direct. -/
+
+section SmoothManifoldBridges
+
+variable {M : Type*} [TopologicalSpace M] [s : SmoothManifold M]
+
+instance : NormedAddCommGroup s.E := s.normedAddCommGroup_E
+instance : NormedSpace ℝ s.E := s.normedSpace_E
+instance : FiniteDimensional ℝ s.E := s.finiteDimensional_E
+instance : CompleteSpace s.E := s.completeSpace_E
+instance : TopologicalSpace s.H := s.topologicalSpace_H
+instance : ChartedSpace s.H M := s.chartedSpace_M
+instance : IsManifold s.modelI ∞ M := s.isManifold_M
+instance : IsLocallyConstantChartedSpace s.H M := s.isLocallyConstantChartedSpace_M
+
+end SmoothManifoldBridges
+
+section RiemannianManifoldBridges
+
+variable {M : Type*} [TopologicalSpace M] [rm : RiemannianManifold M]
+
+instance : InnerProductSpace ℝ rm.E := rm.innerProductSpace_E
+instance : NeZero (Module.finrank ℝ rm.E) := rm.neZero_finrank_E
+
+/-- The metric carried by `[RiemannianManifold M]` induces a global
+`Bundle.RiemannianBundle (TangentSpace modelI : M → Type _)`, which in turn
+activates Mathlib's scoped `NormedAddCommGroup` and `InnerProductSpace ℝ`
+instances on each fibre `TangentSpace modelI x`. This is the single
+NACG/IPS source on tangent fibres in OpenGALib — chart-background
+shortcuts (`inferInstanceAs (NormedAddCommGroup E)` on `TangentSpace I x`)
+were deliberately retired in favour of this bridge, sidestepping the
+lean4#13063 NACG diamond. -/
+noncomputable instance instRiemannianBundleOfRiemannianManifold :
+    Bundle.RiemannianBundle (TangentSpace rm.modelI : M → Type _) :=
+  ⟨rm.metric.toRiemannianMetric⟩
+
+end RiemannianManifoldBridges
 
 end OpenGALib

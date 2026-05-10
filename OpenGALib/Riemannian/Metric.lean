@@ -46,7 +46,7 @@ Mathlib upstream: `Mathlib.Geometry.Manifold.VectorBundle.Riemannian`.
 -/
 
 open Bundle
-open scoped ContDiff Manifold Topology
+open scoped ContDiff Manifold Topology Bundle
 
 namespace OpenGALib
 
@@ -173,10 +173,20 @@ end RiemannianMetric
 
 end OpenGALib
 
-/-! ## TangentSpace instances (chart-background path)
+/-! ## TangentSpace fibre instances
 
-Background-derived `NormedAddCommGroup`, `NormedSpace`, etc. on each
-fibre `TangentSpace I x`, transported via `TangentSpace I x = E`. -/
+`NormedAddCommGroup`, `NormedSpace`, and `InnerProductSpace` on each
+fibre `TangentSpace I x` are *not* declared here. Instead, they are
+supplied by Mathlib's scoped `Bundle.RiemannianBundle`-derived
+instances, which become active once a `RiemannianBundle E` is in scope
+(e.g., via the global instance on `[RiemannianManifold M]`, or via a
+local `letI`). Routing through `RiemannianBundle` ensures that the
+inner product the Mathlib `inner` projection lands on is *exactly*
+`g.inner b · ·`, sidestepping the lean4#13063 NACG diamond.
+
+The non-metric fibre instances `FiniteDimensional` and `CompleteSpace`
+are orthogonal to the NACG/IPS chain and are transported here via the
+`TangentSpace I x = E` def-eq. -/
 
 namespace OpenGALib
 
@@ -187,48 +197,11 @@ variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
   {M : Type*} [TopologicalSpace M] [ChartedSpace H M]
 
 set_option backward.isDefEq.respectTransparency false in
-instance instNormedAddCommGroupTangent (x : M) :
-    NormedAddCommGroup (TangentSpace I x) :=
-  inferInstanceAs (NormedAddCommGroup E)
-
-set_option backward.isDefEq.respectTransparency false in
-instance instNormedSpaceTangent (x : M) :
-    NormedSpace ℝ (TangentSpace I x) :=
-  inferInstanceAs (NormedSpace ℝ E)
-
-set_option backward.isDefEq.respectTransparency false in
-instance instIsTopologicalAddGroupTangent (x : M) :
-    IsTopologicalAddGroup (TangentSpace I x) :=
-  inferInstanceAs (IsTopologicalAddGroup E)
-
-set_option backward.isDefEq.respectTransparency false in
-instance instContinuousConstSMulTangent (x : M) :
-    ContinuousConstSMul ℝ (TangentSpace I x) :=
-  inferInstanceAs (ContinuousConstSMul ℝ E)
-
-set_option backward.isDefEq.respectTransparency false in
 instance instFiniteDimensionalTangent [FiniteDimensional ℝ E] (x : M) :
     FiniteDimensional ℝ (TangentSpace I x) :=
   inferInstanceAs (FiniteDimensional ℝ E)
 
-set_option backward.isDefEq.respectTransparency false in
-instance instCompleteSpaceTangent [CompleteSpace E] (x : M) :
-    CompleteSpace (TangentSpace I x) :=
-  inferInstanceAs (CompleteSpace E)
-
 end TangentSpaceInstances
-
-section TangentSpaceIPS
-
-variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
-  {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
-  {M : Type*} [TopologicalSpace M] [ChartedSpace H M]
-
-instance instInnerProductSpaceTangent (x : M) :
-    InnerProductSpace ℝ (TangentSpace I x) :=
-  inferInstanceAs (InnerProductSpace ℝ E)
-
-end TangentSpaceIPS
 
 end OpenGALib
 
@@ -296,71 +269,92 @@ theorem metricInner_eq_iff_eq (g : RiemannianMetric I M) (x : M)
     (∀ Z : TangentSpace I x, g.metricInner x v Z = g.metricInner x w Z) ↔ v = w :=
   BilinearForm.inner_eq_iff_eq (g.toBilinForm_isPosDef x) v w
 
-private noncomputable def clmDualEquiv (V : Type*)
-    [NormedAddCommGroup V] [NormedSpace ℝ V] [FiniteDimensional ℝ V] :
-    (V →ₗ[ℝ] ℝ) ≃ₗ[ℝ] (V →L[ℝ] ℝ) :=
-  LinearMap.toContinuousLinearMap
+/-- **Inverse Riesz** $\varphi \mapsto V_\varphi$ such that $g_x(V_\varphi, W) = \varphi(W)$.
 
-/-- The Riesz isomorphism `T_xM ≃ₗ[ℝ] (T_xM →L[ℝ] ℝ)`. -/
-noncomputable def metricToDualEquiv (g : RiemannianMetric I M) (x : M) :
-    TangentSpace I x ≃ₗ[ℝ] (TangentSpace I x →L[ℝ] ℝ) :=
-  haveI : FiniteDimensional ℝ (TangentSpace I x) :=
-    inferInstanceAs (FiniteDimensional ℝ E)
-  (BilinearForm.toDualEquiv (g.toBilinForm_isPosDef x)).trans
-    (clmDualEquiv (TangentSpace I x))
-
-theorem metricToDual_bijective (g : RiemannianMetric I M) (x : M) :
-    Function.Bijective (g.metricToDual x) := by
-  refine ⟨g.metricToDual_injective x, ?_⟩
-  intro φ
-  refine ⟨(g.metricToDualEquiv x).symm φ, ?_⟩
-  ext v
-  show g.inner x ((g.metricToDualEquiv x).symm φ) v = φ v
-  have := (g.metricToDualEquiv x).apply_symm_apply φ
-  exact congrArg (fun (f : TangentSpace I x →L[ℝ] ℝ) => f v) this
-
-/-- **Inverse Riesz** $\varphi \mapsto V_\varphi$ such that $g_x(V_\varphi, W) = \varphi(W)$. -/
+Constructed via the algebraic-core `BilinearForm.riesz` applied to the
+`LinearMap` coercion of the continuous functional. -/
 noncomputable def metricRiesz (g : RiemannianMetric I M) (x : M)
     (φ : TangentSpace I x →L[ℝ] ℝ) :
     TangentSpace I x :=
-  (g.metricToDualEquiv x).symm φ
+  BilinearForm.riesz (g.toBilinForm_isPosDef x)
+    ((φ : TangentSpace I x →ₗ[ℝ] ℝ))
 
 /-- **Defining property of Riesz**: $\langle \text{metricRiesz}\,\varphi, W\rangle_g = \varphi(W)$. -/
 @[simp]
 theorem metricRiesz_inner (g : RiemannianMetric I M) (x : M)
     (φ : TangentSpace I x →L[ℝ] ℝ) (V : TangentSpace I x) :
-    g.metricInner x (g.metricRiesz x φ) V = φ V := by
-  show g.inner x ((g.metricToDualEquiv x).symm φ) V = φ V
-  have := (g.metricToDualEquiv x).apply_symm_apply φ
-  exact congrArg (fun (f : TangentSpace I x →L[ℝ] ℝ) => f V) this
+    g.metricInner x (g.metricRiesz x φ) V = φ V :=
+  BilinearForm.riesz_inner (g.toBilinForm_isPosDef x)
+    ((φ : TangentSpace I x →ₗ[ℝ] ℝ)) V
 
 /-- **Uniqueness**: if $g_x(V, \cdot) = \varphi$, then $V = \text{metricRiesz}\,\varphi$. -/
 theorem metricRiesz_unique (g : RiemannianMetric I M) (x : M)
     (v : TangentSpace I x) (φ : TangentSpace I x →L[ℝ] ℝ)
     (h : ∀ w, g.metricInner x v w = φ w) :
-    v = g.metricRiesz x φ := by
-  apply g.metricToDual_injective x
-  ext w
-  rw [g.metricToDual_apply, h w]
-  show φ w = g.inner x ((g.metricToDualEquiv x).symm φ) w
-  have := (g.metricToDualEquiv x).apply_symm_apply φ
-  exact congrArg (fun (f : TangentSpace I x →L[ℝ] ℝ) => f w) this.symm
+    v = g.metricRiesz x φ :=
+  BilinearForm.riesz_unique (g.toBilinForm_isPosDef x) v
+    ((φ : TangentSpace I x →ₗ[ℝ] ℝ)) h
+
+theorem metricToDual_bijective (g : RiemannianMetric I M) (x : M) :
+    Function.Bijective (g.metricToDual x) := by
+  refine ⟨g.metricToDual_injective x, ?_⟩
+  intro φ
+  refine ⟨g.metricRiesz x φ, ?_⟩
+  ext v
+  exact g.metricRiesz_inner x φ v
+
+/-- The Riesz isomorphism `T_xM ≃ₗ[ℝ] (T_xM →L[ℝ] ℝ)`, built directly
+from `metricToDual` and its bijectivity. The forward map is
+`v ↦ g.inner x v` (the metric-induced continuous functional); the inverse
+is `g.metricRiesz x`. -/
+noncomputable def metricToDualEquiv (g : RiemannianMetric I M) (x : M) :
+    TangentSpace I x ≃ₗ[ℝ] (TangentSpace I x →L[ℝ] ℝ) :=
+  LinearEquiv.ofBijective (g.metricToDual x).toLinearMap (g.metricToDual_bijective x)
 
 end Riesz
 
-/-! ## Smoothness
+end RiemannianMetric
 
-The smoothness of the metric inner product and the Riesz section is
-inherited from `g.contMDiff` (Mathlib's bundle-form smoothness on
-`b ↦ TotalSpace.mk' b (g.inner b)`). The function-form smoothness
-`ContMDiff I 𝓘(ℝ, E →L[ℝ] E →L[ℝ] ℝ) ∞ g.inner` is derived via
-trivialization unwrapping.
+end OpenGALib
 
-**Note**: this section is left unfinished pending alignment of the
-chart-trivialization smoothness machinery with Mathlib's section-form
-representation. Downstream operators that depended on
-`MDifferentiableAt.metricInner_smoothAt` and `metricRiesz_section_smoothAt`
-will be temporarily blocked. -/
+/-! ## Smoothness of the metric inner product
+
+For smooth tangent sections `Y, Z : ∀ y, TangentSpace I y`, the scalar
+`y ↦ g_y(Y y, Z y)` is smooth. We bridge to Mathlib's
+`MDifferentiableAt.inner_bundle` by registering a local
+`Bundle.RiemannianBundle` from `g.toRiemannianMetric`, which activates the
+scoped fibre `InnerProductSpace` so that the `inner ℝ` projection unfolds
+to `g.inner`. -/
+
+namespace OpenGALib
+namespace RiemannianMetric
+
+section Smoothness
+
+variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
+  {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
+  {M : Type*} [TopologicalSpace M] [ChartedSpace H M] [IsManifold I ∞ M]
+
+/-- The metric inner product of two smooth tangent sections is smooth at
+every point: $y \mapsto g_y(Y(y), Z(y))$ is `MDifferentiableAt` whenever
+`Y` and `Z` are. Bridged to Mathlib's
+`MDifferentiableAt.inner_bundle` via a local
+`Bundle.RiemannianBundle (TangentSpace I)` derived from `g`. -/
+theorem metricInner_mdifferentiableAt
+    (g : RiemannianMetric I M)
+    {Y Z : ∀ y : M, TangentSpace I y} {x : M}
+    (hY : OpenGALib.TangentSmoothAt Y x)
+    (hZ : OpenGALib.TangentSmoothAt Z x) :
+    MDifferentiableAt I 𝓘(ℝ, ℝ) (fun y => g.metricInner y (Y y) (Z y)) x := by
+  letI rb : Bundle.RiemannianBundle (TangentSpace I : M → Type _) :=
+    ⟨g.toRiemannianMetric⟩
+  have hY' := hY.toBundleSection
+  have hZ' := hZ.toBundleSection
+  exact MDifferentiableAt.inner_bundle (IB := I) (F := E)
+    (E := (TangentSpace I : M → Type _)) (b := fun y => y)
+    (v := Y) (w := Z) (IM := I) hY' hZ'
+
+end Smoothness
 
 end RiemannianMetric
 
