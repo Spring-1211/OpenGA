@@ -34,18 +34,13 @@ variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [InnerProductSpa
   [IsLocallyConstantChartedSpace H M]
   [RiemannianMetric I M]
 
-/-- Squared gradient norm $|\nabla f|_g^2$ as a scalar function. -/
-noncomputable def gradNormSq (f : M → ℝ) (y : M) : ℝ :=
-  metricInner y (Riemannian.manifoldGradient (I := I) f y)
-    (Riemannian.manifoldGradient (I := I) f y)
-
 /-- **Bochner–Weitzenböck identity**:
 $$\tfrac{1}{2}\,\Delta_g\,|\nabla f|_g^2
   = |\nabla^2 f|_g^2
     + \langle \nabla f, \nabla\,\Delta_g f\rangle_g
     + \mathrm{Ric}(\nabla f, \nabla f).$$ -/
 theorem bochner_weitzenboeck (f : M → ℝ) (x : M) :
-    (1 / 2 : ℝ) * (Δ_g[I] (gradNormSq (I := I) f)) x
+    (1 / 2 : ℝ) * (Δ_g[I] (gradNormSq_g[I] f)) x
     = (hessNormSq_g[I] f) x
       + ⟪(grad_g[I] f) x,
          (grad_g[I] (Δ_g[I] f)) x⟫_g
