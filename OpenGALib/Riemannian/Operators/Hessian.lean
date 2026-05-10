@@ -170,6 +170,19 @@ theorem trace_sq_le_dim_mul_frobeniusSq
   simp only [trace_def, frobeniusSq_def]
   exact h
 
+/-- The **squared Frobenius norm** $|\nabla^2 f|_g^2(x)$ of the Hessian
+of a smooth scalar $f$ at $x$: $\sum_{i,j} \operatorname{Hess} f(e_i, e_j)(x)^2$.
+Used by the Bochner identity. -/
+noncomputable def hessianSqNorm
+    [IsLocallyConstantChartedSpace H M]
+    (f : M → ℝ) (x : M) : ℝ :=
+  ∑ i : Fin (Module.finrank ℝ E),
+    ∑ j : Fin (Module.finrank ℝ E),
+      (hessian (I := I) (M := M) f
+        (fun (_ : M) => ((Module.finBasis ℝ E) i : TangentSpace I x))
+        (fun (_ : M) => ((Module.finBasis ℝ E) j : TangentSpace I x))
+        x) ^ 2
+
 /-- $(\operatorname{trace} B(x))^2 / n \le \operatorname{frobeniusSq} B(x)$. -/
 theorem trace_sq_div_dim_le_frobeniusSq
     (B : Bilin (M := M) I) (x : M) :

@@ -1,6 +1,9 @@
 import OpenGALib.Riemannian.Curvature
 import OpenGALib.Riemannian.Gradient
 import OpenGALib.Riemannian.SecondFundamentalForm
+import OpenGALib.Riemannian.Operators.Laplacian
+import OpenGALib.Riemannian.Operators.Hessian
+import OpenGALib.Util.Notation.Connection
 
 /-!
 # Riemannian notation — post-Curvature tier
@@ -45,5 +48,17 @@ scoped notation "H_g" => meanCurvature
 /-- The manifold gradient $\mathrm{grad}_g f$ as a section
 $x \mapsto \nabla^M f(x)$. -/
 scoped notation:max "grad_g " f:max => manifoldGradient f
+
+/-- The function Laplacian $\Delta_g f : M \to \mathbb{R}$
+($= \operatorname{tr}_g(\operatorname{Hess} f)$). -/
+scoped notation:max "Δ_g " f:max => Operators.scalarLaplacian f
+
+/-- The squared Frobenius norm of the Hessian
+$|\nabla^2 f|^2_g : M \to \mathbb{R}$. -/
+scoped notation:max "hessNormSq_g " f:max => Operators.hessianSqNorm f
+
+/-- Pointwise Ricci form $\mathrm{Ric}_x(v, w) = \mathrm{Ric}(X, Y)$ evaluated
+on tangent vectors $v, w \in T_xM$. -/
+scoped notation:max "Ric_g(" v ", " w ") " x:max => ricciTensor x v w
 
 end Riemannian

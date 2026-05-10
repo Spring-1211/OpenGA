@@ -87,5 +87,22 @@ theorem laplacian_sq_le_dim_mul_frobeniusSq
       (Module.finrank ℝ E : ℝ) * frobeniusSq (I := I) (M := M) B x := by
   simpa [laplacian] using trace_sq_le_dim_mul_frobeniusSq (I := I) (M := M) B x
 
+/-! ## Function Laplacian
+
+The **scalar Laplacian** $\Delta_g f$ of a smooth function $f : M \to \mathbb{R}$,
+as the trace of the Hessian. Used in the Bochner identity. -/
+
+variable [IsLocallyConstantChartedSpace H M]
+
+/-- The **scalar Laplacian** $\Delta_g f(x)$ of a smooth function
+$f : M \to \mathbb{R}$ at $x$: the trace of the Hessian over the
+canonical basis of $E$. -/
+noncomputable def scalarLaplacian (f : M → ℝ) (x : M) : ℝ :=
+  ∑ i : Fin (Module.finrank ℝ E),
+    hessian (I := I) (M := M) f
+      (fun (_ : M) => ((Module.finBasis ℝ E) i : TangentSpace I x))
+      (fun (_ : M) => ((Module.finBasis ℝ E) i : TangentSpace I x))
+      x
+
 end Operators
 end Riemannian
