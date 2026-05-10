@@ -55,5 +55,5 @@ The library is designed for downstream research consumption, teaching use, and M
 
 ## License
 
-OpenGA is released under the Apache 2.0 License.
+OpenGA is released under the Apache 2.0 License. 
 See the LICENSE file for details.
