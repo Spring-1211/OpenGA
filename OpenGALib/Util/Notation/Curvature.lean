@@ -20,10 +20,12 @@ downstream of the curvature math layer.
   * `H_g[I]`            — `meanCurvature (I := I)` ($M \to \mathbb{R}$)
   * `grad_g[I] f`        — `manifoldGradient (I := I) f` as a section
   * `Δ_g[I] f`           — `Operators.scalarLaplacian (I := I) f`
+  * `hess_g[I] f`        — `Operators.hessianBilin (I := I) f` (`(0,2)`-tensor section)
   * `hessNormSq_g[I] f`  — `Operators.hessianSqNorm (I := I) f` ($|\nabla^2 f|^2_g$)
 
-For $|\nabla f|^2_g$ as a function, use polymorphic
-`‖grad_g[I] f‖²_g` (section-level instance of `‖·‖²_g`).
+For $|\nabla f|^2_g$ and $|\nabla^2 f|^2_g$ as functions, prefer the
+polymorphic `‖grad_g[I] f‖²_g` and `‖hess_g[I] f‖²_g`. The Bilin-section
+instance of `‖·‖²_g` is the Frobenius squared norm.
 
 The Riemann curvature notation `Riem(X, Y) Z` lives in
 `Util/Notation/Riemann.lean` so that
@@ -40,6 +42,25 @@ All `scoped` to `Riemannian`. Eta-reduced for simp-friendly elaboration.
 **Ground truth**: do Carmo 1992 §4 (Ricci), §6.2 (second fundamental
 form, mean curvature).
 -/
+
+namespace OpenGALib
+
+section BilinInstance
+
+variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
+  [FiniteDimensional ℝ E] [NeZero (Module.finrank ℝ E)]
+  {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
+  {M : Type*} [TopologicalSpace M] [ChartedSpace H M]
+
+/-- Frobenius squared norm on `(0,2)`-tensor sections. Closes the
+polymorphic squared-norm story: `‖B‖²_g x = ∑_{ij} B(x)(eᵢ, eⱼ)²`. -/
+noncomputable instance instMetricNormSqBilin :
+    MetricNormSq (Riemannian.Operators.Bilin (M := M) I) (M → ℝ) where
+  normSqG B := fun x => Riemannian.Operators.frobeniusSq (I := I) (M := M) B x
+
+end BilinInstance
+
+end OpenGALib
 
 namespace Riemannian
 
@@ -68,6 +89,11 @@ scoped notation:max "grad_g[" I "] " f:max => manifoldGradient (I := I) f
 ($= \operatorname{tr}_g(\operatorname{Hess} f)$).
 `I` is bracketed because `f : M → ℝ` does not expose the model with corners. -/
 scoped notation:max "Δ_g[" I "] " f:max => Operators.scalarLaplacian (I := I) f
+
+/-- The Hessian as a `(0,2)`-tensor section
+$\operatorname{Hess} f : x \mapsto (v, w) \mapsto \langle \nabla_v\,\nabla^M f, w\rangle_g$.
+`I` is bracketed because `f : M → ℝ` does not expose the model with corners. -/
+scoped notation:max "hess_g[" I "] " f:max => Operators.hessianBilin (I := I) f
 
 /-- The squared Frobenius norm of the Hessian
 $|\nabla^2 f|^2_g : M \to \mathbb{R}$.
