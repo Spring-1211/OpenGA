@@ -40,7 +40,7 @@ $$\tfrac{1}{2}\,\Delta_g\,|\nabla f|_g^2
     + \langle \nabla f, \nabla\,\Delta_g f\rangle_g
     + \mathrm{Ric}(\nabla f, \nabla f).$$ -/
 theorem bochner_weitzenboeck (f : M → ℝ) (x : M) :
-    (1 / 2 : ℝ) * (Δ_g[I] (gradNormSq_g[I] f)) x
+    (1 / 2 : ℝ) * (Δ_g[I] ‖grad_g[I] f‖²_g) x
     = (hessNormSq_g[I] f) x
       + ⟪(grad_g[I] f) x,
          (grad_g[I] (Δ_g[I] f)) x⟫_g
