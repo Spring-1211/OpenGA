@@ -54,7 +54,12 @@ merged contributions but liberally relaxable for sketches / WIP / drafts.
 4. **Commit messages** — short subject line, prose body explaining
    *why* (not just *what*); reference the issue if relevant. Don't
    add Co-Authored-By trailers for AI assistants (we strip them on
-   release).
+   release). The repo ships a `commit-msg` hook in `.githooks/` that
+   strips Claude Code attribution automatically; activate per-clone
+   with:
+   ```
+   git config core.hooksPath .githooks
+   ```
 5. **Open PR** against `main`. Reviewers will check naming + chain
    depth + docstring quality. Expect one round of feedback for
    non-trivial changes.
