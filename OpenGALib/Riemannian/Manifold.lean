@@ -58,18 +58,27 @@ open scoped ContDiff Manifold
 namespace OpenGALib
 
 /-- A **smooth manifold** as a single bundled typeclass. Packages
-`(E, H, modelI)` plus the standard typeclass cascade required to talk
-about smooth functions on $M$.
+`(E, H, modelI)` plus the complete typeclass cascade needed by
+Riemannian-geometry operators in this framework.
 
-Once `[SmoothManifold M]` is in scope, all of
-`NormedAddCommGroup E`, `NormedSpace ℝ E`, `TopologicalSpace H`,
-`ChartedSpace H M`, `IsManifold modelI ∞ M` are also available via
-typeclass synthesis. -/
+Once `[SmoothManifold M]` is in scope, *all* of the following
+synthesize automatically:
+
+* `NormedAddCommGroup E`, `NormedSpace ℝ E`
+* `FiniteDimensional ℝ E`, `CompleteSpace E`
+* `TopologicalSpace H`
+* `ChartedSpace H M`, `IsManifold modelI ∞ M`
+* `IsLocallyConstantChartedSpace H M`
+
+A pure-math user reading `[SmoothManifold M]` reads "M is a smooth
+finite-dimensional manifold" — exactly the textbook setting. -/
 class SmoothManifold (M : Type*) [TopologicalSpace M] where
   /-- The model fibre. -/
   E : Type*
   [normedAddCommGroup_E : NormedAddCommGroup E]
   [normedSpace_E : NormedSpace ℝ E]
+  [finiteDimensional_E : FiniteDimensional ℝ E]
+  [completeSpace_E : CompleteSpace E]
   /-- The model chart codomain. -/
   H : Type*
   [topologicalSpace_H : TopologicalSpace H]
@@ -77,14 +86,22 @@ class SmoothManifold (M : Type*) [TopologicalSpace M] where
   modelI : ModelWithCorners ℝ E H
   [chartedSpace_M : ChartedSpace H M]
   [isManifold_M : IsManifold modelI ∞ M]
+  [isLocallyConstantChartedSpace_M : IsLocallyConstantChartedSpace H M]
 
 /-- A **Riemannian manifold** $(M, g)$ as a single bundled typeclass.
-Extends `SmoothManifold M` with a regular field `metric : RiemannianMetric modelI M`.
-The metric is *data* (an inhabitant of `Bundle.ContMDiffRiemannianMetric`),
-not a typeclass attribute. Operators access it via
-`(RiemannianManifold.metric : RiemannianMetric modelI M).metricInner x V W`. -/
+Extends `SmoothManifold M` with a regular field
+`metric : RiemannianMetric modelI M` (the metric is *data*, an inhabitant
+of `Bundle.ContMDiffRiemannianMetric`, not a typeclass attribute).
+
+Bundles `[InnerProductSpace ℝ E]` (needed for chart-background fibre
+instances) and `[NeZero (Module.finrank ℝ E)]` (needed for Frobenius
+norm / basis sums in curvature / Hessian operators). With these, the
+full cascade required by Bochner, Lichnerowicz, second-variation, etc.
+is provided by `[RiemannianManifold M]` alone. -/
 class RiemannianManifold (M : Type*) [TopologicalSpace M]
     extends SmoothManifold M where
+  [innerProductSpace_E : InnerProductSpace ℝ E]
+  [neZero_finrank_E : NeZero (Module.finrank ℝ E)]
   /-- The metric on $M$, attached to the inherited `modelI`. -/
   metric : RiemannianMetric modelI M
 
