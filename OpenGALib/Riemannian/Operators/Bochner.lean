@@ -1,6 +1,7 @@
 import OpenGALib.Riemannian.Operators.Hessian
 import OpenGALib.Riemannian.Operators.Laplacian
 import OpenGALib.Riemannian.Curvature
+import OpenGALib.Util.Notation
 
 /-!
 # Bochner–Weitzenböck identity
@@ -21,7 +22,7 @@ noncomputable section
 set_option linter.unusedSectionVars false
 
 open Bundle OpenGALib
-open scoped ContDiff Manifold Bundle
+open scoped ContDiff Manifold Bundle Riemannian
 
 namespace Riemannian
 namespace Operators
@@ -50,9 +51,8 @@ theorem bochner_weitzenboeck (f : M → ℝ) (x : M) :
           (Riemannian.manifoldGradient (I := I) f x)
           (Riemannian.manifoldGradient (I := I)
             (fun y : M => scalarLaplacian (I := I) (M := M) f y) x)
-      + Riemannian.ricciTensor (I := I) (M := M) x
-          (Riemannian.manifoldGradient (I := I) f x)
-          (Riemannian.manifoldGradient (I := I) f x) := by
+      + Ric_g(Riemannian.manifoldGradient (I := I) f x,
+              Riemannian.manifoldGradient (I := I) f x) x := by
   sorry
 
 end Operators
