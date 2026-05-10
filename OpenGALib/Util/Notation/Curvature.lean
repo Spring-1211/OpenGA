@@ -19,9 +19,11 @@ downstream of the curvature math layer.
   * `scal_g[I]`         — `scalarCurvature (I := I)` ($M \to \mathbb{R}$)
   * `H_g[I]`            — `meanCurvature (I := I)` ($M \to \mathbb{R}$)
   * `grad_g[I] f`        — `manifoldGradient (I := I) f` as a section
-  * `gradNormSq_g[I] f`  — `manifoldGradientNormSq I f` ($|\nabla f|^2_g$)
   * `Δ_g[I] f`           — `Operators.scalarLaplacian (I := I) f`
   * `hessNormSq_g[I] f`  — `Operators.hessianSqNorm (I := I) f` ($|\nabla^2 f|^2_g$)
+
+For $|\nabla f|^2_g$ as a function, use polymorphic
+`‖grad_g[I] f‖²_g` (section-level instance of `‖·‖²_g`).
 
 The Riemann curvature notation `Riem(X, Y) Z` lives in
 `Util/Notation/Riemann.lean` so that
@@ -61,11 +63,6 @@ scoped notation:max "H_g[" I "]" => meanCurvature (I := I)
 $x \mapsto \nabla^M f(x)$.
 `I` is bracketed because `f : M → ℝ` does not expose the model with corners. -/
 scoped notation:max "grad_g[" I "] " f:max => manifoldGradient (I := I) f
-
-/-- The squared gradient norm $|\nabla f|^2_g : M \to \mathbb{R}$,
-$y \mapsto \langle \nabla f(y), \nabla f(y) \rangle_g$.
-`I` is bracketed because `f : M → ℝ` does not expose the model with corners. -/
-scoped notation:max "gradNormSq_g[" I "] " f:max => manifoldGradientNormSq I f
 
 /-- The function Laplacian $\Delta_g f : M \to \mathbb{R}$
 ($= \operatorname{tr}_g(\operatorname{Hess} f)$).
