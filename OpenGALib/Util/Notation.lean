@@ -14,7 +14,7 @@ surface. Re-exports three dep-tier-split notation files:
     `Riem(X, Y) Z`
   * `Util/Notation/Curvature.lean`  — post-Curvature tier:
     `Ric(X, Y)`, `Ric_g(v, w) x`, `II(X, Y)`, `scal_g[I]`, `H_g[I]`,
-    `grad_g[I] f`, `Δ_g[I] f`, `hessNormSq_g[I] f`
+    `grad_g[I] f`, `Δ_g[I] f`, `hess_g[I] f`
 
 Activate via `open scoped Riemannian OpenGALib`.
 

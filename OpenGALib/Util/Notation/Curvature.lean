@@ -21,9 +21,8 @@ downstream of the curvature math layer.
   * `grad_g[I] f`        — `manifoldGradient (I := I) f` as a section
   * `Δ_g[I] f`           — `Operators.scalarLaplacian (I := I) f`
   * `hess_g[I] f`        — `Operators.hessianBilin (I := I) f` (`(0,2)`-tensor section)
-  * `hessNormSq_g[I] f`  — `Operators.hessianSqNorm (I := I) f` ($|\nabla^2 f|^2_g$)
 
-For $|\nabla f|^2_g$ and $|\nabla^2 f|^2_g$ as functions, prefer the
+For $|\nabla f|^2_g$ and $|\nabla^2 f|^2_g$ as functions, use the
 polymorphic `‖grad_g[I] f‖²_g` and `‖hess_g[I] f‖²_g`. The Bilin-section
 instance of `‖·‖²_g` is the Frobenius squared norm.
 
@@ -92,13 +91,10 @@ scoped notation:max "Δ_g[" I "] " f:max => Operators.scalarLaplacian (I := I) f
 
 /-- The Hessian as a `(0,2)`-tensor section
 $\operatorname{Hess} f : x \mapsto (v, w) \mapsto \langle \nabla_v\,\nabla^M f, w\rangle_g$.
-`I` is bracketed because `f : M → ℝ` does not expose the model with corners. -/
+`I` is bracketed because `f : M → ℝ` does not expose the model with corners.
+For the Frobenius squared norm $|\nabla^2 f|^2_g$, use polymorphic
+`‖hess_g[I] f‖²_g` (the Bilin-section instance of `‖·‖²_g`). -/
 scoped notation:max "hess_g[" I "] " f:max => Operators.hessianBilin (I := I) f
-
-/-- The squared Frobenius norm of the Hessian
-$|\nabla^2 f|^2_g : M \to \mathbb{R}$.
-`I` is bracketed because `f : M → ℝ` does not expose the model with corners. -/
-scoped notation:max "hessNormSq_g[" I "] " f:max => Operators.hessianSqNorm (I := I) f
 
 /-- Pointwise Ricci form $\mathrm{Ric}_x(v, w) = \mathrm{Ric}(X, Y)$ evaluated
 on tangent vectors $v, w \in T_xM$. -/
