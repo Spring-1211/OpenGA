@@ -240,7 +240,7 @@ Levi-Civita connection is a tensor in $Z$ but not in $X$ (where no
 such cancellation occurs).
 -/
 
-omit [CompleteSpace E] [FiniteDimensional ℝ E]
+omit [CompleteSpace E] [FiniteDimensional ℝ E] [IsManifold I ∞ M]
   [hm : HasMetric I M] in
 /-- **Helper**: Leibniz product rule for `directionalDeriv` on $\mathbb{R}$-valued
 functions: $X(f \cdot g)(x) = f(x) \cdot X(g)(x) + g(x) \cdot X(f)(x)$.
@@ -257,7 +257,7 @@ private lemma directionalDeriv_mul
   rw [heq, (hf.hasMFDerivAt.mul hg.hasMFDerivAt).mfderiv]
   rfl
 
-omit [CompleteSpace E] [FiniteDimensional ℝ E]
+omit [CompleteSpace E] [FiniteDimensional ℝ E] [IsManifold I ∞ M]
   [hm : HasMetric I M] in
 /-- **Helper**: linearity of `directionalDeriv` in the tangent vector argument:
 $X_{a \cdot v}(f) = a \cdot X_v(f)$.
@@ -269,7 +269,7 @@ private lemma directionalDeriv_smul_arg
   unfold directionalDeriv
   exact (mfderiv I 𝓘(ℝ, ℝ) g x).map_smul a v
 
-omit [CompleteSpace E] [FiniteDimensional ℝ E]
+omit [CompleteSpace E] [FiniteDimensional ℝ E] [IsManifold I ∞ M]
   [hm : HasMetric I M] in
 /-- **Helper**: additivity of `directionalDeriv` in the function argument:
 $X(f + g)(x) = X(f)(x) + X(g)(x)$.
@@ -286,7 +286,7 @@ private lemma directionalDeriv_add_fun
   rw [heq, mfderiv_add hf hg]
   rfl
 
-omit [CompleteSpace E] [FiniteDimensional ℝ E]
+omit [CompleteSpace E] [FiniteDimensional ℝ E] [IsManifold I ∞ M]
   [hm : HasMetric I M] in
 /-- **Helper**: additivity of `directionalDeriv` in the tangent vector argument:
 $X_{v_1 + v_2}(f) = X_{v_1}(f) + X_{v_2}(f)$.
@@ -718,7 +718,7 @@ private theorem metricInner_contMDiff
   rw [h_eq]
   exact metricTensor_apply_contMDiff hV hW
 
-omit [CompleteSpace E] [FiniteDimensional ℝ E]
+omit [CompleteSpace E] [FiniteDimensional ℝ E] [IsManifold I ∞ M]
   [IsLocallyConstantChartedSpace H M] [hm : HasMetric I M] in
 /-- **MDifferentiableAt componentwise lift to CLM-valued**: if each component
 `(fun y => T y (basis i)) : M → F₂` is `MDifferentiableAt` at `x`, then the
@@ -896,6 +896,7 @@ noncomputable def koszulCotangentCLM
 lemma koszulCotangentCLM_apply (v : E) (Y : SmoothVectorField I M) (y : M) (w : E) :
     koszulCotangentCLM v Y y w = koszulCotangentScalar v Y w y := rfl
 
+omit [FiniteDimensional ℝ E] in
 set_option backward.isDefEq.respectTransparency false in
 /-- **Scalar smoothness of `koszulCotangentScalar v Y w` in `y`** at every `x`.
 
