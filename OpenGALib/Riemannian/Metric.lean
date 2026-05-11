@@ -64,7 +64,10 @@ abbrev RiemannianMetric
     [IsManifold I ∞ M] : Type _ :=
   Bundle.ContMDiffRiemannianMetric I ∞ E (TangentSpace I : M → Type _)
 
-namespace RiemannianMetric
+end OpenGALib
+
+namespace OpenGALib.RiemannianMetric
+
 
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
   {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
@@ -169,9 +172,7 @@ theorem metricInner_self_nonneg (g : RiemannianMetric I M)
   · rw [hV, g.metricInner_zero_left]
   · exact le_of_lt (g.metricInner_self_pos x V hV)
 
-end RiemannianMetric
-
-end OpenGALib
+end OpenGALib.RiemannianMetric
 
 /-! ## TangentSpace fibre instances
 
@@ -210,8 +211,8 @@ end OpenGALib
 In a finite-dim inner product space $V$, every continuous linear functional
 $\varphi : V \to \mathbb{R}$ is uniquely represented as $\langle V_\varphi, \cdot\rangle_g$. -/
 
-namespace OpenGALib
-namespace RiemannianMetric
+namespace OpenGALib.RiemannianMetric
+
 
 section Riesz
 
@@ -313,9 +314,7 @@ noncomputable def metricToDualEquiv (g : RiemannianMetric I M) (x : M) :
 
 end Riesz
 
-end RiemannianMetric
-
-end OpenGALib
+end OpenGALib.RiemannianMetric
 
 /-! ## Smoothness of the metric inner product
 
@@ -326,8 +325,8 @@ For smooth tangent sections `Y, Z : ∀ y, TangentSpace I y`, the scalar
 scoped fibre `InnerProductSpace` so that the `inner ℝ` projection unfolds
 to `g.inner`. -/
 
-namespace OpenGALib
-namespace RiemannianMetric
+namespace OpenGALib.RiemannianMetric
+
 
 section Smoothness
 
@@ -356,6 +355,4 @@ theorem metricInner_mdifferentiableAt
 
 end Smoothness
 
-end RiemannianMetric
-
-end OpenGALib
+end OpenGALib.RiemannianMetric

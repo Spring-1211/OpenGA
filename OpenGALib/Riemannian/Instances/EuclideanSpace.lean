@@ -1,53 +1,67 @@
 import Mathlib.Analysis.InnerProductSpace.LinearMap
 import Mathlib.Analysis.InnerProductSpace.PiL2
-import Mathlib.Geometry.Manifold.IsManifold.Basic
-import Mathlib.Geometry.Manifold.ContMDiff.Basic
-import OpenGALib.Riemannian.Metric
+import Mathlib.Geometry.Manifold.Riemannian.Basic
+import OpenGALib.Riemannian.Manifold
 
 /-!
 # Standard Riemannian metric on inner product spaces
 
-The flat-metric `RiemannianMetric` instance: a finite-dimensional real
-inner product space `E` viewed as a manifold over itself, with the
-standard inner product as the (constant) metric tensor.
-
-Specialises to `EuclideanSpace ℝ (Fin n)`, `ℝ`, and any real Hilbert /
-finite-dim inner product space.
+A finite-dimensional real inner product space `E` viewed as a manifold
+over itself with the standard inner product as a constant metric tensor.
 
 ## Main results
 
-* `instRiemannianMetricSelf` — the flat metric instance.
-* `metricInner_eq_real_inner_self` — `metricInner = ⟪·, ·⟫_ℝ` on `E`.
+* `euclideanRiemannianMetric` — the flat metric as data
+  (`RiemannianMetric (𝓘(ℝ, E)) E`).
+* `metricInner_euclidean` — `g.metricInner x v w = ⟪v, w⟫_ℝ` on the
+  flat metric.
 
 Reference: do Carmo, *Riemannian Geometry*, §1.1 Example 1.4.
+
+Mathlib upstream: `Mathlib.Geometry.Manifold.Riemannian.Basic`
+(`riemannianMetricVectorSpace`).
 -/
 
 namespace OpenGALib
 
+open Bundle Bornology
 open scoped ContDiff Manifold InnerProductSpace
 
-/-- The flat metric on a finite-dim inner product space `E`: metric tensor
-is the standard `innerSL ℝ`, constant in the basepoint. -/
-noncomputable instance instRiemannianMetricSelf
-    {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
-    [FiniteDimensional ℝ E] :
+set_option backward.isDefEq.respectTransparency false in
+/-- The flat metric on a finite-dim inner product space `E`: the constant
+`innerSL ℝ` as bundle-section metric tensor. Aligned with Mathlib's
+`riemannianMetricVectorSpace` but specialised to smoothness order `∞`. -/
+noncomputable def euclideanRiemannianMetric
+    (E : Type*) [NormedAddCommGroup E] [InnerProductSpace ℝ E] :
     RiemannianMetric (𝓘(ℝ, E)) E where
-  metricTensor _ := innerSL ℝ
-  symm _ v w := by
-    show ⟪v, w⟫_ℝ = ⟪w, v⟫_ℝ
-    exact real_inner_comm w v
-  posdef _ v hv := by
-    show 0 < ⟪v, v⟫_ℝ
-    exact real_inner_self_pos.mpr hv
-  smoothMetric := contMDiff_const
+  inner _ := (innerSL ℝ (E := E) : E →L[ℝ] E →L[ℝ] ℝ)
+  symm _ v w := real_inner_comm _ _
+  pos _ v hv := real_inner_self_pos.2 hv
+  isVonNBounded x := by
+    change IsVonNBounded ℝ {v : E | ⟪v, v⟫_ℝ < 1}
+    have heq : Metric.ball (0 : E) 1 = {v : E | ⟪v, v⟫_ℝ < 1} := by
+      ext v
+      simp only [Metric.mem_ball, dist_zero_right, norm_eq_sqrt_re_inner (𝕜 := ℝ),
+        RCLike.re_to_real, Set.mem_setOf_eq]
+      conv_lhs => rw [show (1 : ℝ) = √1 by simp]
+      rw [Real.sqrt_lt_sqrt_iff]
+      exact real_inner_self_nonneg
+    rw [← heq]
+    exact NormedSpace.isVonNBounded_ball ℝ E 1
+  contMDiff := by
+    intro x
+    rw [contMDiffAt_section]
+    convert contMDiffAt_const (c := innerSL ℝ (E := E))
+    ext v w
+    simp [hom_trivializationAt_apply, ContinuousLinearMap.inCoordinates, TangentSpace]
 
 /-- $\langle v, w\rangle_g = \langle v, w\rangle_\mathbb{R}$ on the
-flat-metric inner product space. -/
-theorem metricInner_eq_real_inner_self
+flat metric. -/
+@[simp]
+theorem metricInner_euclidean
     {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
-    [FiniteDimensional ℝ E]
     (x : E) (v w : E) :
-    metricInner (I := 𝓘(ℝ, E)) (M := E) x v w = ⟪v, w⟫_ℝ :=
+    (euclideanRiemannianMetric E).metricInner x v w = ⟪v, w⟫_ℝ :=
   rfl
 
 end OpenGALib

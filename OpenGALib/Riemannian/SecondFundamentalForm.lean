@@ -1,5 +1,4 @@
 import OpenGALib.Riemannian.Connection
-import OpenGALib.Riemannian.Metric.MathlibBridge
 import Mathlib.Analysis.InnerProductSpace.PiL2
 
 /-!

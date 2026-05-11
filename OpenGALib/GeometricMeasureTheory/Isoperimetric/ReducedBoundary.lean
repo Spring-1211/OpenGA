@@ -1,7 +1,6 @@
 import OpenGALib.GeometricMeasureTheory.Isoperimetric.Basic
 import OpenGALib.GeometricMeasureTheory.HasNormal
 import OpenGALib.Riemannian.Metric
-import OpenGALib.Riemannian.Metric.MathlibBridge
 
 /-!
 # GeometricMeasureTheory.Isoperimetric.ReducedBoundary
