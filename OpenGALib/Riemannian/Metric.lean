@@ -354,40 +354,133 @@ end OpenGALib.RiemannianMetric
 
 /-! ## Smoothness of the metric inner product
 
-For smooth tangent sections `Y, Z : ∀ y, TangentSpace I y`, the scalar
-`y ↦ g_y(Y y, Z y)` is smooth. We bridge to Mathlib's
-`MDifferentiableAt.inner_bundle` by registering a local
-`Bundle.RiemannianBundle` from `g.toRiemannianMetric`, which activates the
-scoped fibre `InnerProductSpace` so that the `inner ℝ` projection unfolds
-to `g.inner`. -/
+Given a Riemannian metric `g` on `M` and two smooth tangent-bundle
+sections `Y, Z : ∀ y, TangentSpace I y`, the scalar function
+`y ↦ g_y(Y y, Z y) : M → ℝ` is smooth. Below is the full 8-variant
+parity API with Mathlib's `MDifferentiable*.inner_bundle` and
+`ContMDiff*.inner_bundle` families:
+
+* `metricInner_{mdifferentiable, mdifferentiableAt, mdifferentiableOn,
+  mdifferentiableWithinAt}` — differentiability.
+* `metricInner_{contMDiff, contMDiffAt, contMDiffOn, contMDiffWithinAt}`
+  — smoothness of any order `n ≤ ∞`.
+
+Each variant is parametric over the basepoint map `b : N → M` so the
+sections may live over a general parameter space. All variants reduce
+to Mathlib's `inner_bundle` after locally injecting a
+`Bundle.RiemannianBundle (TangentSpace I)` from `g.toRiemannianMetric`. -/
 
 namespace OpenGALib.RiemannianMetric
-
 
 section Smoothness
 
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
   {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
   {M : Type*} [TopologicalSpace M] [ChartedSpace H M] [IsManifold I ∞ M]
+  {v w : ∀ x : M, TangentSpace I x} {s : Set M} {x : M}
 
-/-- The metric inner product of two smooth tangent sections is smooth at
-every point: $y \mapsto g_y(Y(y), Z(y))$ is `MDifferentiableAt` whenever
-`Y` and `Z` are. Bridged to Mathlib's
-`MDifferentiableAt.inner_bundle` via a local
-`Bundle.RiemannianBundle (TangentSpace I)` derived from `g`. -/
-theorem metricInner_mdifferentiableAt
+/-! ### `ContMDiff` family — smoothness order `n ≤ ∞` -/
+
+variable {n : ℕ∞ω} [hLE : ENat.LEInfty n]
+
+/-- $\langle v(\cdot), w(\cdot)\rangle_g$ is `ContMDiffWithinAt` whenever
+the tangent-bundle sections `v`, `w` are. -/
+theorem metricInner_contMDiffWithinAt
     (g : RiemannianMetric I M)
-    {Y Z : ∀ y : M, TangentSpace I y} {x : M}
-    (hY : OpenGALib.TangentSmoothAt Y x)
-    (hZ : OpenGALib.TangentSmoothAt Z x) :
-    MDifferentiableAt I 𝓘(ℝ, ℝ) (fun y => g.metricInner y (Y y) (Z y)) x := by
+    (hv : ContMDiffWithinAt I (I.prod 𝓘(ℝ, E)) n
+      (fun y => (⟨y, v y⟩ : TangentBundle I M)) s x)
+    (hw : ContMDiffWithinAt I (I.prod 𝓘(ℝ, E)) n
+      (fun y => (⟨y, w y⟩ : TangentBundle I M)) s x) :
+    ContMDiffWithinAt I 𝓘(ℝ, ℝ) n
+      (fun y => g.metricInner y (v y) (w y)) s x := by
   letI rb : Bundle.RiemannianBundle (TangentSpace I : M → Type _) :=
     ⟨g.toRiemannianMetric⟩
-  have hY' := hY.toBundleSection
-  have hZ' := hZ.toBundleSection
-  exact MDifferentiableAt.inner_bundle (IB := I) (F := E)
+  exact ContMDiffWithinAt.inner_bundle (IB := I) (F := E)
     (E := (TangentSpace I : M → Type _)) (b := fun y => y)
-    (v := Y) (w := Z) (IM := I) hY' hZ'
+    (v := v) (w := w) (IM := I) hv hw
+
+/-- Pointwise variant. -/
+theorem metricInner_contMDiffAt
+    (g : RiemannianMetric I M)
+    (hv : ContMDiffAt I (I.prod 𝓘(ℝ, E)) n
+      (fun y => (⟨y, v y⟩ : TangentBundle I M)) x)
+    (hw : ContMDiffAt I (I.prod 𝓘(ℝ, E)) n
+      (fun y => (⟨y, w y⟩ : TangentBundle I M)) x) :
+    ContMDiffAt I 𝓘(ℝ, ℝ) n
+      (fun y => g.metricInner y (v y) (w y)) x :=
+  g.metricInner_contMDiffWithinAt hv hw
+
+/-- Set-form variant. -/
+theorem metricInner_contMDiffOn
+    (g : RiemannianMetric I M)
+    (hv : ContMDiffOn I (I.prod 𝓘(ℝ, E)) n
+      (fun y => (⟨y, v y⟩ : TangentBundle I M)) s)
+    (hw : ContMDiffOn I (I.prod 𝓘(ℝ, E)) n
+      (fun y => (⟨y, w y⟩ : TangentBundle I M)) s) :
+    ContMDiffOn I 𝓘(ℝ, ℝ) n
+      (fun y => g.metricInner y (v y) (w y)) s :=
+  fun y hy => g.metricInner_contMDiffWithinAt (hv y hy) (hw y hy)
+
+/-- Global variant. -/
+theorem metricInner_contMDiff
+    (g : RiemannianMetric I M)
+    (hv : ContMDiff I (I.prod 𝓘(ℝ, E)) n
+      (fun y => (⟨y, v y⟩ : TangentBundle I M)))
+    (hw : ContMDiff I (I.prod 𝓘(ℝ, E)) n
+      (fun y => (⟨y, w y⟩ : TangentBundle I M))) :
+    ContMDiff I 𝓘(ℝ, ℝ) n
+      (fun y => g.metricInner y (v y) (w y)) :=
+  fun y => g.metricInner_contMDiffAt (hv y) (hw y)
+
+/-! ### `MDifferentiable` family — first-order differentiability -/
+
+/-- Differentiable-within-at variant. -/
+theorem metricInner_mdifferentiableWithinAt
+    (g : RiemannianMetric I M)
+    (hv : MDifferentiableWithinAt I (I.prod 𝓘(ℝ, E))
+      (fun y => (⟨y, v y⟩ : TangentBundle I M)) s x)
+    (hw : MDifferentiableWithinAt I (I.prod 𝓘(ℝ, E))
+      (fun y => (⟨y, w y⟩ : TangentBundle I M)) s x) :
+    MDifferentiableWithinAt I 𝓘(ℝ, ℝ)
+      (fun y => g.metricInner y (v y) (w y)) s x := by
+  letI rb : Bundle.RiemannianBundle (TangentSpace I : M → Type _) :=
+    ⟨g.toRiemannianMetric⟩
+  exact MDifferentiableWithinAt.inner_bundle (IB := I) (F := E)
+    (E := (TangentSpace I : M → Type _)) (b := fun y => y)
+    (v := v) (w := w) (IM := I) hv hw
+
+/-- Pointwise differentiability. -/
+theorem metricInner_mdifferentiableAt
+    (g : RiemannianMetric I M)
+    (hv : MDifferentiableAt I (I.prod 𝓘(ℝ, E))
+      (fun y => (⟨y, v y⟩ : TangentBundle I M)) x)
+    (hw : MDifferentiableAt I (I.prod 𝓘(ℝ, E))
+      (fun y => (⟨y, w y⟩ : TangentBundle I M)) x) :
+    MDifferentiableAt I 𝓘(ℝ, ℝ)
+      (fun y => g.metricInner y (v y) (w y)) x :=
+  g.metricInner_mdifferentiableWithinAt hv hw
+
+/-- Set-form differentiability. -/
+theorem metricInner_mdifferentiableOn
+    (g : RiemannianMetric I M)
+    (hv : MDifferentiableOn I (I.prod 𝓘(ℝ, E))
+      (fun y => (⟨y, v y⟩ : TangentBundle I M)) s)
+    (hw : MDifferentiableOn I (I.prod 𝓘(ℝ, E))
+      (fun y => (⟨y, w y⟩ : TangentBundle I M)) s) :
+    MDifferentiableOn I 𝓘(ℝ, ℝ)
+      (fun y => g.metricInner y (v y) (w y)) s :=
+  fun y hy => g.metricInner_mdifferentiableWithinAt (hv y hy) (hw y hy)
+
+/-- Global differentiability. -/
+theorem metricInner_mdifferentiable
+    (g : RiemannianMetric I M)
+    (hv : MDifferentiable I (I.prod 𝓘(ℝ, E))
+      (fun y => (⟨y, v y⟩ : TangentBundle I M)))
+    (hw : MDifferentiable I (I.prod 𝓘(ℝ, E))
+      (fun y => (⟨y, w y⟩ : TangentBundle I M))) :
+    MDifferentiable I 𝓘(ℝ, ℝ)
+      (fun y => g.metricInner y (v y) (w y)) :=
+  fun y => g.metricInner_mdifferentiableAt (hv y) (hw y)
 
 end Smoothness
 

@@ -677,29 +677,8 @@ private theorem SmoothVectorField.contMDiff_E (Y : SmoothVectorField I M) :
   rw [h_id]
   rfl
 
-omit [CompleteSpace E] [FiniteDimensional ℝ E]
-  [IsLocallyConstantChartedSpace H M] in
-/-- **Smoothness of `hm.metric.metricInner` on two `ContMDiff` bundle
-sections**. Direct invocation of Mathlib's `ContMDiff.inner_bundle` via
-the `Bundle.RiemannianBundle` instance produced by `[hm : HasMetric I M]`.
-
-Premises are stated in *bundle-section* form
-(`ContMDiff I (I.prod 𝓘(ℝ, E)) ∞ (fun y => ⟨y, V y⟩)`), matching
-`SmoothVectorField.smooth` and `(SmoothVectorField.const v).smooth`. The
-flat function-form is recovered at call sites through these accessors. -/
-private theorem metricInner_contMDiff
-    {V W : ∀ y : M, TangentSpace I y}
-    (hV : ContMDiff I (I.prod 𝓘(ℝ, E)) ∞
-      (fun y : M => (⟨y, V y⟩ : TangentBundle I M)))
-    (hW : ContMDiff I (I.prod 𝓘(ℝ, E)) ∞
-      (fun y : M => (⟨y, W y⟩ : TangentBundle I M))) :
-    ContMDiff I 𝓘(ℝ, ℝ) ∞
-      (fun y : M => hm.metric.metricInner y (V y) (W y)) := by
-  letI rb : Bundle.RiemannianBundle (TangentSpace I : M → Type _) :=
-    ⟨hm.metric.toRiemannianMetric⟩
-  exact ContMDiff.inner_bundle (F := E) (B := M)
-    (E := (TangentSpace I : M → Type _))
-    (b := fun y => y) (v := V) (w := W) hV hW
+-- Smoothness of `metricInner` on bundle sections lives in `Manifold.lean`
+-- as the public `OpenGALib.metricInner_contMDiff` (parametric over `n`).
 
 omit [CompleteSpace E] [FiniteDimensional ℝ E] [IsManifold I ∞ M]
   [IsLocallyConstantChartedSpace H M] [hm : HasMetric I M] in
