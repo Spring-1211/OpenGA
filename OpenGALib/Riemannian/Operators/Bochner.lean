@@ -32,7 +32,7 @@ variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [InnerProductSpa
   {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
   {M : Type*} [TopologicalSpace M] [ChartedSpace H M] [IsManifold I ∞ M]
   [IsLocallyConstantChartedSpace H M]
-  [RiemannianMetric I M]
+  [hm : HasMetric I M]
 
 /-- **Bochner–Weitzenböck identity**:
 $$\tfrac{1}{2}\,\Delta_g\,|\nabla f|_g^2

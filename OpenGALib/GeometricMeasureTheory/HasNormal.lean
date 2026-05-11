@@ -4,6 +4,8 @@ import Mathlib.Geometry.Manifold.IsManifold.Basic
 import Mathlib.Geometry.Manifold.ContMDiff.Basic
 import OpenGALib.Riemannian.Metric
 
+open OpenGALib (HasMetric)
+
 /-!
 # GMT.HasNormal
 
@@ -37,7 +39,7 @@ unit normal via BV gradient direction); Allard 1972 §3 (codim-1
 hypersurface convention).
 -/
 
-open scoped ContDiff Manifold
+open scoped ContDiff Manifold Bundle
 
 namespace GeometricMeasureTheory
 
@@ -119,7 +121,7 @@ theorem ofBoundary_unitNormal_exists
     {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
     {H : Type*} [TopologicalSpace H]
     (I : ModelWithCorners ℝ E H)
-    [ChartedSpace H M] [IsManifold I ∞ M]
+    [ChartedSpace H M] [IsManifold I ∞ M] [HasMetric I M]
     (Ω : FinitePerimeter M) :
     ∃ ν : (x : M) → TangentSpace I x,
       ∀ x ∈ FinitePerimeter.reducedBoundary Ω, ‖ν x‖ = 1 := by
@@ -141,7 +143,7 @@ noncomputable def bvGradientDirection
     {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
     {H : Type*} [TopologicalSpace H]
     (I : ModelWithCorners ℝ E H)
-    [ChartedSpace H M] [IsManifold I ∞ M]
+    [ChartedSpace H M] [IsManifold I ∞ M] [HasMetric I M]
     (Ω : FinitePerimeter M) (x : M) : TangentSpace I x :=
   Classical.choose (ofBoundary_unitNormal_exists I Ω) x
 
@@ -153,7 +155,7 @@ theorem bvGradientDirection_unit_on_reducedBoundary
     {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
     {H : Type*} [TopologicalSpace H]
     (I : ModelWithCorners ℝ E H)
-    [ChartedSpace H M] [IsManifold I ∞ M]
+    [ChartedSpace H M] [IsManifold I ∞ M] [HasMetric I M]
     (Ω : FinitePerimeter M) (x : M)
     (hx : x ∈ FinitePerimeter.reducedBoundary Ω) :
     ‖bvGradientDirection I Ω x‖ = 1 :=
@@ -168,7 +170,7 @@ noncomputable instance instHasNormalOfBoundary
     {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
     {H : Type*} [TopologicalSpace H]
     (I : ModelWithCorners ℝ E H)
-    [ChartedSpace H M] [IsManifold I ∞ M]
+    [ChartedSpace H M] [IsManifold I ∞ M] [HasMetric I M]
     (Ω : FinitePerimeter M) :
     HasNormal I (Varifold.ofBoundary Ω) where
   unitNormal := bvGradientDirection I Ω

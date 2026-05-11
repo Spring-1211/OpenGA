@@ -74,7 +74,7 @@ noncomputable def secondVariationFull
     (I : ModelWithCorners ℝ E H)
     [ChartedSpace H M] [IsManifold I ∞ M]
     [IsLocallyConstantChartedSpace H M]
-    [OpenGALib.RiemannianMetric I M]
+    [OpenGALib.HasMetric I M]
     (V : Varifold M) [hN : Varifold.HasNormal I V]
     (φ : M → ℝ) : ℝ :=
   -- PRE-PAPER: `ricci` was refactored to take `SmoothVectorField` (commit

@@ -32,7 +32,7 @@ variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [CompleteSpace E
   [FiniteDimensional ℝ E]
   {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
   {M : Type*} [TopologicalSpace M] [ChartedSpace H M] [IsManifold I ∞ M]
-  [RiemannianMetric I M]
+  [hm : HasMetric I M]
 
 /-- The **manifold gradient** $\nabla^M f(x) \in T_xM$, defined via Riesz duality
 on the tangent space: the unique $v$ with $\langle v, w \rangle_g = (\mathrm{d}f)_x(w)$
@@ -41,7 +41,7 @@ noncomputable def manifoldGradient
     (f : M → ℝ) (x : M) : TangentSpace I x :=
   metricRiesz x (mfderiv I 𝓘(ℝ, ℝ) f x)
 
-omit [CompleteSpace E] [IsManifold I ∞ M] in
+omit [CompleteSpace E] in
 /-- $\langle \nabla^M f(x), v \rangle_g = (\mathrm{d}f)_x(v)$. -/
 theorem manifoldGradient_inner_eq
     (f : M → ℝ) (x : M) (v : TangentSpace I x) :

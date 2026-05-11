@@ -50,7 +50,7 @@ variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [CompleteSpace E
   {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
   {M : Type*} [TopologicalSpace M] [ChartedSpace H M] [IsManifold I ∞ M]
   [IsLocallyConstantChartedSpace H M]
-  [RiemannianMetric I M]
+  [hm : HasMetric I M]
 
 /-- Constant smooth vector field at a tangent vector. Hides
 `SmoothVectorField.const (I := I) (M := M) V` boilerplate inside this file. -/
@@ -716,11 +716,11 @@ $\langle \mathrm{Ric}^{\sharp}_x V, W \rangle_g = \mathrm{Ric}(V, W)(x)$. -/
 noncomputable def ricciSharp (x : M) :
     TangentSpace I x →ₗ[ℝ] TangentSpace I x where
   toFun V :=
-    metricRiesz (g := ‹_›) x (ricciTensor (I := I) (M := M) x V).toContinuousLinearMap
+    (metricToDualEquiv x).symm (ricciTensor (I := I) (M := M) x V).toContinuousLinearMap
   map_add' V₁ V₂ := by
-    show metricRiesz x ((ricciTensor x (V₁ + V₂)).toContinuousLinearMap)
-        = metricRiesz x ((ricciTensor x V₁).toContinuousLinearMap)
-        + metricRiesz x ((ricciTensor x V₂).toContinuousLinearMap)
+    show (metricToDualEquiv x).symm ((ricciTensor x (V₁ + V₂)).toContinuousLinearMap)
+        = (metricToDualEquiv x).symm ((ricciTensor x V₁).toContinuousLinearMap)
+        + (metricToDualEquiv x).symm ((ricciTensor x V₂).toContinuousLinearMap)
     rw [show ricciTensor (I := I) (M := M) x (V₁ + V₂)
           = ricciTensor x V₁ + ricciTensor x V₂ from
         (ricciTensor (I := I) (M := M) x).map_add V₁ V₂]
@@ -735,8 +735,8 @@ noncomputable def ricciSharp (x : M) :
         LinearMap.toContinuousLinearMap.map_add _ _]
     exact (metricToDualEquiv x).symm.map_add _ _
   map_smul' c V := by
-    show metricRiesz x ((ricciTensor x (c • V)).toContinuousLinearMap)
-        = c • metricRiesz x ((ricciTensor x V).toContinuousLinearMap)
+    show (metricToDualEquiv x).symm ((ricciTensor x (c • V)).toContinuousLinearMap)
+        = c • (metricToDualEquiv x).symm ((ricciTensor x V).toContinuousLinearMap)
     rw [show ricciTensor (I := I) (M := M) x (c • V)
           = c • ricciTensor x V from
         (ricciTensor (I := I) (M := M) x).map_smul c V]

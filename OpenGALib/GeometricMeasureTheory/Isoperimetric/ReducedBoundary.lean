@@ -1,6 +1,6 @@
 import OpenGALib.GeometricMeasureTheory.Isoperimetric.Basic
 import OpenGALib.GeometricMeasureTheory.HasNormal
-import OpenGALib.Riemannian.Metric
+import OpenGALib.Riemannian.Manifold
 
 /-!
 # GeometricMeasureTheory.Isoperimetric.ReducedBoundary
@@ -48,7 +48,7 @@ section OuterNormal
 
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
   {H : Type*} [TopologicalSpace H] (I : ModelWithCorners ℝ E H)
-  [ChartedSpace H M] [IsManifold I ∞ M]
+  [ChartedSpace H M] [IsManifold I ∞ M] [OpenGALib.HasMetric I M]
 
 /-- **Outer unit normal blow-up characterization** (Maggi Theorem 15.5).
 
@@ -119,7 +119,7 @@ section TangentHyperplane
 variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
   {H : Type*} [TopologicalSpace H] (I : ModelWithCorners ℝ E H)
   [ChartedSpace H M] [IsManifold I ∞ M]
-  [OpenGALib.RiemannianMetric I M]
+  [OpenGALib.HasMetric I M]
 
 /-- **Tangent hyperplane at reduced boundary** (Maggi Theorem 15.5).
 

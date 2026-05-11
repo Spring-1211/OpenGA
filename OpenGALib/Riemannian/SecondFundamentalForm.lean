@@ -38,7 +38,7 @@ variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E] [CompleteS
   {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
   {M : Type*} [TopologicalSpace M] [ChartedSpace H M] [IsManifold I ∞ M]
   [IsLocallyConstantChartedSpace H M]
-  [RiemannianMetric I M]
+  [hm : HasMetric I M]
 
 /-- $A(X, Y)(x) = \langle \nabla^M_X Y(x),\, \nu(x)\rangle$. -/
 noncomputable def secondFundamentalFormScalar

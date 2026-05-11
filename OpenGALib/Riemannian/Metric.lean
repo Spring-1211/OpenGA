@@ -88,6 +88,18 @@ class HasMetric {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
   /-- The Riemannian metric on $(M, I)$. -/
   metric : RiemannianMetric I M
 
+/-- **Bridge**: `[HasMetric I M]` induces a global `Bundle.RiemannianBundle
+(TangentSpace I : M → Type _)`, which activates Mathlib's scoped
+`NormedAddCommGroup` and `InnerProductSpace ℝ` instances on each fibre
+`TangentSpace I x`. Single NACG/IPS source — see `Metric.lean` rationale. -/
+noncomputable instance instRiemannianBundleOfHasMetric
+    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
+    {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
+    {M : Type*} [TopologicalSpace M] [ChartedSpace H M] [IsManifold I ∞ M]
+    [hm : HasMetric I M] :
+    Bundle.RiemannianBundle (TangentSpace I : M → Type _) :=
+  ⟨hm.metric.toRiemannianMetric⟩
+
 end OpenGALib
 
 namespace OpenGALib.RiemannianMetric

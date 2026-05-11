@@ -1,5 +1,7 @@
 import OpenGALib.Riemannian.Connection
-import OpenGALib.Riemannian.Metric
+import OpenGALib.Riemannian.Manifold
+
+open scoped Manifold ContDiff
 
 /-!
 # Riemannian notation — connection tier
@@ -49,8 +51,8 @@ section Instances
 
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
   {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
-  {M : Type*} [TopologicalSpace M] [ChartedSpace H M]
-  [RiemannianMetric I M]
+  {M : Type*} [TopologicalSpace M] [ChartedSpace H M] [IsManifold I ∞ M]
+  [hm : HasMetric I M]
 
 /-- Pointwise tangent-vector squared norm. -/
 noncomputable instance instMetricNormSqTangent (x : M) :

@@ -59,7 +59,7 @@ noncomputable def normalCorrection
     (I : ModelWithCorners ℝ E H)
     [ChartedSpace H M] [IsManifold I ∞ M]
     [IsLocallyConstantChartedSpace H M]
-    [RiemannianMetric I M]
+    [hm : HasMetric I M]
     (X : TestVectorField I M)
     (ν : (x : M) → TangentSpace I x) (x : M) : ℝ :=
   metricInner x (ν x) (covDeriv ν X.toFun x)
@@ -70,7 +70,7 @@ $$\delta V(X) = \int (\mathrm{div}_M X - \langle \nu, \nabla_\nu X \rangle_g)\, 
 Requires:
   * `[CompleteSpace E]`, `[FiniteDimensional ℝ E]` for the underlying
     `divergenceM` and Levi-Civita connection;
-  * `[OpenGALib.RiemannianMetric I M]` providing the framework metric
+  * `[OpenGALib.HasMetric I M]` providing the framework metric
     (Phase 4.7);
   * `[Varifold.HasNormal I V]` providing the unit normal field.
 
@@ -85,7 +85,7 @@ noncomputable def firstVariationFull
     (I : ModelWithCorners ℝ E H)
     [ChartedSpace H M] [IsManifold I ∞ M]
     [IsLocallyConstantChartedSpace H M]
-    [RiemannianMetric I M]
+    [hm : HasMetric I M]
     (V : Varifold M) [hN : Varifold.HasNormal I V]
     (X : TestVectorField I M) : ℝ :=
   ∫ x, (divergenceM I X.toFun x - normalCorrection I X hN.unitNormal x)
