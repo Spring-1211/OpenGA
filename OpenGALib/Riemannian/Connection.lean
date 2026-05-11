@@ -679,44 +679,27 @@ private theorem SmoothVectorField.contMDiff_E (Y : SmoothVectorField I M) :
 
 omit [CompleteSpace E] [FiniteDimensional ℝ E]
   [IsLocallyConstantChartedSpace H M] in
-/-- **Smoothness of `hm.metric.inner` applied to two `ContMDiff` flat-typed
-sections**: `y ↦ hm.metric.inner y (V y) (W y)` is `ContMDiff` whenever
-`V, W : M → E` are.
+/-- **Smoothness of `hm.metric.metricInner` on two `ContMDiff` bundle
+sections**. Direct invocation of Mathlib's `ContMDiff.inner_bundle` via
+the `Bundle.RiemannianBundle` instance produced by `[hm : HasMetric I M]`.
 
-**PRE-PAPER gap**: Post-Path-B, Mathlib's `Bundle.ContMDiffRiemannianMetric.contMDiff`
-field witnesses bundle-section smoothness (`ContMDiff IB (IB.prod 𝓘(ℝ, F →L F →L ℝ))
-∞ (fun b ↦ TotalSpace.mk' _ b (inner b))`) rather than the function-form
-smoothness `ContMDiff IB 𝓘(ℝ, F →L F →L ℝ) ∞ (fun b => inner b)` that this
-helper consumes. The translation requires unwrapping the trivialization for
-the hom-bundle of `TangentSpace I`. Repair plan: write a Mathlib-style
-`ContMDiffRiemannianMetric.contMDiff_function_form` lemma using
-`Trivialization.contMDiffAt_iff` plus chart-pullback identity on the
-`TangentSpace I = E` defeq diagonal; that lemma then discharges the body
-below directly. Self-build follow-up; not closed in this Path B cascade
-commit. -/
-private theorem metricTensor_apply_contMDiff
-    {V W : M → E} (hV : ContMDiff I 𝓘(ℝ, E) ∞ V) (hW : ContMDiff I 𝓘(ℝ, E) ∞ W) :
-    ContMDiff I 𝓘(ℝ, ℝ) ∞ (fun y : M => hm.metric.inner y (V y) (W y)) :=
-  sorry
-
-omit [CompleteSpace E] [FiniteDimensional ℝ E]
-  [IsLocallyConstantChartedSpace H M] in
-set_option backward.isDefEq.respectTransparency false in
-/-- **Smoothness of `metricInner` for two `ContMDiff` flat-typed sections**.
-Bridges `metricTensor_apply_contMDiff` to the framework `metricInner` via
-`metricInner_apply` (def-eq + `set_option`).
-
-**PRE-PAPER gap**: inherits the missing function-form smoothness extraction
-from `metricTensor_apply_contMDiff` above. Same repair plan applies. -/
+Premises are stated in *bundle-section* form
+(`ContMDiff I (I.prod 𝓘(ℝ, E)) ∞ (fun y => ⟨y, V y⟩)`), matching
+`SmoothVectorField.smooth` and `(SmoothVectorField.const v).smooth`. The
+flat function-form is recovered at call sites through these accessors. -/
 private theorem metricInner_contMDiff
-    {V W : M → E} (hV : ContMDiff I 𝓘(ℝ, E) ∞ V) (hW : ContMDiff I 𝓘(ℝ, E) ∞ W) :
+    {V W : ∀ y : M, TangentSpace I y}
+    (hV : ContMDiff I (I.prod 𝓘(ℝ, E)) ∞
+      (fun y : M => (⟨y, V y⟩ : TangentBundle I M)))
+    (hW : ContMDiff I (I.prod 𝓘(ℝ, E)) ∞
+      (fun y : M => (⟨y, W y⟩ : TangentBundle I M))) :
     ContMDiff I 𝓘(ℝ, ℝ) ∞
       (fun y : M => hm.metric.metricInner y (V y) (W y)) := by
-  have h_eq : (fun y : M => hm.metric.metricInner y (V y) (W y))
-      = (fun y : M => hm.metric.inner y (V y) (W y)) := by
-    funext y; rfl
-  rw [h_eq]
-  exact metricTensor_apply_contMDiff hV hW
+  letI rb : Bundle.RiemannianBundle (TangentSpace I : M → Type _) :=
+    ⟨hm.metric.toRiemannianMetric⟩
+  exact ContMDiff.inner_bundle (F := E) (B := M)
+    (E := (TangentSpace I : M → Type _))
+    (b := fun y => y) (v := V) (w := W) hV hW
 
 omit [CompleteSpace E] [FiniteDimensional ℝ E] [IsManifold I ∞ M]
   [IsLocallyConstantChartedSpace H M] [hm : HasMetric I M] in
@@ -910,20 +893,27 @@ private theorem koszulCotangentScalar_mdifferentiableAt
     (v : E) (Y : SmoothVectorField I M) (w : E) (x : M) :
     MDifferentiableAt I 𝓘(ℝ, ℝ) (fun y : M => koszulCotangentScalar v Y w y) x := by
   classical
-  -- Smooth scalar functions used in the 6 koszul terms.
+  -- Function-form smoothness witnesses, used downstream for `mfderiv_*_smoothAt`.
   have hY_E : ContMDiff I 𝓘(ℝ, E) ∞ Y.toFun := SmoothVectorField.contMDiff_E Y
-  have h_const_v_E : ContMDiff I 𝓘(ℝ, E) ∞ (fun _ : M => v) := contMDiff_const
-  have h_const_w_E : ContMDiff I 𝓘(ℝ, E) ∞ (fun _ : M => w) := contMDiff_const
+  -- Bundle-section smoothness witnesses, used by `metricInner_contMDiff`.
+  have hY_bundle : ContMDiff I (I.prod 𝓘(ℝ, E)) ∞
+      (fun y => (⟨y, Y.toFun y⟩ : TangentBundle I M)) := Y.smooth
+  have h_const_v_bundle : ContMDiff I (I.prod 𝓘(ℝ, E)) ∞
+      (fun y => (⟨y, v⟩ : TangentBundle I M)) :=
+    (SmoothVectorField.const (I := I) (M := M) v).smooth
+  have h_const_w_bundle : ContMDiff I (I.prod 𝓘(ℝ, E)) ∞
+      (fun y => (⟨y, w⟩ : TangentBundle I M)) :=
+    (SmoothVectorField.const (I := I) (M := M) w).smooth
   -- Scalar functions for terms 1, 2, 3 via metricInner_contMDiff.
   have h_f_YW : ContMDiff I 𝓘(ℝ, ℝ) ∞
       (fun y' : M => hm.metric.metricInner y' (Y.toFun y') w) :=
-    metricInner_contMDiff hY_E h_const_w_E
+    metricInner_contMDiff hY_bundle h_const_w_bundle
   have h_f_WV : ContMDiff I 𝓘(ℝ, ℝ) ∞
       (fun y' : M => hm.metric.metricInner y' w v) :=
-    metricInner_contMDiff h_const_w_E h_const_v_E
+    metricInner_contMDiff h_const_w_bundle h_const_v_bundle
   have h_f_VY : ContMDiff I 𝓘(ℝ, ℝ) ∞
       (fun y' : M => hm.metric.metricInner y' v (Y.toFun y')) :=
-    metricInner_contMDiff h_const_v_E hY_E
+    metricInner_contMDiff h_const_v_bundle hY_bundle
   -- TangentSmoothAt for the 3 const + Y bundle sections.
   have hY_y : OpenGALib.TangentSmoothAt Y.toFun x := Y.smoothAt x
   have h_const_v_y : OpenGALib.TangentSmoothAt (fun _ : M => v) x :=
