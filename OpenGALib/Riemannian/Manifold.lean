@@ -150,160 +150,178 @@ noncomputable instance instRiemannianBundleOfRiemannianManifold :
     Bundle.RiemannianBundle (TangentSpace rm.modelI : M → Type _) :=
   ⟨rm.metric.toRiemannianMetric⟩
 
+/-- **Bridge**: a `[RiemannianManifold M]` instance automatically provides
+`[HasMetric (SmoothManifold.modelI M) M]`. This lets every API keyed on
+`[HasMetric I M]` (the math-first metric typeclass) work uniformly for
+RiemannianManifold-bundled callers and explicit-metric callers alike. -/
+instance instHasMetricOfRiemannianManifold :
+    HasMetric rm.modelI M where
+  metric := rm.metric
+
 end RiemannianManifoldBridges
 
 /-! ## Math-first metric API
 
 Downstream operator code reads as textbook math when the metric is
-carried implicitly by `[RiemannianManifold M]`:
+carried implicitly by `[HasMetric I M]`:
 
 * `metricInner x v w`           (inner product on `T_xM`, not `g.metricInner`)
 * `metricRiesz x φ`             (Riesz dual vector)
 * `metricInner_add_left ...`    (algebra lemmas, bare names)
 
-Each wrapper takes `[RiemannianManifold M]` as instance argument and
-delegates to the underlying `RiemannianMetric.X` method on
-`RiemannianManifold.metric`. Wrappers are `abbrev` / direct delegations
-so `g.X`-style proofs still work via abbrev unfolding, and so the
-`@[simp]` / `@[metric_simp]` simp sets unify naturally with the
-underlying method-form lemmas. -/
+Each wrapper takes `[HasMetric I M]` as instance argument and delegates
+to the underlying `RiemannianMetric.X` method on `HasMetric.metric`.
+Wrappers are `abbrev` / direct delegations so `g.X`-style proofs still
+work via abbrev unfolding, and so the `@[simp]` / `@[metric_simp]` simp
+sets unify naturally with the underlying method-form lemmas. -/
 
 section MetricAPI
 
-variable {M : Type*} [TopologicalSpace M] [rm : RiemannianManifold M]
+variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
+  {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
+  {M : Type*} [TopologicalSpace M] [ChartedSpace H M] [IsManifold I ∞ M]
+  [hm : HasMetric I M]
 
 /-- The **metric inner product** $\langle V, W\rangle_g$ as a top-level
-function, sourcing $g$ from `[RiemannianManifold M]`. -/
+function, sourcing $g$ from `[HasMetric I M]`. -/
 noncomputable abbrev metricInner (x : M)
-    (v w : TangentSpace rm.modelI x) : ℝ :=
-  rm.metric.metricInner x v w
+    (v w : TangentSpace I x) : ℝ :=
+  hm.metric.metricInner x v w
 
 @[simp]
-theorem metricInner_apply (x : M) (v w : TangentSpace rm.modelI x) :
-    metricInner x v w = rm.metric.inner x v w := rfl
+theorem metricInner_apply (x : M) (v w : TangentSpace I x) :
+    metricInner x v w = hm.metric.inner x v w := rfl
 
 /-- **Symmetry**: $\langle V, W\rangle_g = \langle W, V\rangle_g$. -/
-theorem metricInner_comm (x : M) (v w : TangentSpace rm.modelI x) :
+theorem metricInner_comm (x : M) (v w : TangentSpace I x) :
     metricInner x v w = metricInner x w v :=
-  rm.metric.metricInner_comm x v w
+  hm.metric.metricInner_comm x v w
 
 /-- **Positive-definiteness**: $V \ne 0 \Rightarrow \langle V, V\rangle_g > 0$. -/
-theorem metricInner_self_pos (x : M) (v : TangentSpace rm.modelI x)
+theorem metricInner_self_pos (x : M) (v : TangentSpace I x)
     (hv : v ≠ 0) : 0 < metricInner x v v :=
-  rm.metric.metricInner_self_pos x v hv
+  hm.metric.metricInner_self_pos x v hv
 
 @[metric_simp]
-theorem metricInner_add_left (x : M) (v₁ v₂ w : TangentSpace rm.modelI x) :
+theorem metricInner_add_left (x : M) (v₁ v₂ w : TangentSpace I x) :
     metricInner x (v₁ + v₂) w = metricInner x v₁ w + metricInner x v₂ w :=
-  rm.metric.metricInner_add_left x v₁ v₂ w
+  hm.metric.metricInner_add_left x v₁ v₂ w
 
 @[metric_simp]
-theorem metricInner_add_right (x : M) (v w₁ w₂ : TangentSpace rm.modelI x) :
+theorem metricInner_add_right (x : M) (v w₁ w₂ : TangentSpace I x) :
     metricInner x v (w₁ + w₂) = metricInner x v w₁ + metricInner x v w₂ :=
-  rm.metric.metricInner_add_right x v w₁ w₂
+  hm.metric.metricInner_add_right x v w₁ w₂
 
 @[metric_simp]
 theorem metricInner_smul_left (x : M) (c : ℝ)
-    (v w : TangentSpace rm.modelI x) :
+    (v w : TangentSpace I x) :
     metricInner x (c • v) w = c * metricInner x v w :=
-  rm.metric.metricInner_smul_left x c v w
+  hm.metric.metricInner_smul_left x c v w
 
 @[metric_simp]
 theorem metricInner_smul_right (x : M) (c : ℝ)
-    (v w : TangentSpace rm.modelI x) :
+    (v w : TangentSpace I x) :
     metricInner x v (c • w) = c * metricInner x v w :=
-  rm.metric.metricInner_smul_right x c v w
+  hm.metric.metricInner_smul_right x c v w
 
 @[simp, metric_simp]
-theorem metricInner_zero_left (x : M) (w : TangentSpace rm.modelI x) :
+theorem metricInner_zero_left (x : M) (w : TangentSpace I x) :
     metricInner x 0 w = 0 :=
-  rm.metric.metricInner_zero_left x w
+  hm.metric.metricInner_zero_left x w
 
 @[simp, metric_simp]
-theorem metricInner_zero_right (x : M) (v : TangentSpace rm.modelI x) :
+theorem metricInner_zero_right (x : M) (v : TangentSpace I x) :
     metricInner x v 0 = 0 :=
-  rm.metric.metricInner_zero_right x v
+  hm.metric.metricInner_zero_right x v
 
 @[simp, metric_simp]
-theorem metricInner_neg_left (x : M) (v w : TangentSpace rm.modelI x) :
+theorem metricInner_neg_left (x : M) (v w : TangentSpace I x) :
     metricInner x (-v) w = -metricInner x v w :=
-  rm.metric.metricInner_neg_left x v w
+  hm.metric.metricInner_neg_left x v w
 
 @[simp, metric_simp]
-theorem metricInner_neg_right (x : M) (v w : TangentSpace rm.modelI x) :
+theorem metricInner_neg_right (x : M) (v w : TangentSpace I x) :
     metricInner x v (-w) = -metricInner x v w :=
-  rm.metric.metricInner_neg_right x v w
+  hm.metric.metricInner_neg_right x v w
 
 @[simp, metric_simp]
-theorem metricInner_sub_left (x : M) (v₁ v₂ w : TangentSpace rm.modelI x) :
+theorem metricInner_sub_left (x : M) (v₁ v₂ w : TangentSpace I x) :
     metricInner x (v₁ - v₂) w = metricInner x v₁ w - metricInner x v₂ w :=
-  rm.metric.metricInner_sub_left x v₁ v₂ w
+  hm.metric.metricInner_sub_left x v₁ v₂ w
 
 @[simp, metric_simp]
-theorem metricInner_sub_right (x : M) (v w₁ w₂ : TangentSpace rm.modelI x) :
+theorem metricInner_sub_right (x : M) (v w₁ w₂ : TangentSpace I x) :
     metricInner x v (w₁ - w₂) = metricInner x v w₁ - metricInner x v w₂ :=
-  rm.metric.metricInner_sub_right x v w₁ w₂
+  hm.metric.metricInner_sub_right x v w₁ w₂
 
 @[simp, metric_simp]
-theorem metricInner_self_nonneg (x : M) (v : TangentSpace rm.modelI x) :
+theorem metricInner_self_nonneg (x : M) (v : TangentSpace I x) :
     0 ≤ metricInner x v v :=
-  rm.metric.metricInner_self_nonneg x v
+  hm.metric.metricInner_self_nonneg x v
 
 /-- **Non-degeneracy**: vectors with equal inner-products against every test
 vector are equal. -/
-theorem metricInner_eq_iff_eq (x : M) (v w : TangentSpace rm.modelI x) :
-    (∀ z : TangentSpace rm.modelI x, metricInner x v z = metricInner x w z) ↔
+theorem metricInner_eq_iff_eq (x : M) (v w : TangentSpace I x) :
+    (∀ z : TangentSpace I x, metricInner x v z = metricInner x w z) ↔
       v = w :=
-  rm.metric.metricInner_eq_iff_eq x v w
+  hm.metric.metricInner_eq_iff_eq x v w
+
+section RieszSection
+
+variable [FiniteDimensional ℝ E]
+
+/-- The **metric-to-dual** CLM $V \mapsto g_x(V, \cdot)$. -/
+noncomputable abbrev metricToDual (x : M) :
+    TangentSpace I x →L[ℝ] (TangentSpace I x →L[ℝ] ℝ) :=
+  hm.metric.metricToDual x
+
+omit [FiniteDimensional ℝ E] in
+@[simp]
+theorem metricToDual_apply (x : M) (v w : TangentSpace I x) :
+    metricToDual x v w = metricInner x v w := rfl
+
+omit [FiniteDimensional ℝ E] in
+theorem metricToDual_injective (x : M) :
+    Function.Injective (metricToDual (I := I) (M := M) x) :=
+  hm.metric.metricToDual_injective x
+
+theorem metricToDual_bijective (x : M) :
+    Function.Bijective (metricToDual (I := I) (M := M) x) :=
+  hm.metric.metricToDual_bijective x
 
 /-- **Inverse Riesz**: $\varphi \mapsto V_\varphi$ such that
 $g_x(V_\varphi, W) = \varphi(W)$. -/
 noncomputable abbrev metricRiesz (x : M)
-    (φ : TangentSpace rm.modelI x →L[ℝ] ℝ) : TangentSpace rm.modelI x :=
-  rm.metric.metricRiesz x φ
+    (φ : TangentSpace I x →L[ℝ] ℝ) : TangentSpace I x :=
+  hm.metric.metricRiesz x φ
 
 @[simp]
 theorem metricRiesz_inner (x : M)
-    (φ : TangentSpace rm.modelI x →L[ℝ] ℝ) (v : TangentSpace rm.modelI x) :
+    (φ : TangentSpace I x →L[ℝ] ℝ) (v : TangentSpace I x) :
     metricInner x (metricRiesz x φ) v = φ v :=
-  rm.metric.metricRiesz_inner x φ v
+  hm.metric.metricRiesz_inner x φ v
 
-theorem metricRiesz_unique (x : M) (v : TangentSpace rm.modelI x)
-    (φ : TangentSpace rm.modelI x →L[ℝ] ℝ)
+theorem metricRiesz_unique (x : M) (v : TangentSpace I x)
+    (φ : TangentSpace I x →L[ℝ] ℝ)
     (h : ∀ w, metricInner x v w = φ w) :
     v = metricRiesz x φ :=
-  rm.metric.metricRiesz_unique x v φ h
-
-/-- The **metric-to-dual** CLM $V \mapsto g_x(V, \cdot)$. -/
-noncomputable abbrev metricToDual (x : M) :
-    TangentSpace rm.modelI x →L[ℝ] (TangentSpace rm.modelI x →L[ℝ] ℝ) :=
-  rm.metric.metricToDual x
-
-@[simp]
-theorem metricToDual_apply (x : M) (v w : TangentSpace rm.modelI x) :
-    metricToDual x v w = metricInner x v w := rfl
-
-theorem metricToDual_injective (x : M) :
-    Function.Injective (metricToDual (M := M) x) :=
-  rm.metric.metricToDual_injective x
-
-theorem metricToDual_bijective (x : M) :
-    Function.Bijective (metricToDual (M := M) x) :=
-  rm.metric.metricToDual_bijective x
+  hm.metric.metricRiesz_unique x v φ h
 
 /-- The Riesz isomorphism `T_xM ≃ₗ[ℝ] (T_xM →L[ℝ] ℝ)`. -/
 noncomputable abbrev metricToDualEquiv (x : M) :
-    TangentSpace rm.modelI x ≃ₗ[ℝ] (TangentSpace rm.modelI x →L[ℝ] ℝ) :=
-  rm.metric.metricToDualEquiv x
+    TangentSpace I x ≃ₗ[ℝ] (TangentSpace I x →L[ℝ] ℝ) :=
+  hm.metric.metricToDualEquiv x
+
+end RieszSection
 
 /-- Smoothness of the metric inner product applied to two smooth tangent
 sections. -/
-theorem metricInner_mdifferentiableAt [FiniteDimensional ℝ rm.E]
-    {Y Z : ∀ y : M, TangentSpace rm.modelI y} {x : M}
+theorem metricInner_mdifferentiableAt
+    {Y Z : ∀ y : M, TangentSpace I y} {x : M}
     (hY : OpenGALib.TangentSmoothAt Y x) (hZ : OpenGALib.TangentSmoothAt Z x) :
-    MDifferentiableAt rm.modelI 𝓘(ℝ, ℝ)
+    MDifferentiableAt I 𝓘(ℝ, ℝ)
       (fun y => metricInner y (Y y) (Z y)) x :=
-  rm.metric.metricInner_mdifferentiableAt hY hZ
+  hm.metric.metricInner_mdifferentiableAt hY hZ
 
 end MetricAPI
 

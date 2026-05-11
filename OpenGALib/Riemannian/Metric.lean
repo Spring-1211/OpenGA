@@ -64,6 +64,30 @@ abbrev RiemannianMetric
     [IsManifold I ∞ M] : Type _ :=
   Bundle.ContMDiffRiemannianMetric I ∞ E (TangentSpace I : M → Type _)
 
+/-- **`[HasMetric I M]` typeclass**: a thin wrapper around
+`RiemannianMetric I M` that makes the metric instance-bindable.
+
+Path B's `abbrev RiemannianMetric` makes the metric *data*, which is
+correct mathematically (multiple metrics on the same manifold coexist as
+different inhabitants) but loses the `[g : RiemannianMetric I M]`
+instance-binding form. Downstream code that binds `{I : ModelWithCorners
+...}` independently from the manifold's bundled `modelI` needs an
+instance-form of "this manifold has a metric on `I`". `HasMetric I M`
+fills that gap: it's a single-field class whose `metric` field IS a
+`RiemannianMetric I M`.
+
+For typeclass-driven manifolds, `Manifold.lean` registers a bridge
+`[RiemannianManifold M] → [HasMetric (SmoothManifold.modelI M) M]`.
+For explicit-metric callers, declare `instance : HasMetric I M := ⟨g⟩`
+once and the rest of the API (algebra, Riesz, smoothness) becomes
+typeclass-resolvable. -/
+class HasMetric {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
+    {H : Type*} [TopologicalSpace H] (I : ModelWithCorners ℝ E H)
+    (M : Type*) [TopologicalSpace M] [ChartedSpace H M] [IsManifold I ∞ M]
+    where
+  /-- The Riemannian metric on $(M, I)$. -/
+  metric : RiemannianMetric I M
+
 end OpenGALib
 
 namespace OpenGALib.RiemannianMetric
