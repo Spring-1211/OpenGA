@@ -198,6 +198,13 @@ noncomputable def hessianBilin
           = c • metricInner x (covDerivAt (manifoldGradient (I := I) f) x v) w
       rw [metricInner_smul_right]; rfl)
 
+/-- The Hessian as a `(0,2)`-tensor section `hess_g[I] f`. `I` is
+bracketed because `f : M → ℝ` does not expose the model with corners.
+For the Frobenius squared norm `|∇²f|²_g`, use polymorphic
+`‖hess_g[I] f‖²_g` (the Bilin-section instance of `‖·‖²_g`). -/
+scoped[Riemannian] notation:max "hess_g[" I "] " f:max =>
+  Operators.hessianBilin (I := I) f
+
 /-- $(\operatorname{trace} B(x))^2 / n \le \operatorname{frobeniusSq} B(x)$. -/
 theorem trace_sq_div_dim_le_frobeniusSq
     (B : Bilin (M := M) I) (x : M) :
@@ -211,3 +218,18 @@ theorem trace_sq_div_dim_le_frobeniusSq
 
 end Operators
 end Riemannian
+
+namespace OpenGALib
+
+variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
+  [FiniteDimensional ℝ E] [NeZero (Module.finrank ℝ E)]
+  {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
+  {M : Type*} [TopologicalSpace M] [ChartedSpace H M]
+
+/-- Frobenius squared norm on `(0,2)`-tensor sections. Closes the
+polymorphic squared-norm story: `‖B‖²_g x = ∑_{ij} B(x)(eᵢ, eⱼ)²`. -/
+noncomputable instance instMetricNormSqBilin :
+    MetricNormSq (Riemannian.Operators.Bilin (M := M) I) (M → ℝ) where
+  normSqG B := fun x => Riemannian.Operators.frobeniusSq (I := I) (M := M) B x
+
+end OpenGALib

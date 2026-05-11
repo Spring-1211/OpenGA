@@ -425,4 +425,63 @@ end Smoothness
 
 end MetricAPI
 
+/-! ## Polymorphic inner-product and squared-norm notation
+
+`⟪·, ·⟫_g` and `‖·‖²_g` dispatch through the `MetricInnerHom` and
+`MetricNormSq` typeclasses so the same notation works on tangent
+vectors (yielding `ℝ`) and on sections / vector fields (yielding
+`M → ℝ`).
+
+Reference: do Carmo 1992 §1.2 (inner product). -/
+
+/-- Polymorphic squared norm under the Riemannian metric. -/
+class MetricNormSq (V : Type*) (R : outParam Type*) where
+  /-- The squared norm `‖·‖²_g`. -/
+  normSqG : V → R
+
+/-- Polymorphic inner product under the Riemannian metric. -/
+class MetricInnerHom (V W : Type*) (R : outParam Type*) where
+  /-- The inner product `⟪·, ·⟫_g`. -/
+  innerG : V → W → R
+
+section MetricNotationInstances
+
+variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
+  {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
+  {M : Type*} [TopologicalSpace M] [ChartedSpace H M] [IsManifold I ∞ M]
+  [HasMetric I M]
+
+/-- Pointwise tangent-vector squared norm. -/
+noncomputable instance instMetricNormSqTangent (x : M) :
+    MetricNormSq (TangentSpace I x) ℝ where
+  normSqG v := metricInner x v v
+
+/-- Section-level squared norm: vector field `V` ↦ scalar function
+`y ↦ ⟨V(y), V(y)⟩_g`. -/
+noncomputable instance instMetricNormSqSection :
+    MetricNormSq ((y : M) → TangentSpace I y) (M → ℝ) where
+  normSqG V := fun y => metricInner y (V y) (V y)
+
+/-- Pointwise tangent-vector inner product. -/
+noncomputable instance instMetricInnerHomTangent (x : M) :
+    MetricInnerHom (TangentSpace I x) (TangentSpace I x) ℝ where
+  innerG v w := metricInner x v w
+
+/-- Section-level inner product: pair of vector fields ↦ scalar function
+`y ↦ ⟨V(y), W(y)⟩_g`. -/
+noncomputable instance instMetricInnerHomSection :
+    MetricInnerHom ((y : M) → TangentSpace I y) ((y : M) → TangentSpace I y)
+      (M → ℝ) where
+  innerG V W := fun y => metricInner y (V y) (W y)
+
+end MetricNotationInstances
+
+/-- The metric inner product `⟪V, W⟫_g`. Pointwise on tangent vectors → `ℝ`;
+on two sections → `M → ℝ`. -/
+scoped notation:max "⟪" V ", " W "⟫_g" => MetricInnerHom.innerG V W
+
+/-- The squared norm `‖V‖²_g`. Pointwise on a tangent vector → `ℝ`;
+on a section → `M → ℝ`. -/
+scoped notation:max "‖" V "‖²_g" => MetricNormSq.normSqG V
+
 end OpenGALib

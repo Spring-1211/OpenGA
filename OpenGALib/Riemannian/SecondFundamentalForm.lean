@@ -45,6 +45,11 @@ noncomputable def secondFundamentalFormScalar
     (ν X Y : Π x : M, TangentSpace I x) (x : M) : ℝ :=
   metricInner x (covDeriv X Y x) (ν x)
 
+/-- The codim-1 second fundamental form scalar `II(X, Y) : M → ℝ`,
+relative to the implicit unit normal `ν` from context. -/
+scoped[Riemannian] notation:max "II(" X ", " Y ")" =>
+  secondFundamentalFormScalar X Y
+
 set_option backward.isDefEq.respectTransparency false in
 /-- $|A|^2(x) = \sum_{i,j} A(e_i, e_j)^2$ over the standard orthonormal
 basis of `TangentSpace I x`. Basis-independent for orthonormal frames. -/
@@ -72,5 +77,9 @@ noncomputable def meanCurvature
   ∑ i, secondFundamentalFormScalar (I := I) (M := M) ν
     (fun (_ : M) => (e i : TangentSpace I x))
     (fun (_ : M) => (e i : TangentSpace I x)) x
+
+/-- The mean curvature `H_g[I] ν : M → ℝ` of a hypersurface oriented by
+unit normal `ν`. -/
+scoped[Riemannian] notation:max "H_g[" I "]" => meanCurvature (I := I)
 
 end Riemannian

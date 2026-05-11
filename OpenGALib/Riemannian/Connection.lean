@@ -1559,6 +1559,15 @@ noncomputable def covDeriv
     TangentSpace I x :=
   ((leviCivitaConnection (I := I) (M := M)).toFun Y x) (X x)
 
+/-- The covariant derivative `∇[X] Y` as a section. Pointwise:
+`(∇[X] Y)(x) = (∇_X Y)(x) = covDeriv X Y x`. -/
+scoped[Riemannian] notation:max "∇[" X "] " Y:max => covDeriv X Y
+
+/-- The manifold Lie bracket `⟦X, Y⟧` as a section. Model `I` inferred
+from the section types. Pointwise: `(⟦X, Y⟧)(x) = mlieBracket _ X Y x`. -/
+scoped[Riemannian] notation:max "⟦" X ", " Y "⟧" =>
+  VectorField.mlieBracket _ X Y
+
 /-- The **covariant derivative at a point** as a CLM in the direction slot:
 $\nabla\,Y|_x : T_xM \to_L T_xM$, $v \mapsto (\nabla_v Y)(x)$. Decouples
 linearity in the direction from the section-level `covDeriv`:
@@ -1758,7 +1767,7 @@ differentiable as bundle sections. -/
 theorem covDeriv_sub_swap_eq_mlieBracket
     (X Y : Π x : M, TangentSpace I x) (x : M)
     (hX : TangentSmoothAt X x) (hY : TangentSmoothAt Y x) :
-    covDeriv X Y x - covDeriv Y X x = mlieBracket I X Y x :=
+    (∇[X] Y) x - (∇[Y] X) x = (⟦X, Y⟧) x :=
   (CovariantDerivative.torsion_eq_zero_iff
     (cov := leviCivitaConnection (I := I) (M := M))).mp
     leviCivitaConnection_torsion_zero hX hY
@@ -1772,7 +1781,7 @@ Direct from `IsCovariantDerivativeOn.add` applied to
 theorem covDeriv_add_field
     (X Y₁ Y₂ : Π x : M, TangentSpace I x) (x : M)
     (hY₁ : TangentSmoothAt Y₁ x) (hY₂ : TangentSmoothAt Y₂ x) :
-    covDeriv X (Y₁ + Y₂) x = covDeriv X Y₁ x + covDeriv X Y₂ x := by
+    (∇[X] (Y₁ + Y₂)) x = (∇[X] Y₁) x + (∇[X] Y₂) x := by
   have h := leviCivitaConnection.isCovariantDerivativeOnUniv.add (σ := Y₁) (σ' := Y₂)
     (x := x) hY₁ hY₂
   show (leviCivitaConnection.toFun (Y₁ + Y₂) x) (X x)
@@ -1787,7 +1796,7 @@ Direct from `IsCovariantDerivativeOn.smul_const`. -/
 theorem covDeriv_smul_const_field
     (X Y : Π x : M, TangentSpace I x) (x : M) (a : ℝ)
     (hY : TangentSmoothAt Y x) :
-    covDeriv X (a • Y) x = a • covDeriv X Y x := by
+    (∇[X] (a • Y)) x = a • (∇[X] Y) x := by
   have h := leviCivitaConnection.isCovariantDerivativeOnUniv.smul_const (σ := Y)
     (x := x) a hY
   show (leviCivitaConnection.toFun (a • Y) x) (X x)
@@ -1802,7 +1811,7 @@ Derived from additivity + `smul_const a := -1`. -/
 theorem covDeriv_sub_field
     (X Y₁ Y₂ : Π x : M, TangentSpace I x) (x : M)
     (hY₁ : TangentSmoothAt Y₁ x) (hY₂ : TangentSmoothAt Y₂ x) :
-    covDeriv X (Y₁ - Y₂) x = covDeriv X Y₁ x - covDeriv X Y₂ x := by
+    (∇[X] (Y₁ - Y₂)) x = (∇[X] Y₁) x - (∇[X] Y₂) x := by
   -- Y₁ - Y₂ = Y₁ + (-1) • Y₂
   have h_eq : (Y₁ - Y₂ : Π x : M, TangentSpace I x) = Y₁ + ((-1 : ℝ) • Y₂) := by
     funext z
@@ -1843,10 +1852,10 @@ noncomputable def riemannCurvature
   covDeriv X (covDeriv Y Z) x - covDeriv Y (covDeriv X Z) x
     - covDeriv (mlieBracket I X Y) Z x
 
--- Connection-tier notation (covDeriv X Y, VectorField.mlieBracket I X Y) is imported from
--- Util/Notation/Connection.lean above. Curvature-tier notation
--- (Riem(X, Y) Z) lives in Util/Notation/Curvature.lean (post-Bianchi)
--- and is used by riemannCurvature_antisymm in Curvature.lean.
+/-- The Riemann curvature `Riem(X, Y) Z` as a section. Pointwise:
+`(Riem(X, Y) Z)(x) = R(X, Y) Z(x) = riemannCurvature X Y Z x`. -/
+scoped[Riemannian] notation:max "Riem(" X ", " Y ") " Z:max =>
+  riemannCurvature X Y Z
 
 /-! ### `riem_simp` lemmas
 

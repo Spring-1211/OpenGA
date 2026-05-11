@@ -104,5 +104,10 @@ noncomputable def scalarLaplacian (f : M → ℝ) (x : M) : ℝ :=
       (fun (_ : M) => ((Module.finBasis ℝ E) i : TangentSpace I x))
       x
 
+/-- The scalar Laplacian `Δ_g[I] f : M → ℝ` ($= \mathrm{tr}_g(\mathrm{Hess}\,f)$).
+`I` is bracketed because `f : M → ℝ` does not expose the model with corners. -/
+scoped[Riemannian] notation:max "Δ_g[" I "] " f:max =>
+  Operators.scalarLaplacian (I := I) f
+
 end Operators
 end Riemannian

@@ -2,7 +2,9 @@ import OpenGALib.Riemannian.Connection
 import OpenGALib.Riemannian.Connection
 import OpenGALib.Riemannian.TangentBundle
 import OpenGALib.Riemannian.HessianLie
-import OpenGALib.Util.Notation.Riemann
+-- `Riem(X, Y) Z` notation is now defined inline in `Connection.lean`
+-- alongside `riemannCurvature`; it transitively reaches us via the
+-- `import OpenGALib.Riemannian.Connection` above.
 import Mathlib.LinearAlgebra.Trace
 import Mathlib.Analysis.InnerProductSpace.PiL2
 
@@ -219,6 +221,10 @@ noncomputable def ricci
     (X Y : SmoothVectorField I M) (x : M) : ℝ :=
   LinearMap.trace ℝ (TangentSpace I x) (curvatureEndo X Y x)
 
+/-- The Ricci curvature as a scalar function on the manifold:
+`(Ric(X, Y))(x) = ricci X Y x`. -/
+scoped[Riemannian] notation:max "Ric(" X ", " Y ")" => ricci X Y
+
 /-- $\langle R(X, Y) Z, Z \rangle_g(x) = 0$.
 
 Reference: do Carmo §4 Proposition 2.5 (iii).
@@ -231,7 +237,7 @@ manifold scalar Hessian-Lie identity (`mfderiv_iterate_sub_eq_mlieBracket_apply`
 theorem riemannCurvature_inner_self_zero
     [IsManifold I 2 M]
     (X Y Z : SmoothVectorField I M) (x : M) :
-    metricInner x (riemannCurvature X Y Z x) (Z x) = 0 := by
+    metricInner x (Riem(X.toFun, Y.toFun) Z.toFun x) (Z x) = 0 := by
   sorry
 
 /-- $\mathrm{Ric}(X, Y) = \mathrm{Ric}(Y, X)$.
@@ -246,7 +252,7 @@ summing produces $\mathrm{Ric}(X, Y) - \mathrm{Ric}(Y, X) = -\mathrm{tr}(R(X, Y)
 theorem ricci_symm
     [IsManifold I 2 M]
     (X Y : SmoothVectorField I M) (x : M) :
-    ricci X Y x = ricci Y X x := by
+    Ric(X, Y) x = Ric(Y, X) x := by
   sorry
 
 /-- The **Ricci tensor** at $x$ as a bilinear form $T_xM \times T_xM \to \mathbb{R}$,
@@ -754,6 +760,13 @@ Basis-free definition: trace of the Ricci endomorphism. Equals $\sum_i \mathrm{R
 for any $g$-orthonormal basis $\{e_i\}$ of $T_xM$. -/
 noncomputable def scalarCurvature (x : M) : ℝ :=
   LinearMap.trace ℝ (TangentSpace I x) (ricciSharp (I := I) (M := M) x)
+
+/-- The scalar curvature `scal_g[I]`. `I` is bracketed because
+`x : M` does not expose the model with corners. -/
+scoped[Riemannian] notation:max "scal_g[" I "]" => scalarCurvature (I := I)
+
+/-- Pointwise Ricci tensor on tangent vectors: `Ric_g(v, w) x = ricciTensor x v w`. -/
+scoped[Riemannian] notation:max "Ric_g(" v ", " w ") " x:max => ricciTensor x v w
 
 end Riemannian
 

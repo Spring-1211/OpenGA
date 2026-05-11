@@ -41,11 +41,17 @@ noncomputable def manifoldGradient
     (f : M → ℝ) (x : M) : TangentSpace I x :=
   metricRiesz x (mfderiv I 𝓘(ℝ, ℝ) f x)
 
+/-- The manifold gradient `grad_g[I] f` as a section `x ↦ ∇^M f(x)`.
+`I` is bracketed because `f : M → ℝ` does not expose the model with
+corners to typeclass synthesis. -/
+scoped[Riemannian] notation:max "grad_g[" I "] " f:max =>
+  manifoldGradient (I := I) f
+
 omit [CompleteSpace E] in
 /-- $\langle \nabla^M f(x), v \rangle_g = (\mathrm{d}f)_x(v)$. -/
 theorem manifoldGradient_inner_eq
     (f : M → ℝ) (x : M) (v : TangentSpace I x) :
-    metricInner x (manifoldGradient f x) v = (mfderiv I 𝓘(ℝ, ℝ) f x) v :=
+    metricInner x (grad_g[I] f x) v = (mfderiv I 𝓘(ℝ, ℝ) f x) v :=
   metricRiesz_inner x (mfderiv I 𝓘(ℝ, ℝ) f x) v
 
 end Riemannian
